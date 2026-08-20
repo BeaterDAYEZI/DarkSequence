@@ -5,6 +5,10 @@ import { TitleScene } from './ui/scenes/TitleScene';
 import { DebugScene } from './ui/scenes/DebugScene';
 import { registry } from './core/registry';
 import { loadAllData } from './data/index';
+import { runDebugBattle, autoPlan } from './debug/battleDebug';
+
+// 控制台调试入口（headless战斗验证）
+Object.assign(window, { runDebugBattle, autoPlan });
 
 const root = document.getElementById('app');
 if (!root) throw new Error('缺少 #app 挂载点');

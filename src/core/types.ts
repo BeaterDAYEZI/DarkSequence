@@ -175,6 +175,8 @@ export interface MonsterActionDef {
   firstUseTurn?: number;        // 首次可用回合
   condition?: string;           // 特殊条件（如"atPos2"=推进至2号位）
   special?: string;             // 特殊行动（"memoryRail"=记忆铁轨）
+  attackType?: AttackType;      // 默认 melee
+  damageType?: DamageType;      // 默认 physical
 }
 
 export interface BossPhaseDef {
@@ -227,6 +229,7 @@ export interface HeroDef {
   defaultCarriage: CarriagePos;
   baseHp: number;
   attackType: AttackType;
+  damageType: DamageType;
   awakening: { duration: number };
   obsession: { options: ObsessionOption[]; thresholds: ObsessionThreshold[] };
   quote: string;
@@ -329,10 +332,12 @@ export interface HeroInstance {
   hp: number;
   maxHp: number;
   pos: CarriagePos;
+  block: number;                // 格挡
   madness: number;              // 0-100
   statuses: StatusInstance[];
   awakeningTurns: number;       // 觉醒剩余回合，0=未觉醒
   alive: boolean;               // false=残影化
+  runaway: boolean;             // 暴走中：本回合无法行动
   critChance: number;           // 本场战斗暴击率（0.05=5%基础）
   runCritBonus: number;         // 全局珍藏暴击率（禁忌知识橙）
   obsessionCount: number;       // 累计灌注次数
@@ -358,6 +363,7 @@ export interface EnemyInstance {
   summoned?: boolean;
   stealthArmed?: boolean;       // 潜行已武装（每回合首次受击80%闪避）
   lastHp: number;               // 上次记录血量（阶段切换/触发判断用）
+  aiIndex: number;              // cycle模式行动游标
 }
 
 /** 行动队列条目：执行阶段按 FIFO 结算，可向队首插入 */
@@ -385,6 +391,8 @@ export interface BattleState {
   resonanceCount: Record<string, number>;                 // 本回合已打出 tag 计数
   speedPlayedThisTurn: number;                            // 本回合加速牌计数
   swallow?: { heroId: HeroId; need: number; dealt: number };  // 蠕虫吞噬状态
+  furnaceStacks: number;                                  // 炉火升温层数（每层攻击+20%）
+  zoneId: string;                                         // 当前战斗所在区域
 }
 
 /** 单局状态快照（唯一真相源） */
@@ -398,6 +406,8 @@ export interface RunState {
     drawPile: string[];
     hand: string[];
     discardPile: string[];
+    /** 残影化英雄的卡牌暂存处（复活时归还） */
+    resting: Record<string, string[]>;
   };
   heroes: Record<HeroId, HeroInstance>;
   resources: {

@@ -10,6 +10,7 @@ export const HEROES: HeroDef[] = [
     defaultCarriage: 1,
     baseHp: 34,
     attackType: 'melee',
+    damageType: 'physical',
     awakening: { duration: 2 },
     obsession: {
       options: [
@@ -34,6 +35,7 @@ export const HEROES: HeroDef[] = [
     defaultCarriage: 2,
     baseHp: 26,
     attackType: 'melee',
+    damageType: 'physical',
     awakening: { duration: 2 },
     obsession: {
       options: [
@@ -58,6 +60,7 @@ export const HEROES: HeroDef[] = [
     defaultCarriage: 3,
     baseHp: 24,
     attackType: 'ranged',
+    damageType: 'arcane',
     awakening: { duration: 2 },
     obsession: {
       options: [
@@ -82,6 +85,7 @@ export const HEROES: HeroDef[] = [
     defaultCarriage: 4,
     baseHp: 22,
     attackType: 'ranged',
+    damageType: 'arcane',
     awakening: { duration: 2 },
     obsession: {
       options: [
