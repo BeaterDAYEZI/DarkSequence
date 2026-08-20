@@ -2,6 +2,7 @@
 import './styles/main.css';
 import { App } from './app/App';
 import { TitleScene } from './ui/scenes/TitleScene';
+import { DebugScene } from './ui/scenes/DebugScene';
 import { registry } from './core/registry';
 import { loadAllData } from './data/index';
 
@@ -12,8 +13,11 @@ loadAllData();
 
 const app = new App(root);
 app.scenes.register('title', new TitleScene());
+app.scenes.register('debug', new DebugScene());
 app.start();
-app.go('title');
+
+const params = new URLSearchParams(location.search);
+app.go(params.get('debug') === 'data' ? 'debug' : 'title');
 
 console.log(
   `[暗蚀牌序] 骨架启动 · 已注册 ${registry.cards.size} 卡 / ${registry.monsters.size} 怪物 / ${registry.zones.size} 区域 / ${registry.heroes.size} 英雄`,

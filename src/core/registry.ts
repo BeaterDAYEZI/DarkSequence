@@ -11,7 +11,7 @@ export interface ValidationReport {
 }
 
 const KNOWN_TAGS = new Set(['speed', 'displace', 'heal', 'madness', 'aoe', 'arcane', 'melee', 'ranged', 'physical', 'draw', 'resonance']);
-const KNOWN_STATUS = new Set(['bleed', 'vulnerable', 'fear', 'tenacity', 'imprison', 'healReduction', 'dodge', 'stun', 'mark', 'taunt', 'strength', 'revenge', 'guard', 'silenceHeal', 'awakened']);
+const KNOWN_STATUS = new Set(['bleed', 'vulnerable', 'fear', 'tenacity', 'imprison', 'healReduction', 'dodge', 'stun', 'mark', 'taunt', 'strength', 'revenge', 'guard', 'silenceHeal', 'awakened', 'critUp', 'enraged', 'swallowed']);
 const KNOWN_TRAITS = new Set(['thorns', 'spiritBody', 'packInstinct', 'stealth', 'rooted', 'chainBound']);
 const KNOWN_CONDITIONS = new Set(['targetHpBelow50', 'speedGE2', 'speedGE3', 'madnessAbove50', 'killedThisHit']);
 const VALID_POS = new Set([1, 2, 3, 4]);
@@ -92,7 +92,7 @@ export class Registry {
       for (const p of m.pos) if (!VALID_POS.has(p)) err(`怪物 ${m.id} 站位越界: ${p}`);
       for (const t of m.traits ?? []) if (!KNOWN_TRAITS.has(t.id)) err(`怪物 ${m.id} 未知特性: ${t.id}`);
       if (!['cycle', 'random', 'priority'].includes(m.ai.pattern)) err(`怪物 ${m.id} AI模式非法`);
-      if (m.actions.length === 0 && !(m.phases && m.phases.length)) err(`怪物 ${m.id} 无行动定义`);
+      if (m.actions.length === 0 && !(m.phases && m.phases.length) && !m.endTurnEffects && !m.selfDestruct) err(`怪物 ${m.id} 无行动定义`);
       for (const a of m.actions) this.validateEffects(a.effects, `怪物 ${m.id}.${a.id}`, err);
       if (m.phases) {
         if (m.phases.length < 2) warn(`Boss ${m.id} 阶段数 ${m.phases.length}（建议≥2）`);

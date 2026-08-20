@@ -36,7 +36,10 @@ export type StatusId =
   | 'revenge'        // 复仇：复活后本场战斗伤害+50%（value=倍率）
   | 'guard'          // 援护：替所有队友承受伤害
   | 'silenceHeal'    // 低语：本回合无法使用治疗牌
-  | 'awakened';      // 觉醒中：伤害+50%、受伤-25%、专属牌费-1
+  | 'awakened'       // 觉醒中：伤害+50%、受伤-25%、专属牌费-1
+  | 'critUp'         // 暴击率提升（value=单层数值，stacks=层数）
+  | 'enraged'        // 暴走·敌：伤害+50%（value=倍率）
+  | 'swallowed';     // 被吞噬：移出战斗（需累计伤害救回）
 
 // ---------- 条件（EffectSpec.condition 引用） ----------
 export type ConditionId =
@@ -79,7 +82,10 @@ export type EffectKind =
   | 'clearStatus'       // 清除状态
   | 'extraAction'       // 额外行动（连斩：免费再打一张该英雄手牌）
   | 'costOverride'      // 费用覆盖（如觉醒时本牌无消耗）
-  | 'summon';           // 召唤（Boss用）
+  | 'summon'            // 召唤（Boss用）
+  | 'soulfireClear'     // 清空魂火（枕木自爆）
+  | 'critGain'          // 暴击率提升（scope: battle=本场 run=全局）
+  | 'swallow';          // 吞噬1号位英雄（Boss蠕虫）
 
 export interface EffectSpec {
   kind: EffectKind;
@@ -99,6 +105,21 @@ export interface EffectSpec {
   consumeDark?: boolean;                // 结算后清空暗蚀能量
   summonId?: string;                    // summon 用
   summonPos?: number;                   // summon 用
+  // ---- 伤害类附加 ----
+  hpBelow50Bonus?: number;              // 目标生命<50% 伤害加成（0.3=+30%）
+  selfMadnessAbove50Mult?: number;      // 自身狂气>50 伤害倍率（1.0=翻倍）
+  madnessOnHit?: number;                // 命中附带狂气
+  onKillExtra?: boolean;                // 击杀→额外行动（连斩）
+  critMult?: number;                    // 本次攻击暴击率倍率（2=翻倍）
+  lastHitCrit?: boolean;                // 最后一段必暴击
+  reduceBlockPerHit?: number;           // 每次命中降低格挡
+  // ---- 效果类附加 ----
+  valuePerSpeed?: number;               // value = 列车速度 × N
+  drawIfEmpty?: number;                 // 狂气转移后若归零则抽牌
+  replayIfAwakened?: boolean;           // 打出后觉醒→免消耗且再打一次
+  clearMadnessIfSpeedZero?: boolean;    // 速度归零→清除全队狂气
+  fallbackDamage?: number;              // 魂火不足时改为伤害
+  critScope?: 'battle' | 'run';         // critGain 作用域
 }
 
 // ---------- 卡牌 ----------
@@ -152,7 +173,8 @@ export interface MonsterActionDef {
   effects: EffectSpec[];
   cooldown?: number;            // 冷却回合数
   firstUseTurn?: number;        // 首次可用回合
-  condition?: string;           // 特殊条件（如"推进至2号位时"）
+  condition?: string;           // 特殊条件（如"atPos2"=推进至2号位）
+  special?: string;             // 特殊行动（"memoryRail"=记忆铁轨）
 }
 
 export interface BossPhaseDef {
@@ -176,6 +198,8 @@ export interface MonsterDef {
   actions: MonsterActionDef[];
   phases?: BossPhaseDef[];      // Boss多阶段
   bossAdvance?: boolean;        // 每回合向车头推进1格，到1号位脱轨
+  endTurnEffects?: EffectSpec[];    // 每回合结束自动生效（枕木共振）
+  selfDestruct?: { hpPct: number; effects: EffectSpec[] };  // 低血量自爆
   isElite?: boolean;
 }
 
@@ -230,6 +254,8 @@ export interface ZoneDef {
   damageScale: number;
   nodeLayout: string[];     // 节点类型模板（map生成用，步骤4）
   entryNarration: string;
+  /** 预设遭遇组合：教学遭遇与固定配置 */
+  encounters?: { id: string; monsters: { defId: string; count: number }[] }[];
 }
 
 // ---------- 列车科技 ----------
@@ -307,6 +333,8 @@ export interface HeroInstance {
   statuses: StatusInstance[];
   awakeningTurns: number;       // 觉醒剩余回合，0=未觉醒
   alive: boolean;               // false=残影化
+  critChance: number;           // 本场战斗暴击率（0.05=5%基础）
+  runCritBonus: number;         // 全局珍藏暴击率（禁忌知识橙）
   obsessionCount: number;       // 累计灌注次数
   infused: Record<string, number>; // 灌注属性累计值 {maxHp:3, attack:1...}
   hasRevenge: boolean;          // 本场战斗是否带复仇
@@ -328,6 +356,8 @@ export interface EnemyInstance {
   nextActionAt: number;         // 下次可用行动的回合
   stunTurns: number;
   summoned?: boolean;
+  stealthArmed?: boolean;       // 潜行已武装（每回合首次受击80%闪避）
+  lastHp: number;               // 上次记录血量（阶段切换/触发判断用）
 }
 
 /** 行动队列条目：执行阶段按 FIFO 结算，可向队首插入 */
@@ -354,6 +384,7 @@ export interface BattleState {
   playedThisTurn: { heroId: HeroId; cardId: string }[];   // 本回合出牌记录（记忆铁轨用）
   resonanceCount: Record<string, number>;                 // 本回合已打出 tag 计数
   speedPlayedThisTurn: number;                            // 本回合加速牌计数
+  swallow?: { heroId: HeroId; need: number; dealt: number };  // 蠕虫吞噬状态
 }
 
 /** 单局状态快照（唯一真相源） */
