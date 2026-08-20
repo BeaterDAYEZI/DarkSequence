@@ -1,0 +1,143 @@
+/* ============ 工业哥特暗色主题 ============ */
+:root {
+  --bg: #0a0a0e;
+  --bg-2: #12121a;
+  --panel: #1a1a24;
+  --panel-2: #22222e;
+  --border: #34344a;
+  --text: #d8d4c8;
+  --text-dim: #8a8578;
+  --accent: #c9a227;        /* 暗金 */
+  --accent-dim: #8a6d1d;
+  --rail-red: #8c2f2f;      /* 记忆之轨 */
+  --rail-blue: #2f4a8c;     /* 遗忘之轨 */
+  --ember: #e07030;
+  --madness: #e0a030;
+  --hp: #a04040;
+  --hp-good: #7a9a4a;
+  --rarity-white: #c8c8c8;
+  --rarity-green: #7ac87a;
+  --rarity-blue: #6aa8e0;
+  --rarity-orange: #e0a030;
+  --font: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app { position: relative; overflow: hidden; }
+
+button {
+  font-family: var(--font);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 8px 18px;
+  transition: all 0.15s;
+}
+button:hover:not(:disabled) { border-color: var(--accent-dim); color: var(--accent); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ============ 标题场景 ============ */
+.title-scene {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 50% 110%, rgba(201,162,39,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 20% 20%, rgba(140,47,47,0.08) 0%, transparent 50%),
+    var(--bg);
+}
+.title-fog {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, transparent 55%, rgba(60,60,90,0.25) 100%),
+    repeating-linear-gradient(90deg, transparent 0 120px, rgba(120,120,160,0.03) 120px 122px);
+  animation: fog-drift 24s linear infinite;
+}
+@keyframes fog-drift {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 0 0, -240px 0; }
+}
+.title-content {
+  position: relative;
+  text-align: center;
+  padding: 40px 60px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(18,18,26,0.92), rgba(10,10,14,0.94));
+  box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 0 40px rgba(0,0,0,0.5);
+  max-width: 720px;
+}
+.title-kicker {
+  letter-spacing: 0.6em;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.title-main {
+  font-size: 64px;
+  margin: 0;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  text-shadow: 0 0 30px rgba(201,162,39,0.35), 0 2px 0 #000;
+}
+.title-sub {
+  margin-top: 8px;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  font-size: 14px;
+}
+.title-quote {
+  color: var(--text);
+  font-style: italic;
+  line-height: 1.9;
+  margin: 26px 0;
+  opacity: 0.85;
+}
+.title-report {
+  text-align: left;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  padding: 10px 14px;
+  margin-bottom: 26px;
+}
+.title-report.ok .report-head { color: var(--hp-good); }
+.title-report.has-error .report-head { color: #d05050; }
+.report-head { font-weight: bold; margin-bottom: 6px; }
+.report-list { list-style: none; margin: 0; padding: 0; color: var(--text-dim); }
+.report-list .err { color: #d05050; }
+.report-list .warn { color: var(--madness); }
+.report-list .ok { color: var(--hp-good); }
+.title-start {
+  font-size: 18px;
+  letter-spacing: 0.3em;
+  padding: 14px 60px;
+  background: linear-gradient(180deg, #2a2410, #1a1608);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+.title-start:hover:not(:disabled) {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px rgba(201,162,39,0.25);
+}
+.title-foot {
+  margin-top: 30px;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: #55505f;
+}
