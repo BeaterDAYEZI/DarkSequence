@@ -3,9 +3,26 @@ import { eventBus } from '../../core/eventBus';
 
 const AUDIO_KEY = 'dark-sequence-audio';
 
+/** 安全读取localStorage（VS Code集成浏览器等沙箱环境可能抛SecurityError） */
+function safeGet(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* 沙箱环境静默 */
+  }
+}
+
 export class AudioManager {
   private ctx: AudioContext | null = null;
-  enabled = localStorage.getItem(AUDIO_KEY) !== 'off';
+  enabled = safeGet(AUDIO_KEY) !== 'off';
 
   constructor() {
     eventBus.on('battleEvent', (e) => {
@@ -23,7 +40,7 @@ export class AudioManager {
 
   toggle(): boolean {
     this.enabled = !this.enabled;
-    localStorage.setItem(AUDIO_KEY, this.enabled ? 'on' : 'off');
+    safeSet(AUDIO_KEY, this.enabled ? 'on' : 'off');
     return this.enabled;
   }
 

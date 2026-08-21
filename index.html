@@ -10,6 +10,21 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      // 启动错误覆盖层：模块加载阶段的异常也能直接显示（沙箱环境诊断）
+      window.addEventListener('error', function (e) {
+        var box = document.createElement('div');
+        box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#2a0a0a;color:#ffb0b0;padding:10px 16px;font-size:13px;font-family:monospace;white-space:pre-wrap;border-bottom:2px solid #a03030;';
+        box.textContent = '⚠ 运行时错误：' + e.message + '\n' + (e.filename || '') + ':' + (e.lineno || '');
+        document.body.appendChild(box);
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var box = document.createElement('div');
+        box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#2a0a0a;color:#ffb0b0;padding:10px 16px;font-size:13px;font-family:monospace;white-space:pre-wrap;border-bottom:2px solid #a03030;';
+        box.textContent = '⚠ Promise错误：' + String((e.reason && e.reason.message) || e.reason);
+        document.body.appendChild(box);
+      });
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
