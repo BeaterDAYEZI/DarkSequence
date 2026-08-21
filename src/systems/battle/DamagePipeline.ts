@@ -124,7 +124,7 @@ export class DamagePipeline {
         const def = this.engine.registry.monsters.get(enemy.defId);
         const pack = (def?.traits ?? []).find((tr) => tr.id === 'packInstinct');
         if (pack) {
-          const packCount = battle.enemies.filter((e) => e.hp > 0 && e.defId === enemy.defId).length - 1;
+          const packCount = Math.max(0, battle.enemies.filter((e) => e.hp > 0 && e.defId === enemy.defId).length - 1);
           dmg += packCount * (pack.params?.perAlly ?? 2);
         }
       }

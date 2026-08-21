@@ -410,22 +410,22 @@ export class BattleEngine {
     // 状态tick（流血/持续衰减）
     this.buffs.tickEnd();
 
-    // 枕木共振等回合结束效果
-    for (const enemy of battle.enemies.filter((e) => e.hp > 0)) {
-      const def = registry.monsters.get(enemy.defId)!;
-      if (def.endTurnEffects) {
-        this.log(`${enemy.name} 共振：${def.endTurnEffects.map((e) => e.kind).join('、')}`, 'info');
-        this.resolver.resolve(def.endTurnEffects, { source: { side: 'enemy', enemyUid: enemy.uid } });
-      }
-    }
-
-    // 自爆检查（被诅咒的枕木）
+    // 自爆检查（被诅咒的枕木）——先于共振治疗，防止自愈逃过自爆阈值
     for (const enemy of battle.enemies.filter((e) => e.hp > 0)) {
       const def = registry.monsters.get(enemy.defId)!;
       if (def.selfDestruct && enemy.hp <= enemy.maxHp * def.selfDestruct.hpPct) {
         this.log(`💥 ${enemy.name} 崩裂自爆！`, 'system');
         this.resolver.resolve(def.selfDestruct.effects, { source: { side: 'enemy', enemyUid: enemy.uid } });
         this.onEnemyKilled(enemy);
+      }
+    }
+
+    // 枕木共振等回合结束效果
+    for (const enemy of battle.enemies.filter((e) => e.hp > 0)) {
+      const def = registry.monsters.get(enemy.defId)!;
+      if (def.endTurnEffects) {
+        this.log(`${enemy.name} 共振：${def.endTurnEffects.map((e) => e.kind).join('、')}`, 'info');
+        this.resolver.resolve(def.endTurnEffects, { source: { side: 'enemy', enemyUid: enemy.uid } });
       }
     }
 
