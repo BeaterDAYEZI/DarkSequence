@@ -15,6 +15,16 @@ const NODE_NAME: Record<string, string> = {
   start: '起点', battle: '遭遇战', elite: '精英', station: '调度站', event: '事件', fork: '岔道', boss: 'Boss车厢',
 };
 
+/** 地图布局：列间距与边距（SVG viewBox 坐标系） */
+const MAP_COL_W = 210;
+const MAP_OFFSET_X = 140;
+const MAP_VIEW_W = 640;
+const MAP_ROW_H = 110;
+const MAP_OFFSET_Y = 40;
+/** 布局坐标换算 */
+const nodeX = (x: number): number => x * MAP_COL_W + MAP_OFFSET_X;
+const nodeY = (y: number): number => y * MAP_ROW_H + MAP_OFFSET_Y;
+
 export class MapScene implements Scene {
   private root!: HTMLElement;
   private rc!: RunController;
@@ -110,7 +120,7 @@ export class MapScene implements Scene {
       const isReachable = reachable.some((r) => r.id === n.id);
       const cls = `map-node type-${n.type}${isCurrent ? ' current' : ''}${n.resolved ? ' resolved' : ''}${isReachable ? ' reachable' : ''}`;
       const preview = this.nodePreview(n, mapped);
-      return `<g class="${cls}" data-node="${n.id}" transform="translate(${p.x * 210 + 80}, ${p.y * 110 + 40})">
+      return `<g class="${cls}" data-node="${n.id}" transform="translate(${nodeX(p.x)}, ${nodeY(p.y)})">
         <circle r="26" class="node-circle"/>
         <text class="node-icon" y="8" text-anchor="middle">${NODE_ICON[n.type] ?? '·'}</text>
         <text class="node-label" y="42" text-anchor="middle">${NODE_NAME[n.type]}</text>
@@ -131,7 +141,7 @@ export class MapScene implements Scene {
         const isLeft = n.type === 'fork' && t === n.next[0];
         const isRight = n.type === 'fork' && t === n.next[1];
         const stroke = isLeft ? 'var(--rail-red)' : isRight ? 'var(--rail-blue)' : '#3a3a52';
-        edges.push(`<line x1="${from.x * 210 + 80}" y1="${from.y * 110 + 68}" x2="${to.x * 210 + 80}" y2="${to.y * 110 + 12}"
+        edges.push(`<line x1="${nodeX(from.x)}" y1="${nodeY(from.y) + 28}" x2="${nodeX(to.x)}" y2="${nodeY(to.y) - 28}"
           stroke="${stroke}" stroke-width="4" stroke-linecap="round"/>`);
       }
       return edges;
@@ -153,7 +163,7 @@ export class MapScene implements Scene {
           <button class="btn-menu">菜单</button>
         </div>
         <div class="map-main">
-          <svg class="map-svg" viewBox="0 0 500 ${Math.max(9 * 110 + 80, 900)}" preserveAspectRatio="xMidYMin meet">
+          <svg class="map-svg" viewBox="0 0 ${MAP_VIEW_W} ${Math.max(9 * MAP_ROW_H + 80, 900)}" preserveAspectRatio="xMidYMin meet">
             <rect width="500" height="1000" fill="rgba(10,10,16,0.4)"/>
             ${edgeEls}
             ${nodeEls}
