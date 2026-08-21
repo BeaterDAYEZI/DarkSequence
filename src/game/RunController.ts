@@ -1,5 +1,5 @@
 // 整局流程控制器：跑局状态机（旅行、节点进入、岔道、战斗结算、区域推进）
-import type { RunState, MapNode, ZoneDef } from '../core/types';
+import type { RunState, MapNode, ZoneDef, CardDef, Rarity, HeroId } from '../core/types';
 import { registry } from '../core/registry';
 import { Rng, randomSeed } from '../core/rng';
 import { createNewRun } from '../systems/run/RunState';
@@ -134,6 +134,14 @@ export class RunController {
     this.run.resources.shards += isBoss ? 30 : isElite ? 15 : 8;
     rewards.push(`执念值+${isBoss ? 20 : isElite ? 10 : 5} · 残响碎片+${isBoss ? 30 : isElite ? 15 : 8}`);
 
+    // 战后恢复：存活英雄恢复20%生命上限（可调设计默认值，防止无奶局不可通关）
+    for (const h of Object.values(this.run.heroes)) {
+      if (h.alive) {
+        const heal = Math.ceil(h.maxHp * 0.2);
+        h.hp = Math.min(h.maxHp, h.hp + heal);
+      }
+    }
+
     if (isBoss) {
       // Boss固定掉落：30蚀铁 + 15魂火 + 1张随机蓝色遗物牌
       this.run.resources.darkIron += 30;
@@ -233,6 +241,174 @@ export class RunController {
   resolveCurrentNode(): void {
     this.currentNode.resolved = true;
     eventBus.emit('stateChanged', { scope: 'map' });
+  }
+
+  // ================= 元进度：卡牌品质升级 =================
+  /** 残响碎片升级专属牌：白15 / 绿30 / 蓝50 */
+  static UPGRADE_COST: Record<string, number> = { white: 15, green: 30, blue: 50 };
+
+  upgradeCardQuality(cardId: string): { ok: boolean; text: string } {
+    const card = registry.cards.get(cardId);
+    if (!card || card.rarity === 'orange') return { ok: false, text: '该卡已达橙色品质' };
+    const up = registry.nextRarity(card);
+    if (!up) return { ok: false, text: '该卡无法继续升级' };
+    const cost = RunController.UPGRADE_COST[card.rarity] ?? 50;
+    if (this.run.resources.shards < cost) return { ok: false, text: `残响碎片不足（需要${cost}）` };
+    // 在牌组中找到这张卡并替换
+    for (const pile of [this.run.deck.drawPile, this.run.deck.hand, this.run.deck.discardPile]) {
+      const i = pile.indexOf(cardId);
+      if (i >= 0) {
+        pile[i] = up.id;
+        this.run.resources.shards -= cost;
+        this.updateAvatarForm();
+        eventBus.emit('stateChanged', { scope: 'deck' });
+        return { ok: true, text: `【${card.name}】升级为【${up.name}】` };
+      }
+    }
+    return { ok: false, text: '牌组中没有这张牌' };
+  }
+
+  // ================= 元进度：执念灌注 =================
+  static INFUSE_COST = 10;
+
+  infuseHero(heroId: string, optionId: string): { ok: boolean; text: string } {
+    const hero = this.run.heroes[heroId as keyof typeof this.run.heroes];
+    const def = registry.heroes.get(heroId as never);
+    if (!hero || !def) return { ok: false, text: '英雄不存在' };
+    const option = def.obsession.options.find((o) => o.id === optionId);
+    if (!option) return { ok: false, text: '灌注选项不存在' };
+    if (this.run.resources.obsession < RunController.INFUSE_COST) {
+      return { ok: false, text: `执念值不足（需要${RunController.INFUSE_COST}）` };
+    }
+    this.run.resources.obsession -= RunController.INFUSE_COST;
+    hero.obsessionCount += 1;
+    hero.infused[option.stat] = (hero.infused[option.stat] ?? 0) + option.amount;
+    if (option.stat === 'maxHp') hero.maxHp += option.amount;
+    const unlock = def.obsession.thresholds.find((t) => t.at === hero.obsessionCount);
+    eventBus.emit('stateChanged', { scope: 'resources' });
+    return {
+      ok: true,
+      text: `${def.name} 灌注【${option.name}】${unlock ? `——执念阈值突破！解锁被动【${unlock.name}：${unlock.desc}】` : ''}`,
+    };
+  }
+
+  // ================= 元进度：列车科技 =================
+  buyTech(techId: string): { ok: boolean; text: string } {
+    const tech = registry.techs.get(techId);
+    if (!tech) return { ok: false, text: '科技不存在' };
+    if (this.run.techUnlocked.includes(techId)) return { ok: false, text: '已解锁' };
+    const tierUnlocked = Number(this.run.flags['techTierUnlocked'] ?? 0);
+    if (tech.tier > tierUnlocked) return { ok: false, text: `需要先击败第${tech.tier}区域Boss解锁该层` };
+    if (this.run.resources.darkIron < tech.cost) return { ok: false, text: `蚀铁不足（需要${tech.cost}）` };
+    this.run.resources.darkIron -= tech.cost;
+    this.run.techUnlocked.push(techId);
+    this.updateAvatarForm();
+    eventBus.emit('stateChanged', { scope: 'resources' });
+    return { ok: true, text: `列车科技【${tech.name}】已解锁——${tech.desc}` };
+  }
+
+  // ================= 元进度：铭刻融合 =================
+  fuseCards(cardA: string, cardB: string, via: 'etchant' | 'soulfire' = 'etchant'): { ok: boolean; text: string } {
+    if (cardA === cardB) return { ok: false, text: '需要两张不同的遗物牌' };
+    const a = registry.cards.get(cardA);
+    const b = registry.cards.get(cardB);
+    if (!a || !b || a.kind !== 'relic' || b.kind !== 'relic') return { ok: false, text: '只能融合遗物牌' };
+    const costPaid = via === 'etchant' ? 1 : 30;
+    if (via === 'etchant') {
+      if (this.run.resources.etchant < 1) return { ok: false, text: '蚀刻剂不足（需要1）' };
+    } else {
+      if (this.run.resources.soulfire < 30) return { ok: false, text: '魂火不足（需要30）' };
+    }
+    // 特殊配方优先
+    const recipe = [...registry.fusionRecipes.values()].find(
+      (r) => (r.cardA === cardA && r.cardB === cardB) || (r.cardA === cardB && r.cardB === cardA),
+    );
+    let resultDef: CardDef | undefined;
+    if (recipe) {
+      resultDef = registry.cards.get(recipe.resultCardId);
+    } else {
+      // 通用融合：效果串联、费用A+B-1（上限4）、品质取高
+      const rarities: Rarity[] = ['white', 'green', 'blue', 'orange'];
+      const rar: Rarity = rarities[Math.max(rarities.indexOf(a.rarity), rarities.indexOf(b.rarity))];
+      resultDef = {
+        id: `fused_${cardA}_${cardB}_${Object.keys(this.run.customCards).length}`,
+        lineageId: `fused_${cardA}_${cardB}`,
+        name: `${a.name}·${b.name}`,
+        kind: 'relic',
+        rarity: rar,
+        cost: Math.min(4, Math.max(1, a.cost + b.cost - 1)),
+        tags: [...new Set([...a.tags, ...b.tags])],
+        attackType: a.attackType ?? b.attackType,
+        damageType: a.damageType ?? b.damageType,
+        effects: [...a.effects, ...b.effects],
+        isFused: true,
+      };
+    }
+    if (!resultDef) return { ok: false, text: '配方产物缺失' };
+    // 支付 + 移除素材 + 加入产物
+    if (via === 'etchant') this.run.resources.etchant -= 1;
+    else this.run.resources.soulfire -= costPaid;
+    this.deck.removeCard(cardA);
+    this.deck.removeCard(cardB);
+    this.run.customCards[resultDef.id] = resultDef;
+    registry.addCards([resultDef]);   // 动态注册，全局查询直接可用
+    this.deck.addToDeck(resultDef.id);
+    this.updateAvatarForm();
+    eventBus.emit('stateChanged', { scope: 'deck' });
+    return { ok: true, text: `铭刻融合成功——获得【${resultDef.name}】` };
+  }
+
+  // ================= 复活 =================
+  reviveHero(heroId: HeroId, cost = 50): { ok: boolean; text: string } {
+    const hero = this.run.heroes[heroId];
+    if (!hero) return { ok: false, text: '英雄不存在' };
+    if (hero.alive) return { ok: false, text: '该英雄未阵亡' };
+    if (this.run.resources.soulfire < cost) return { ok: false, text: `魂火不足（需要${cost}）` };
+    this.run.resources.soulfire -= cost;
+    hero.alive = true;
+    hero.hp = hero.maxHp;
+    hero.madness = 0;
+    // 灵柩共鸣科技：复活后下战复仇（×1.5）
+    hero.hasRevenge = this.run.techUnlocked.includes('tech_coffin');
+    this.deck.heroRevived(heroId);
+    eventBus.emit('stateChanged', { scope: 'resources' });
+    return { ok: true, text: `${registry.heroes.get(heroId)?.name} 从灵柩中苏醒` };
+  }
+
+  get deadHeroes(): string[] {
+    return Object.keys(this.run.heroes).filter((id) => !this.run.heroes[id as keyof typeof this.run.heroes].alive);
+  }
+
+  // ================= 灾厄化身 =================
+  /** 满足任意两项：专属牌全橙 / ≥3张融合遗物牌 / ≥3项列车科技 */
+  isAvatarForm(): boolean {
+    const deck = [...this.run.deck.drawPile, ...this.run.deck.hand, ...this.run.deck.discardPile];
+    let conditions = 0;
+    // 条件1：某英雄的5张专属牌全部为橙
+    for (const heroId of ['warwick', 'morgan', 'serafina', 'auris'] as const) {
+      const oranges = deck.filter((c) => {
+        const def = registry.cards.get(c);
+        return def?.heroId === heroId && def.rarity === 'orange';
+      });
+      if (new Set(oranges.map((c) => registry.cards.get(c)!.lineageId)).size >= 5) {
+        conditions += 1;
+        break;
+      }
+    }
+    // 条件2：≥3张融合遗物牌
+    const fused = deck.filter((c) => registry.cards.get(c)?.isFused).length;
+    if (fused >= 3) conditions += 1;
+    // 条件3：≥3项列车科技
+    if (this.run.techUnlocked.length >= 3) conditions += 1;
+    return conditions >= 2;
+  }
+
+  updateAvatarForm(): void {
+    const was = this.run.avatarForm;
+    this.run.avatarForm = this.isAvatarForm();
+    if (this.run.avatarForm && !was) {
+      eventBus.emit('stateChanged', { scope: 'resources' });
+    }
   }
 
   // ================= 状态快照 =================

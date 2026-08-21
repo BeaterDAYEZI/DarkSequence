@@ -58,7 +58,7 @@ export class BattleScene implements Scene {
       const techEffects = p.rc.run.techUnlocked
         .map((id) => registry.techs.get(id)?.effectId)
         .filter((x) => !!x) as string[];
-      this.controller = new BattleController(p.rc.run, zone, p.rc.rng, techEffects);
+      this.controller = new BattleController(p.rc.run, zone, p.rc.rng, techEffects, p.rc.isAvatarForm());
       this.controller.beginBattle(monsters);
     } else {
       // 调试模式
@@ -359,12 +359,12 @@ export class BattleScene implements Scene {
         const isBoss = this.battleNode.type === 'boss';
         const isLastZone = this.runController.run.flags['runComplete'];
         if (isBoss && isLastZone) {
-          appRef.current?.go('title'); // 胜利结算场景在步骤6
+          appRef.current?.go('end', { kind: 'victory' });
           return;
         }
         appRef.current?.go('map', { banner: isBoss ? `Boss被击溃！${rewards.join('；')}` : undefined });
       } else {
-        appRef.current?.go('title');
+        appRef.current?.go('end', { kind: 'gameover', reason: o.reason });
       }
     });
   }

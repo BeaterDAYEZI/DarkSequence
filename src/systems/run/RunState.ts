@@ -60,6 +60,7 @@ export function createNewRun(seed: number): RunState {
     map: [],
     currentNodeId: 'start',
     deck: { drawPile, hand: [], discardPile: [], resting: { warwick: [], morgan: [], serafina: [], auris: [] } },
+    customCards: {},
     heroes,
     resources: { shards: 0, etchant: 0, obsession: 0, soulfire: 0, darkIron: 0 },
     techUnlocked: [],

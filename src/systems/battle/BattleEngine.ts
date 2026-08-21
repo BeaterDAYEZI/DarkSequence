@@ -44,9 +44,10 @@ export class BattleEngine {
     public zone: ZoneDef,
     public rng: Rng,
     techEffects: Set<string>,
+    avatarForm = false,
   ) {
     this.deck = new DeckSystem(run, rng);
-    this.ctx = { run, battle: null as unknown as BattleState, rng, zone, techs: techEffects };
+    this.ctx = { run, battle: null as unknown as BattleState, rng, zone, techs: techEffects, avatar: avatarForm };
     this.buffs = new BuffSystem(this);
     this.madness = new MadnessSystem(this);
     this.train = new TrainSystem(this);
@@ -258,6 +259,11 @@ export class BattleEngine {
         this.deck.draw(1);
       }
     }
+    // 灾厄化身：每回合抽牌+2
+    if (this.ctx.avatar) {
+      const drawn = this.deck.draw(2);
+      if (drawn.length > 0) this.log(`灾厄化身：额外抽取 ${drawn.length} 张牌`, 'system');
+    }
   }
 
   // ================= 规划与执行 =================
@@ -298,8 +304,9 @@ export class BattleEngine {
   cardCost(heroId: HeroId, card: CardDef): number {
     const hero = this.battle.heroes[heroId];
     let cost = card.cost;
-    if (this.buffs.has(hero, 'awakened')) cost = Math.max(1, cost - 1);
-    return cost;
+    if (this.ctx.avatar) cost -= 1;                     // 灾厄化身：所有牌费-1
+    if (this.buffs.has(hero, 'awakened')) cost -= 1;    // 觉醒：专属牌费-1
+    return Math.max(1, cost);
   }
 
   /** 提交规划（≤4张，有序） */

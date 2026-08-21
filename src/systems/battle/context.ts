@@ -10,6 +10,8 @@ export interface BattleCtx {
   zone: ZoneDef;
   /** 本场生效的科技 effectId 集合 */
   techs: Set<string>;
+  /** 灾厄化身是否激活 */
+  avatar: boolean;
 }
 
 export type UnitRef =

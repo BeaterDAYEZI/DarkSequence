@@ -187,7 +187,9 @@ export class DamagePipeline {
     if (t.kind === 'enemy' && hpAfter <= 0 && attacker?.side === 'hero') {
       const excess = applied - hpBefore;
       if (excess > 0) {
-        const darkGain = excess * (opts.overkillMult ?? 1);
+        // 灾厄化身：溢伤连锁系数×2.5
+        const avatarMult = this.engine.ctx.avatar ? 2.5 : 1;
+        const darkGain = excess * (opts.overkillMult ?? 1) * avatarMult;
         this.engine.gainDarkEnergy(darkGain);
         this.engine.gainSoulfire(Math.round(excess * this.engine.soulfireRatio()));
       }

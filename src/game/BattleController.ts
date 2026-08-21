@@ -14,9 +14,10 @@ export class BattleController {
     readonly zone: ZoneDef,
     rng: Rng,
     techEffects: string[],
+    avatarForm = false,
   ) {
     this.techs = new Set(techEffects);
-    this.engine = new BattleEngine(run, zone, rng, this.techs);
+    this.engine = new BattleEngine(run, zone, rng, this.techs, avatarForm);
   }
 
   get battle() {

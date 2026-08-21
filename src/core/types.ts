@@ -410,6 +410,8 @@ export interface RunState {
     /** 残影化英雄的卡牌暂存处（复活时归还） */
     resting: Record<string, string[]>;
   };
+  /** 动态生成的卡牌（铭刻融合产物，读档时重建注册） */
+  customCards: Record<string, CardDef>;
   heroes: Record<HeroId, HeroInstance>;
   resources: {
     shards: number;      // 残响碎片

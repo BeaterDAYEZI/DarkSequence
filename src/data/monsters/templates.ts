@@ -5,6 +5,7 @@ import type { MonsterDef, TargetSelector } from '../../core/types';
 const HERO_POS = (pos: number[]): TargetSelector => ({ side: 'ally', mode: 'pos', pos });
 const HERO_ALL: TargetSelector = { side: 'ally', mode: 'all' };
 const HERO_RANDOM: TargetSelector = { side: 'ally', mode: 'random', count: 1 };
+const HERO_BACK: TargetSelector = { side: 'ally', mode: 'back' };
 const ENEMY_ALL: TargetSelector = { side: 'enemy', mode: 'all' };
 const SELF: TargetSelector = { side: 'ally', mode: 'self' };
 
@@ -18,11 +19,10 @@ export function placeholderMonsters(zoneId: string, zoneName: string, hpScale: n
       id: `${zoneId}_soldier`, name: `蚀影步兵`, zoneId, isPlaceholder: true,
       flavor: `${zoneName}的占位怪物。`,
       hp: r(16 * hpScale), speed: 2, pos: [1, 2],
-      traits: [{ id: 'thorns', params: { damage: r(2 * dmgScale) } }],
       ai: { pattern: 'cycle' },
       actions: [
-        { id: 'slash', name: '蚀影劈砍', icon: '⚔️', desc: '对1-2号位英雄造成伤害', effects: [{ kind: 'damage', target: HERO_POS([1, 2]), amount: dmg(4, 6) }] },
-        { id: 'guard', name: '蚀影凝甲', icon: '🛡️', desc: '自身格挡', effects: [{ kind: 'block', target: SELF, amount: r(4 * dmgScale) }] },
+        { id: 'slash', name: '蚀影劈砍', icon: '⚔️', desc: '对1号位英雄造成伤害', effects: [{ kind: 'damage', target: HERO_POS([1]), amount: dmg(4, 6) }] },
+        { id: 'guard', name: '蚀影凝甲', icon: '🛡️', desc: '自身格挡', effects: [{ kind: 'block', target: SELF, amount: r(3 * dmgScale) }] },
       ],
     },
     {
@@ -31,7 +31,7 @@ export function placeholderMonsters(zoneId: string, zoneName: string, hpScale: n
       hp: r(10 * hpScale), speed: 3, pos: [3, 4],
       ai: { pattern: 'cycle' },
       actions: [
-        { id: 'shot', name: '蚀影箭', icon: '🏹', desc: '对3-4号位英雄造成伤害', effects: [{ kind: 'damage', target: HERO_POS([3, 4]), amount: dmg(3, 5) }] },
+        { id: 'shot', name: '蚀影箭', icon: '🏹', desc: '对最后排英雄造成伤害', effects: [{ kind: 'damage', target: HERO_BACK, amount: dmg(3, 5) }] },
         { id: 'aim', name: '瞄准标记', icon: '🎯', desc: '标记一名英雄', effects: [{ kind: 'applyStatus', target: HERO_RANDOM, status: 'mark', stacks: 1, duration: 1 }] },
       ],
     },

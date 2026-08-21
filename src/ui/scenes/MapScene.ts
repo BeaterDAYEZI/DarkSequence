@@ -5,6 +5,7 @@ import { registry } from '../../core/registry';
 import { eventBus } from '../../core/eventBus';
 import type { RunController } from '../../game/RunController';
 import type { MapNode } from '../../core/types';
+import { CampPanel } from '../components/CampPanel';
 
 const NODE_ICON: Record<string, string> = {
   start: '🚂', battle: '⚔️', elite: '💀', station: '🏚️', event: '❓', fork: '🔀', boss: '👑',
@@ -305,11 +306,17 @@ export class MapScene implements Scene {
       });
     });
 
-    // 菜单
+    // 菜单 → 营地
     this.root.querySelector('.btn-menu')?.addEventListener('click', () => {
-      if (confirm('结束本次旅程，返回标题？')) {
-        appRef.current!.run = null;
-        appRef.current?.go('title');
+      this.modal = 'camp';
+      this.render();
+      const overlay = this.root.querySelector('.map-overlay');
+      if (overlay) {
+        const panel = new CampPanel(this.rc, () => {
+          this.modal = null;
+          this.render();
+        });
+        overlay.replaceWith(panel.render());
       }
     });
   }

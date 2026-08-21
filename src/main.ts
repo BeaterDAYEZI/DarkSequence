@@ -8,6 +8,7 @@ import { TitleScene } from './ui/scenes/TitleScene';
 import { DebugScene } from './ui/scenes/DebugScene';
 import { BattleScene } from './ui/scenes/BattleScene';
 import { MapScene } from './ui/scenes/MapScene';
+import { EndScene } from './ui/scenes/EndScene';
 import { registry } from './core/registry';
 import { loadAllData } from './data/index';
 import { runDebugBattle, autoPlan } from './debug/battleDebug';
@@ -26,6 +27,7 @@ app.scenes.register('title', new TitleScene());
 app.scenes.register('debug', new DebugScene());
 app.scenes.register('battle', new BattleScene());
 app.scenes.register('map', new MapScene());
+app.scenes.register('end', new EndScene());
 app.start();
 
 const params = new URLSearchParams(location.search);
