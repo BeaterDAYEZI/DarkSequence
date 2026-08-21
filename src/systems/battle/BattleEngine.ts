@@ -652,4 +652,28 @@ export class BattleEngine {
   monsterDef(defId: string): MonsterDef | undefined {
     return registry.monsters.get(defId);
   }
+
+  // ================= 魂火战斗服务 =================
+  /** 炉火升温：10魂火，本回合起全队攻击+20%（可叠加，持续至战斗结束） */
+  useFurnace(): boolean {
+    if (this.battle.soulfire < 10) return false;
+    this.battle.soulfire -= 10;
+    this.battle.furnaceStacks += 1;
+    this.log(`🔥 炉火升温！全队攻击力+20%（共${this.battle.furnaceStacks}层，当前+${this.battle.furnaceStacks * 20}%）`, 'soulfire');
+    eventBus.emit('stateChanged', { scope: 'battle' });
+    return true;
+  }
+
+  /** 鸣笛威慑：30魂火，强制所有敌人后退1格 */
+  useHorn(): boolean {
+    if (this.battle.soulfire < 30) return false;
+    this.battle.soulfire -= 30;
+    this.train.pushAllEnemies();
+    this.log('📯 汽笛长鸣！所有敌人被逼退1格', 'soulfire');
+    eventBus.emit('stateChanged', { scope: 'battle' });
+    return true;
+  }
+
+  canUseFurnace(): boolean { return this.battle.soulfire >= 10 && this.battle.phase === 'planning'; }
+  canUseHorn(): boolean { return this.battle.soulfire >= 30 && this.battle.phase === 'planning'; }
 }

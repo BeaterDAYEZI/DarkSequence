@@ -1,5 +1,6 @@
 // 标题场景：游戏名、设计哲学、校验报告、开始按钮
 import type { Scene } from '../../app/SceneManager';
+import { appRef } from '../../app/appRef';
 import { registry } from '../../core/registry';
 
 export class TitleScene implements Scene {
@@ -25,11 +26,15 @@ export class TitleScene implements Scene {
               ${report.errors.length === 0 && report.warnings.length === 0 ? '<li class="ok">✓ 一切就绪（当前为工程骨架）</li>' : ''}
             </ul>
           </div>
-          <button class="title-start" disabled title="战斗系统开发中">开始旅程（开发中）</button>
+          <button class="title-start" title="试玩区域一教学遭遇">试玩战斗（区域一教学遭遇）</button>
           <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨</div>
         </div>
       </div>
     `;
+
+    this.root.querySelector('.title-start')?.addEventListener('click', () => {
+      appRef.current?.go('battle', { encounterId: 'zone1_encounter1' });
+    });
 
     console.log('[暗蚀牌序] 数据校验报告', report);
     (window as unknown as { debugRegistry: unknown }).debugRegistry = registry;

@@ -1,8 +1,11 @@
 // 入口：加载数据 → 校验 → 创建 App → 挂载标题场景
 import './styles/main.css';
+import './styles/battle.css';
 import { App } from './app/App';
+import { appRef } from './app/appRef';
 import { TitleScene } from './ui/scenes/TitleScene';
 import { DebugScene } from './ui/scenes/DebugScene';
+import { BattleScene } from './ui/scenes/BattleScene';
 import { registry } from './core/registry';
 import { loadAllData } from './data/index';
 import { runDebugBattle, autoPlan } from './debug/battleDebug';
@@ -16,8 +19,10 @@ if (!root) throw new Error('缺少 #app 挂载点');
 loadAllData();
 
 const app = new App(root);
+appRef.current = app;
 app.scenes.register('title', new TitleScene());
 app.scenes.register('debug', new DebugScene());
+app.scenes.register('battle', new BattleScene());
 app.start();
 
 const params = new URLSearchParams(location.search);
