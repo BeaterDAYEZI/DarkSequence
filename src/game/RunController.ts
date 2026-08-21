@@ -125,18 +125,40 @@ export class RunController {
   }
 
   // ================= 战斗结算 =================
-  onBattleVictory(node: MapNode): { advancedZone: boolean } {
+  onBattleVictory(node: MapNode): { advancedZone: boolean; rewards: string[] } {
     node.resolved = true;
-    // 基础奖励（完整经济在步骤6）
     const isBoss = node.type === 'boss';
     const isElite = node.type === 'elite';
+    const rewards: string[] = [];
     this.run.resources.obsession += isBoss ? 20 : isElite ? 10 : 5;
     this.run.resources.shards += isBoss ? 30 : isElite ? 15 : 8;
-    eventBus.emit('stateChanged', { scope: 'resources' });
+    rewards.push(`执念值+${isBoss ? 20 : isElite ? 10 : 5} · 残响碎片+${isBoss ? 30 : isElite ? 15 : 8}`);
+
     if (isBoss) {
-      return { advancedZone: this.advanceZone() };
+      // Boss固定掉落：30蚀铁 + 15魂火 + 1张随机蓝色遗物牌
+      this.run.resources.darkIron += 30;
+      this.run.resources.soulfire += 15;
+      rewards.push('蚀铁+30 · 魂火+15');
+      const blueRelics = [...registry.cards.values()]
+        .filter((c) => c.kind === 'relic' && c.rarity === 'blue' && !c.isFused);
+      if (blueRelics.length > 0) {
+        const reward = this.rng.pick(blueRelics);
+        this.deck.addToDeck(reward.id);
+        rewards.push(`获得蓝色遗物牌【${reward.name}】`);
+      }
+      // 科技树层解锁：区域1→1层，区域2→2层，区域3→3层
+      const zoneIndex = [...registry.zones.values()].map((z) => z.id).indexOf(node.zoneId);
+      const tier = Math.min(3, zoneIndex + 1);
+      const prevTier = Number(this.run.flags['techTierUnlocked'] ?? 0);
+      if (tier > prevTier) {
+        this.run.flags['techTierUnlocked'] = tier;
+        rewards.push(`列车科技树第${tier}层解锁`);
+      }
+      eventBus.emit('stateChanged', { scope: 'resources' });
+      return { advancedZone: this.advanceZone(), rewards };
     }
-    return { advancedZone: false };
+    eventBus.emit('stateChanged', { scope: 'resources' });
+    return { advancedZone: false, rewards };
   }
 
   /** 区域推进：进入下一区域起点 */

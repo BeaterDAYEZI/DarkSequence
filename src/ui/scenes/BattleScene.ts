@@ -95,6 +95,7 @@ export class BattleScene implements Scene {
           <div class="hud-turn">第 ${battle.turn} 回合</div>
         </div>
         <div class="battlefield">
+          ${this.bossTrack()}
           <div class="enemy-row">${this.renderEnemies()}</div>
           <div class="rail-line"><span>⬤</span><span>⬤</span><span>⬤</span><span>⬤</span></div>
           <div class="carriage-row">${this.renderCarriages()}</div>
@@ -123,6 +124,32 @@ export class BattleScene implements Scene {
     // 日志滚到底部
     const logList = this.root.querySelector<HTMLElement>('.log-list')!;
     logList.scrollTop = logList.scrollHeight;
+  }
+
+  /** Boss推进轨道：车头→车尾4格，显示Boss位置与脱轨警告 */
+  private bossTrack(): string {
+    const battle = this.controller.battle;
+    const boss = battle.enemies.find((e) => e.hp > 0 && registry.monsters.get(e.defId)?.bossAdvance);
+    if (!boss) return '';
+    const def = registry.monsters.get(boss.defId)!;
+    const phase = def.phases?.[boss.phaseIndex];
+    const distance = boss.pos - 1; // 距车头格数
+    const danger = distance <= 1;
+    const slots = [1, 2, 3, 4].map((pos) => {
+      const isBossHere = boss.pos === pos;
+      return `<div class="boss-track-slot ${pos === 1 ? 'front' : ''} ${isBossHere ? 'boss-here' : ''}" data-pos="${pos}">
+        ${pos === 1 ? '🚂车头' : pos === 4 ? '车尾' : `${pos}号`}
+        ${isBossHere ? '<div class="boss-marker">👑</div>' : ''}
+      </div>`;
+    }).join('');
+    return `
+      <div class="boss-track ${danger ? 'danger' : ''}">
+        <div class="boss-track-head">
+          <span>👑 ${boss.name} · ${phase?.name ?? ''}阶段</span>
+          <span class="boss-warning">${danger ? `⚠️ 距车头仅${distance}格——加速牌可将其推回！` : `Boss在${boss.pos}号车厢`}</span>
+        </div>
+        <div class="boss-track-slots">${slots}</div>
+      </div>`;
   }
 
   private renderEnemies(): string {
@@ -328,14 +355,14 @@ export class BattleScene implements Scene {
       // 魂火回写
       this.controller.run.resources.soulfire = this.controller.battle.soulfire;
       if (o.result === 'victory' && this.runController && this.battleNode) {
-        this.runController.onBattleVictory(this.battleNode);
+        const { rewards } = this.runController.onBattleVictory(this.battleNode);
         const isBoss = this.battleNode.type === 'boss';
         const isLastZone = this.runController.run.flags['runComplete'];
         if (isBoss && isLastZone) {
           appRef.current?.go('title'); // 胜利结算场景在步骤6
           return;
         }
-        appRef.current?.go('map');
+        appRef.current?.go('map', { banner: isBoss ? `Boss被击溃！${rewards.join('；')}` : undefined });
       } else {
         appRef.current?.go('title');
       }
