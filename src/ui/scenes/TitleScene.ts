@@ -2,6 +2,7 @@
 import type { Scene } from '../../app/SceneManager';
 import { appRef } from '../../app/appRef';
 import { registry } from '../../core/registry';
+import { RunController } from '../../game/RunController';
 
 export class TitleScene implements Scene {
   private root!: HTMLElement;
@@ -26,13 +27,20 @@ export class TitleScene implements Scene {
               ${report.errors.length === 0 && report.warnings.length === 0 ? '<li class="ok">✓ 一切就绪（当前为工程骨架）</li>' : ''}
             </ul>
           </div>
-          <button class="title-start" title="试玩区域一教学遭遇">试玩战斗（区域一教学遭遇）</button>
+          <button class="title-start" title="开始一局新的旅程">开始旅程</button>
+          <button class="title-debug" title="直接试玩区域一教学遭遇">试玩战斗</button>
           <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨</div>
         </div>
       </div>
     `;
 
     this.root.querySelector('.title-start')?.addEventListener('click', () => {
+      const app = appRef.current;
+      if (!app) return;
+      app.run = new RunController();
+      app.go('map');
+    });
+    this.root.querySelector('.title-debug')?.addEventListener('click', () => {
       appRef.current?.go('battle', { encounterId: 'zone1_encounter1' });
     });
 

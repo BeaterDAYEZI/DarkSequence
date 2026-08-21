@@ -1,16 +1,17 @@
-// 应用壳：持有 Registry / RunState / Systems / SceneManager
+// 应用壳：持有 Registry / RunController / SceneManager
 import { registry } from '../core/registry';
 import { eventBus } from '../core/eventBus';
 import { SceneManager } from './SceneManager';
 import { GameLoop } from './GameLoop';
-import type { RunState } from '../core/types';
+import type { RunController } from '../game/RunController';
 
 export class App {
   readonly registry = registry;
   readonly events = eventBus;
   readonly scenes = new SceneManager();
   readonly loop = new GameLoop();
-  runState: RunState | null = null;
+  /** 当前进行中的旅程 */
+  run: RunController | null = null;
 
   constructor(private root: HTMLElement) {
     this.loop.onFrame = (dt) => this.scenes.current?.onFrame?.(dt);

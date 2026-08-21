@@ -7,9 +7,19 @@ import { eventBus } from '../../core/eventBus';
 import { Rng, randomSeed } from '../../core/rng';
 import { createNewRun } from '../../systems/run/RunState';
 import { BattleController } from '../../game/BattleController';
+import type { RunController } from '../../game/RunController';
 import { createCardEl } from '../components/CardView';
 import { createSteamGauge } from '../components/SteamGauge';
-import type { HeroId, HeroInstance, EnemyInstance, StatusInstance } from '../../core/types';
+import type { HeroId, HeroInstance, EnemyInstance, StatusInstance, MapNode } from '../../core/types';
+
+interface BattleParams {
+  /** 整局流程模式（地图进入） */
+  rc?: RunController;
+  nodeId?: string;
+  monsters?: { defId: string; count: number }[];
+  /** 调试模式（标题试玩） */
+  encounterId?: string;
+}
 
 const STATUS_CHIP: Record<string, { icon: string; name: string }> = {
   bleed: { icon: '🩸', name: '流血' }, vulnerable: { icon: '💔', name: '易伤' },
@@ -26,21 +36,39 @@ const STATUS_CHIP: Record<string, { icon: string; name: string }> = {
 export class BattleScene implements Scene {
   private root!: HTMLElement;
   private controller!: BattleController;
+  private runController: RunController | null = null;
+  private battleNode: MapNode | null = null;
   private selected: string | null = null;
   private plan: { heroId: HeroId; cardId: string }[] = [];
   private offs: (() => void)[] = [];
 
   onEnter(root: HTMLElement, params?: unknown): void {
     this.root = root;
-    const encounterId = (params as { encounterId?: string } | undefined)?.encounterId ?? 'zone1_encounter1';
-    const zone = registry.zones.get('zone1')!;
-    const encounter = zone.encounters?.find((e) => e.id === encounterId) ?? zone.encounters![0];
-    const run = createNewRun(randomSeed());
-    this.controller = new BattleController(run, zone, new Rng(randomSeed()), []);
     this.plan = [];
     this.selected = null;
+    const p = (params ?? {}) as BattleParams;
     this.offs.push(eventBus.on('battleEvent', (e) => this.appendLogLine(e)));
-    this.controller.beginBattle(encounter.monsters);
+
+    if (p.rc && p.nodeId) {
+      // 整局流程模式
+      this.runController = p.rc;
+      this.battleNode = p.rc.nodeById(p.nodeId);
+      const zone = p.rc.zoneOf(p.nodeId);
+      const monsters = p.monsters ?? p.rc.encounterMonsters(this.battleNode);
+      const techEffects = p.rc.run.techUnlocked
+        .map((id) => registry.techs.get(id)?.effectId)
+        .filter((x) => !!x) as string[];
+      this.controller = new BattleController(p.rc.run, zone, p.rc.rng, techEffects);
+      this.controller.beginBattle(monsters);
+    } else {
+      // 调试模式
+      const encounterId = p.encounterId ?? 'zone1_encounter1';
+      const zone = registry.zones.get('zone1')!;
+      const encounter = zone.encounters?.find((e) => e.id === encounterId) ?? zone.encounters![0];
+      const run = createNewRun(randomSeed());
+      this.controller = new BattleController(run, zone, new Rng(randomSeed()), []);
+      this.controller.beginBattle(encounter.monsters);
+    }
     this.render();
   }
 
@@ -192,14 +220,21 @@ export class BattleScene implements Scene {
     if (o.result === 'ongoing') return '';
     const battle = this.controller.battle;
     const heroes = Object.values(battle.heroes);
+    const isBoss = this.battleNode?.type === 'boss';
+    const victoryReward = o.result === 'victory'
+      ? (isBoss ? '区域Boss被击溃——前往下一区域' : (this.battleNode?.type === 'elite' ? '精英被击溃' : '遭遇战胜利'))
+      : '';
+    const backBtn = o.result === 'victory' && this.runController
+      ? '<button class="btn-back">返回地图</button>'
+      : '<button class="btn-back">返回标题</button>';
     return `
       <div class="battle-overlay">
         <div class="overlay-box ${o.result}">
-          <h2>${o.result === 'victory' ? '🏆 遭遇战胜利' : '💀 列车停摆'}</h2>
+          <h2>${o.result === 'victory' ? '🏆 ' + victoryReward : '💀 列车停摆'}</h2>
           ${o.reason ? `<p>${o.reason}</p>` : ''}
           <p class="overlay-stats">${o.turns} 回合 · 击杀 ${this.controller.engine.stats.kills} · 魂火 ${battle.soulfire}</p>
           <p class="overlay-heroes">${heroes.map((h) => `${this.controller.engine.heroName(h.heroId)} ${h.hp}/${h.maxHp}${h.alive ? '' : '✝'}`).join(' · ')}</p>
-          <button class="btn-back">返回标题</button>
+          ${backBtn}
         </div>
       </div>`;
   }
@@ -289,7 +324,21 @@ export class BattleScene implements Scene {
     });
 
     this.root.querySelector('.btn-back')?.addEventListener('click', () => {
-      appRef.current?.go('title');
+      const o = this.controller.outcome;
+      // 魂火回写
+      this.controller.run.resources.soulfire = this.controller.battle.soulfire;
+      if (o.result === 'victory' && this.runController && this.battleNode) {
+        this.runController.onBattleVictory(this.battleNode);
+        const isBoss = this.battleNode.type === 'boss';
+        const isLastZone = this.runController.run.flags['runComplete'];
+        if (isBoss && isLastZone) {
+          appRef.current?.go('title'); // 胜利结算场景在步骤6
+          return;
+        }
+        appRef.current?.go('map');
+      } else {
+        appRef.current?.go('title');
+      }
     });
   }
 

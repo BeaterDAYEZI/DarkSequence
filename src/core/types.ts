@@ -393,6 +393,7 @@ export interface BattleState {
   swallow?: { heroId: HeroId; need: number; dealt: number };  // 蠕虫吞噬状态
   furnaceStacks: number;                                  // 炉火升温层数（每层攻击+20%）
   zoneId: string;                                         // 当前战斗所在区域
+  blockNerf: number;                                      // 遗忘之轨：格挡获取-2（最低0）
 }
 
 /** 单局状态快照（唯一真相源） */
@@ -422,5 +423,5 @@ export interface RunState {
   forkMemory: Record<string, 'memory' | 'oblivion'>;  // 各区域岔道选择记录
   avatarForm: boolean;   // 灾厄化身
   stats: { kills: number; damage: number; turns: number };
-  flags: Record<string, boolean | number>;  // 事件/剧情标记
+  flags: Record<string, boolean | number | string>;  // 事件/剧情/岔道标记
 }

@@ -77,6 +77,7 @@ export class BattleEngine {
       speedPlayedThisTurn: 0,
       furnaceStacks: 0,
       zoneId: this.zone.id,
+      blockNerf: 0,
     };
   }
 
@@ -111,6 +112,18 @@ export class BattleEngine {
     if (this.ctx.techs.has('initialSpeed')) speed += 1;
     if (this.zone.environmentRule.id === 'speedStartDelta') speed += this.zone.environmentRule.amount ?? 0;
     battle.trainSpeed = Math.max(0, Math.min(5, speed));
+
+    // 岔道区域效果：左轨（记忆）全队力量+3 / 右轨（遗忘）格挡获取-2
+    const fork = this.run.forkMemory[this.zone.id];
+    if (fork === 'memory') {
+      for (const hero of Object.values(battle.heroes)) {
+        if (hero.alive) this.buffs.apply(hero, 'strength', 3, -1);
+      }
+      this.log('记忆之轨回响：全队力量+3', 'narration');
+    } else if (fork === 'oblivion') {
+      battle.blockNerf = 2;
+      this.log('遗忘之轨侵蚀：全队格挡获取-2', 'narration');
+    }
 
     // 生成敌人
     for (const m of monsters) {

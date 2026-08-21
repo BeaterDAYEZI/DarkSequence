@@ -93,7 +93,8 @@ export class CardResolver {
         break;
       }
       case 'block': {
-        const amount = roll(e.amount);
+        // 遗忘之轨：格挡获取-2（最低0）
+        const amount = Math.max(0, roll(e.amount) - battle.blockNerf);
         const targets = engine.targets.resolve(e.target, ctx.source.heroId);
         for (const unit of targets) {
           if (unit.side === 'hero') {
