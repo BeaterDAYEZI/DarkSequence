@@ -8,6 +8,7 @@ import { generateAllZones } from '../systems/map/MapGenerator';
 import { settleFork, type ForkRail } from '../systems/map/ForkSystem';
 import { resolveMapEffect } from '../systems/map/MapEffects';
 import { eventBus } from '../core/eventBus';
+import { SaveSystem } from '../systems/run/SaveSystem';
 
 export type NodeEnter =
   | { type: 'battle'; monsters: { defId: string; count: number }[]; node: MapNode }
@@ -16,9 +17,11 @@ export type NodeEnter =
   | { type: 'fork'; node: MapNode };
 
 export class RunController {
-  readonly run: RunState;
+  run: RunState;
   readonly rng: Rng;
-  readonly deck: DeckSystem;
+  deck: DeckSystem;
+  private disposed = false;
+  private offSave: (() => void) | null = null;
 
   constructor(seed?: number) {
     const s = seed ?? randomSeed();
@@ -27,6 +30,25 @@ export class RunController {
     this.deck = new DeckSystem(this.run, this.rng);
     this.run.map = generateAllZones([...registry.zones.values()], this.rng);
     this.run.currentNodeId = this.run.map[0].id;
+    // 自动存档：任何非战斗内的状态变化都写入地图级存档
+    this.offSave = eventBus.on('stateChanged', (e) => {
+      if (!this.disposed && e.scope !== 'battle') SaveSystem.saveRun(this.run);
+    });
+    SaveSystem.saveRun(this.run);
+  }
+
+  dispose(): void {
+    this.disposed = true;
+    this.offSave?.();
+    this.offSave = null;
+  }
+
+  /** 从存档恢复 */
+  static fromSave(data: { run: RunState }): RunController {
+    const rc = new RunController(data.run.seed);
+    rc.run = data.run;
+    rc.deck = new DeckSystem(rc.run, rc.rng);
+    return rc;
   }
 
   get currentZoneDef(): ZoneDef {

@@ -319,6 +319,12 @@ export class MapScene implements Scene {
         overlay.replaceWith(panel.render());
       }
     });
+    // 营地内结束旅程
+    this.root.querySelector('.btn-camp-end')?.addEventListener('click', () => {
+      this.rc.dispose();
+      appRef.current!.run = null;
+      appRef.current?.go('title');
+    });
   }
 
   private travelTo(nodeId: string): void {

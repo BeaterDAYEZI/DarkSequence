@@ -3,6 +3,7 @@ import type { Scene } from '../../app/SceneManager';
 import { appRef } from '../../app/appRef';
 import { registry } from '../../core/registry';
 import { RunController } from '../../game/RunController';
+import { SaveSystem } from '../../systems/run/SaveSystem';
 
 interface EndParams {
   kind: 'gameover' | 'victory';
@@ -14,6 +15,10 @@ export class EndScene implements Scene {
     const p = (params ?? { kind: 'gameover' }) as EndParams;
     const app = appRef.current;
     const rc = app?.run;
+    // 旅程结束：清除存档，释放旧控制器
+    SaveSystem.clear();
+    rc?.dispose();
+    if (app) app.run = null;
     const stats = rc?.run.stats ?? { kills: 0, damage: 0, turns: 0 };
     const heroSummary = rc
       ? Object.values(rc.run.heroes)
@@ -48,13 +53,12 @@ export class EndScene implements Scene {
     root.querySelector('.btn-restart')?.addEventListener('click', () => {
       const a = appRef.current;
       if (!a) return;
+      a.run?.dispose();
       a.run = new RunController();
       a.go('map');
     });
     root.querySelector('.btn-title')?.addEventListener('click', () => {
-      const a = appRef.current;
-      if (a) a.run = null;
-      a?.go('title');
+      appRef.current?.go('title');
     });
   }
 }

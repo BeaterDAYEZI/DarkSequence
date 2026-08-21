@@ -3,6 +3,8 @@ import { registry } from '../../core/registry';
 import { RARITY_NAME, type HeroId } from '../../core/types';
 import { RunController } from '../../game/RunController';
 import { describeEffect } from '../../core/effectText';
+import { appRef } from '../../app/appRef';
+import { SaveSystem } from '../../systems/run/SaveSystem';
 
 export class CampPanel {
   private tab: 'heroes' | 'cards' | 'fusion' | 'tech' = 'heroes';
@@ -38,6 +40,7 @@ export class CampPanel {
         </div>
         <div class="camp-body">${this.tabBody()}</div>
         <div class="camp-foot">
+          <button class="btn-camp-end" title="结束本次旅程并保存进度">结束旅程</button>
           <button class="btn-camp-leave">离开营地</button>
         </div>
       </div>`;
@@ -50,6 +53,12 @@ export class CampPanel {
     });
     this.bindBody(el);
     el.querySelector('.btn-camp-leave')?.addEventListener('click', this.onClose);
+    el.querySelector('.btn-camp-end')?.addEventListener('click', () => {
+      this.rc.dispose();
+      SaveSystem.saveRun(this.rc.run); // 进度已由自动存档保存，这里兜底
+      appRef.current!.run = null;
+      appRef.current?.go('title');
+    });
     return el;
   }
 

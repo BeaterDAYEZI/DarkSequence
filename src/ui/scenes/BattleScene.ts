@@ -8,15 +8,19 @@ import { Rng, randomSeed } from '../../core/rng';
 import { createNewRun } from '../../systems/run/RunState';
 import { BattleController } from '../../game/BattleController';
 import type { RunController } from '../../game/RunController';
+import { SaveSystem } from '../../systems/run/SaveSystem';
 import { createCardEl } from '../components/CardView';
 import { createSteamGauge } from '../components/SteamGauge';
-import type { HeroId, HeroInstance, EnemyInstance, StatusInstance, MapNode } from '../../core/types';
+import type { HeroId, HeroInstance, EnemyInstance, StatusInstance, MapNode, BattleState } from '../../core/types';
 
 interface BattleParams {
   /** 整局流程模式（地图进入） */
   rc?: RunController;
   nodeId?: string;
   monsters?: { defId: string; count: number }[];
+  /** 读档恢复 */
+  resume?: boolean;
+  battleSnapshot?: BattleState;
   /** 调试模式（标题试玩） */
   encounterId?: string;
 }
@@ -58,8 +62,17 @@ export class BattleScene implements Scene {
       const techEffects = p.rc.run.techUnlocked
         .map((id) => registry.techs.get(id)?.effectId)
         .filter((x) => !!x) as string[];
-      this.controller = new BattleController(p.rc.run, zone, p.rc.rng, techEffects, p.rc.isAvatarForm());
-      this.controller.beginBattle(monsters);
+      if (p.resume && p.battleSnapshot) {
+        // 读档：恢复到快照回合的规划阶段
+        this.controller = BattleController.restore(
+          p.rc.run, zone, p.rc.rng, techEffects, p.rc.isAvatarForm(), p.battleSnapshot,
+        );
+        this.controller.battle.phase = 'planning';
+      } else {
+        this.controller = new BattleController(p.rc.run, zone, p.rc.rng, techEffects, p.rc.isAvatarForm());
+        this.controller.beginBattle(monsters);
+      }
+      this.saveBattleSnapshot();
     } else {
       // 调试模式
       const encounterId = p.encounterId ?? 'zone1_encounter1';
@@ -333,6 +346,7 @@ export class BattleScene implements Scene {
       if (this.controller.outcome.result !== 'ongoing') {
         this.controller.run.resources.soulfire = this.controller.battle.soulfire;
       }
+      this.saveBattleSnapshot(); // 下一回合开始快照
       this.render();
     });
 
@@ -402,6 +416,13 @@ export class BattleScene implements Scene {
     t.textContent = msg;
     t.classList.remove('hidden');
     setTimeout(() => t.classList.add('hidden'), 1600);
+  }
+
+  /** 战斗级存档：回合开始快照（刷新页面可恢复） */
+  private saveBattleSnapshot(): void {
+    if (!this.runController || !this.battleNode) return;
+    if (this.controller.outcome.result !== 'ongoing') return;
+    SaveSystem.saveBattle(this.runController.run, this.controller.battle, this.battleNode.id);
   }
 }
 

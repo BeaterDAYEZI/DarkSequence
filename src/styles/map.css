@@ -192,7 +192,8 @@
 .camp-tabs button { font-size: 13px; }
 .camp-tabs button.active { border-color: var(--accent); color: var(--accent); }
 .camp-body { flex: 1; overflow-y: auto; min-height: 200px; display: flex; flex-direction: column; gap: 8px; }
-.camp-foot { margin-top: 14px; text-align: right; }
+.camp-foot { margin-top: 14px; text-align: right; display: flex; gap: 10px; justify-content: flex-end; }
+.btn-camp-end { color: #d08080; border-color: #5a2a2a; font-size: 12px; }
 .camp-toast {
   position: absolute;
   bottom: 70px;

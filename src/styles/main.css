@@ -131,6 +131,14 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   border-color: var(--accent-dim);
   color: var(--accent);
 }
+.title-continue {
+  margin-top: 10px;
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  background: transparent;
+  color: var(--hp-good);
+  border-color: #3a5a3a;
+}
 .title-debug {
   margin-top: 10px;
   font-size: 12px;
@@ -147,6 +155,71 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   font-size: 11px;
   letter-spacing: 0.4em;
   color: #55505f;
+}
+.title-audio {
+  margin-top: 10px;
+  font-size: 12px;
+  background: transparent;
+  color: var(--text-dim);
+  border-color: var(--border);
+}
+
+/* ============ 氛围层 ============ */
+.atmosphere-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.train-silhouette {
+  position: fixed;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+}
+.train-silhouette .headlight {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 300px;
+  background: linear-gradient(180deg, rgba(201,162,39,0.14) 0%, rgba(201,162,39,0.05) 60%, transparent 100%);
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  filter: blur(2px);
+  animation: headlight-flicker 4s ease-in-out infinite;
+}
+@keyframes headlight-flicker {
+  0%, 100% { opacity: 0.85; }
+  45% { opacity: 1; }
+  60% { opacity: 0.7; }
+}
+.train-silhouette .train-body {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-width: 860px;
+  height: 26px;
+  background: linear-gradient(180deg, #16161c, #0a0a0e);
+  border-top: 2px solid #26262e;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -4px 30px rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.train-silhouette .wheel {
+  color: #1c1c26;
+  font-size: 22px;
+  animation: wheel-spin 1.2s linear infinite;
+}
+@keyframes wheel-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ============ 调试页 ============ */

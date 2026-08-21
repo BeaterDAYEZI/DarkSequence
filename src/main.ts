@@ -12,6 +12,7 @@ import { EndScene } from './ui/scenes/EndScene';
 import { registry } from './core/registry';
 import { loadAllData } from './data/index';
 import { runDebugBattle, autoPlan } from './debug/battleDebug';
+import { audio } from './ui/fx/AudioManager';
 
 // 控制台调试入口（headless战斗验证）
 Object.assign(window, { runDebugBattle, autoPlan });
@@ -23,6 +24,10 @@ loadAllData();
 
 const app = new App(root);
 appRef.current = app;
+// 氛围层挂到body（场景切换会清空#app）
+app.atmosphere.mount(document.body);
+// 首次交互解锁音频
+document.addEventListener('pointerdown', () => audio.unlock(), { once: true });
 app.scenes.register('title', new TitleScene());
 app.scenes.register('debug', new DebugScene());
 app.scenes.register('battle', new BattleScene());

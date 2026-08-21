@@ -394,6 +394,7 @@ export interface BattleState {
   furnaceStacks: number;                                  // 炉火升温层数（每层攻击+20%）
   zoneId: string;                                         // 当前战斗所在区域
   blockNerf: number;                                      // 遗忘之轨：格挡获取-2（最低0）
+  awakenedThisBattle: HeroId[];                           // 本场已觉醒过的英雄（回响增幅科技判定）
 }
 
 /** 单局状态快照（唯一真相源） */

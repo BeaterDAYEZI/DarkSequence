@@ -36,7 +36,6 @@ export class BattleEngine {
   battle!: BattleState;
   stats: { kills: number; damage: number } = { kills: 0, damage: 0 };
   private uidCounter = 0;
-  private awakenedSet = new Set<HeroId>();
   private battleEnded = false;
 
   constructor(
@@ -79,6 +78,7 @@ export class BattleEngine {
       furnaceStacks: 0,
       zoneId: this.zone.id,
       blockNerf: 0,
+      awakenedThisBattle: [],
     };
   }
 
@@ -86,8 +86,8 @@ export class BattleEngine {
   startEncounter(monsters: { defId: string; count: number }[]): void {
     this.battleEnded = false;
     combatLog.clear();
-    this.awakenedSet.clear();
     const battle = this.battle;
+    battle.awakenedThisBattle = [];
     battle.soulfire = this.run.resources.soulfire;
 
     // 英雄战斗态重置
@@ -653,11 +653,37 @@ export class BattleEngine {
 
   // ================= 元数据/科技接口 =================
   markAwakened(heroId: HeroId): void {
-    this.awakenedSet.add(heroId);
+    if (!this.battle.awakenedThisBattle.includes(heroId)) {
+      this.battle.awakenedThisBattle.push(heroId);
+    }
   }
 
   battleAwakenedThisBattle(heroId: HeroId): boolean {
-    return this.awakenedSet.has(heroId);
+    return this.battle.awakenedThisBattle.includes(heroId);
+  }
+
+  // ================= 存档恢复 =================
+  /** 从快照恢复战斗（战斗中刷新回到回合开始） */
+  static restore(
+    run: RunState,
+    zone: ZoneDef,
+    rng: Rng,
+    techEffects: Set<string>,
+    avatarForm: boolean,
+    battle: BattleState,
+  ): BattleEngine {
+    const engine = new BattleEngine(run, zone, rng, techEffects, avatarForm);
+    engine.battle = battle;
+    engine.ctx.battle = battle;
+    // 恢复uid计数器（取最大值+1）
+    let maxUid = 0;
+    for (const e of battle.enemies) {
+      const m = e.uid.match(/^e(\d+)_/);
+      if (m) maxUid = Math.max(maxUid, Number(m[1]));
+    }
+    engine['uidCounter'] = maxUid;
+    engine.battleEnded = battle.phase === 'victory' || battle.phase === 'defeat';
+    return engine;
   }
 
   /** 执念阈值是否已解锁（obsessionCount累计） */

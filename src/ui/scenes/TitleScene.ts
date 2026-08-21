@@ -3,6 +3,8 @@ import type { Scene } from '../../app/SceneManager';
 import { appRef } from '../../app/appRef';
 import { registry } from '../../core/registry';
 import { RunController } from '../../game/RunController';
+import { SaveSystem } from '../../systems/run/SaveSystem';
+import { audio } from '../fx/AudioManager';
 
 export class TitleScene implements Scene {
   private root!: HTMLElement;
@@ -28,7 +30,9 @@ export class TitleScene implements Scene {
             </ul>
           </div>
           <button class="title-start" title="开始一局新的旅程">开始旅程</button>
+          ${SaveSystem.hasSave() ? '<button class="title-continue" title="从上次的进度继续">继续旅程</button>' : ''}
           <button class="title-debug" title="直接试玩区域一教学遭遇">试玩战斗</button>
+          <button class="title-audio" title="切换音效">${audio.enabled ? '🔊 音效开' : '🔇 音效关'}</button>
           <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨</div>
         </div>
       </div>
@@ -37,11 +41,29 @@ export class TitleScene implements Scene {
     this.root.querySelector('.title-start')?.addEventListener('click', () => {
       const app = appRef.current;
       if (!app) return;
+      app.run?.dispose();
       app.run = new RunController();
       app.go('map');
     });
+    this.root.querySelector('.title-continue')?.addEventListener('click', () => {
+      const app = appRef.current;
+      if (!app) return;
+      const data = SaveSystem.load();
+      if (!data) return;
+      app.run?.dispose();
+      app.run = RunController.fromSave(data);
+      if (data.battle && data.battleNodeId) {
+        app.go('battle', { rc: app.run, nodeId: data.battleNodeId, resume: true, battleSnapshot: data.battle });
+      } else {
+        app.go('map');
+      }
+    });
     this.root.querySelector('.title-debug')?.addEventListener('click', () => {
       appRef.current?.go('battle', { encounterId: 'zone1_encounter1' });
+    });
+    this.root.querySelector('.title-audio')?.addEventListener('click', (e) => {
+      audio.toggle();
+      (e.currentTarget as HTMLElement).textContent = audio.enabled ? '🔊 音效开' : '🔇 音效关';
     });
 
     console.log('[暗蚀牌序] 数据校验报告', report);

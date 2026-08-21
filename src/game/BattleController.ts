@@ -1,23 +1,36 @@
 // 战斗控制器：UI ↔ 引擎 的桥（UI 只读状态 + 发命令）
-import type { RunState, ZoneDef, HeroId } from '../core/types';
+import type { RunState, ZoneDef, BattleState, HeroId } from '../core/types';
 import { Rng } from '../core/rng';
 import { registry } from '../core/registry';
 import { BattleEngine } from '../systems/battle/BattleEngine';
 
 export class BattleController {
-  readonly engine: BattleEngine;
-  /** 本局已解锁科技 effectId */
-  readonly techs: Set<string>;
+  engine: BattleEngine;
+  techs: Set<string>;
 
   constructor(
-    readonly run: RunState,
-    readonly zone: ZoneDef,
+    public run: RunState,
+    public zone: ZoneDef,
     rng: Rng,
     techEffects: string[],
     avatarForm = false,
   ) {
     this.techs = new Set(techEffects);
     this.engine = new BattleEngine(run, zone, rng, this.techs, avatarForm);
+  }
+
+  /** 从战斗快照恢复（读档回到回合开始） */
+  static restore(
+    run: RunState,
+    zone: ZoneDef,
+    rng: Rng,
+    techEffects: string[],
+    avatarForm: boolean,
+    battle: BattleState,
+  ): BattleController {
+    const c = new BattleController(run, zone, rng, techEffects, avatarForm);
+    c.engine = BattleEngine.restore(run, zone, rng, c.techs, avatarForm, battle);
+    return c;
   }
 
   get battle() {
