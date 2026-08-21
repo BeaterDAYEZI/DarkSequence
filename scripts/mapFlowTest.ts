@@ -69,6 +69,42 @@ check('区域记忆标记已记录', rc.run.forkMemory['zone1'] === 'memory');
 check('可达节点为左轨战斗', rc.getReachable().some((n) => n.id === 'zone1_n4L')
   && !rc.getReachable().some((n) => n.id === 'zone1_n4R'));
 
+// 5b. 地图结构完整性：BFS 必须覆盖区域内全部节点（防止孤儿节点导致UI崩溃）
+{
+  const zoneNodes = rc.run.map.filter((n) => n.zoneId === 'zone1');
+  const start = zoneNodes.find((n) => n.type === 'start')!;
+  const depth = new Map<string, number>();
+  const queue = [start.id];
+  depth.set(start.id, 0);
+  while (queue.length) {
+    const id = queue.shift()!;
+    const node = rc.run.map.find((n) => n.id === id)!;
+    for (const nextId of node.next) {
+      if (!depth.has(nextId)) {
+        depth.set(nextId, depth.get(id)! + 1);
+        queue.push(nextId);
+      }
+    }
+  }
+  const orphans = zoneNodes.filter((n) => !depth.has(n.id)).map((n) => n.id);
+  check('地图无孤儿节点（BFS全覆盖）', orphans.length === 0, orphans.join(',') || '全部可达');
+}
+// 5c. 右轨路径验证：遗忘之轨 → 事件节点 → 战斗 → 调度站
+{
+  const rc2 = new RunController(987654);
+  rc2.run.currentNodeId = 'zone1_n3';
+  rc2.nodeById('zone1_n3').resolved = true;
+  const relicBefore = [...rc2.run.deck.drawPile, ...rc2.run.deck.hand, ...rc2.run.deck.discardPile]
+    .filter((c) => !registry.cards.get(c)?.heroId).length;
+  const fork2 = rc2.chooseFork('oblivion');
+  check('右轨选择指向事件节点', fork2.chosenNodeId === 'zone1_n4R');
+  check('遗忘之轨复制一张遗物牌',
+    [...rc2.run.deck.drawPile, ...rc2.run.deck.hand, ...rc2.run.deck.discardPile]
+      .filter((c) => !registry.cards.get(c)?.heroId).length === relicBefore + 1);
+  const enterEvent = rc2.travelTo('zone1_n4R');
+  check('右轨事件节点可进入', enterEvent?.type === 'event');
+}
+
 // 6. 左轨：战斗 + 精英
 rc.travelTo('zone1_n4L');
 simulateBattle(rc, rc.encounterMonsters(rc.nodeById('zone1_n4L')));

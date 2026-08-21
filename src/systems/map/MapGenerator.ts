@@ -37,7 +37,7 @@ export function generateZoneMap(zone: ZoneDef, rng: Rng): MapNode[] {
   start.next = [b1.id];
   b1.next = [b2.id];
   b2.next = [fork.id];
-  fork.next = [leftBattle.id, rightBattle.id];
+  fork.next = [leftBattle.id, rightEvent.id];
   leftBattle.next = [leftElite.id];
   leftElite.next = [station.id];
   rightEvent.next = [rightBattle.id];
