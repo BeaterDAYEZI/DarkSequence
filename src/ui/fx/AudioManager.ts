@@ -5,13 +5,13 @@ const AUDIO_KEY = 'dark-sequence-audio';
 
 /** 场景音乐映射 */
 const BGM_MAP: Record<string, string> = {
-  title: '/assets/audio/menu.wav',     // 主菜单标题界面
-  map: '/assets/audio/explore.wav',    // 区域探索
-  battle: '/assets/audio/battle.wav',  // 普通战斗
-  boss: '/assets/audio/boss.wav',      // Boss战
-  camp: '/assets/audio/camp.wav',      // 营地调度站
-  fail: '/assets/audio/fail.wav',      // 游戏失败
-  awaken: '/assets/audio/awaken.wav',  // 狂气觉醒（战斗内覆盖曲）
+  title: '/assets/audio/menu.mp3',     // 主菜单标题界面
+  map: '/assets/audio/explore.mp3',    // 区域探索
+  battle: '/assets/audio/battle.mp3',  // 普通战斗
+  boss: '/assets/audio/boss.mp3',      // Boss战
+  camp: '/assets/audio/camp.mp3',      // 营地调度站
+  fail: '/assets/audio/fail.mp3',      // 游戏失败
+  awaken: '/assets/audio/awaken.mp3',  // 狂气觉醒（战斗内覆盖曲）
 };
 
 /** 安全读取localStorage（VS Code集成浏览器等沙箱环境可能抛SecurityError） */
