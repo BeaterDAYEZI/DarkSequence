@@ -267,12 +267,12 @@
 
 /* ============ 背景图（追加在默认样式之后，避免被简写覆盖） ============ */
 .map-scene {
-  background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)), var(--map-bg);
-  background-size: cover, cover;
-  background-position: center, center;
+  background-image: var(--map-bg);
+  background-size: cover;
+  background-position: center;
 }
 .end-scene {
-  background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)), var(--end-bg);
-  background-size: cover, cover;
-  background-position: center, center;
+  background-image: var(--end-bg);
+  background-size: cover;
+  background-position: center;
 }
