@@ -67,6 +67,13 @@ export class BuffSystem {
       this.engine.rawDamage(target, bleed.stacks * 2, { source: 'bleed', bypassBlock: true });
       this.decay(target, bleed);
     }
+    // 腐蚀：每层流失 value 点生命（默认4）
+    const corrosion = this.has(target, 'corrosion');
+    if (corrosion) {
+      const per = corrosion.value ?? 4;
+      this.engine.rawDamage(target, corrosion.stacks * per, { source: 'corrosion', bypassBlock: true });
+      this.decay(target, corrosion);
+    }
     // 其余持续时间衰减
     for (const s of [...target.statuses]) {
       if (s.duration > 0) {

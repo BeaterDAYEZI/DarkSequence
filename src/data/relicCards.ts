@@ -87,6 +87,116 @@ export const RELIC_CARDS: CardDef[] = [
   }),
 ];
 
+// ============================================================
+// 公共遗物牌池（卡牌优化 v1）：泛用辅助P-01~07 / 流派核心C-01~08 / 风险收益R-01~05
+// 获取方式：岔道奖励、战斗掉落、调度站兑换
+// ============================================================
+export const PUBLIC_RELIC_CARDS: CardDef[] = [
+  // ---- 泛用辅助 ----
+  relic({
+    id: 'p01_gear', name: '锈蚀齿轮', rarity: 'green', cost: 0,
+    tags: ['speed', 'draw'], flavor: '转不动的齿轮，也能撬动时间。',
+    effects: [{ kind: 'draw', amount: 1 }, { kind: 'speed', amount: 1 }],
+  }),
+  relic({
+    id: 'p02_armorplate', name: '蚀铁护甲片', rarity: 'green', cost: 1,
+    tags: ['defense', 'heal'], flavor: '贴在胸口的最后一道防线。',
+    effects: [{ kind: 'block', target: SELF, amount: 5 }, { kind: 'heal', target: SELF, amount: 2 }],
+  }),
+  relic({
+    id: 'p03_crystal', name: '共鸣水晶', rarity: 'green', cost: 0,
+    tags: ['madness', 'heal'], flavor: '水晶里困着一段还没散去的叹息。',
+    effects: [{ kind: 'madnessGain', target: ALLY_ALL, amount: 2 }, { kind: 'heal', target: ALLY_ALL, amount: 3 }],
+  }),
+  relic({
+    id: 'p04_signal', name: '信号灯', rarity: 'green', cost: 1,
+    tags: ['crit'], flavor: '灯亮起的时候，所有人都知道要动手了。',
+    effects: [{ kind: 'applyStatus', target: ALLY_ALL, status: 'critUp', stacks: 1, duration: 1, value: 0.15 }],
+  }),
+  relic({
+    id: 'p05_bandage', name: '急救绷带', rarity: 'green', cost: 0,
+    tags: ['heal'], flavor: '缠得够紧，就能假装伤口不存在。',
+    effects: [{ kind: 'clearStatus', target: ALLY_LOWEST, status: 'bleed', stacks: 1 }, { kind: 'clearStatus', target: ALLY_LOWEST, status: 'corrosion', stacks: 1 }],
+  }),
+  relic({
+    id: 'p06_cinder', name: '煤渣', rarity: 'green', cost: 0,
+    tags: ['soulfire'], flavor: '锅炉吃剩的渣滓，也能换点东西。',
+    effects: [{ kind: 'discardCard' }, { kind: 'soulfireGain', amount: 5 }],
+  }),
+  relic({
+    id: 'p07_rivet', name: '铁轨铆钉', rarity: 'green', cost: 1,
+    tags: ['attack', 'speed'], flavor: '敲下去，整条铁轨都会抖一抖。',
+    effects: [{ kind: 'damage', target: EPOS([1]), amount: 4 }, { kind: 'speed', amount: -1 }],
+  }),
+  // ---- 流派核心 ----
+  relic({
+    id: 'c01_engine', name: '魂火引擎', rarity: 'blue', cost: 1,
+    tags: ['soulfire'], flavor: '把魂火烧进锅炉，让整列列车咆哮。',
+    effects: [{ kind: 'soulfireSteal', amount: 10 }, { kind: 'damageMultTurn', damageMult: 1.3 }],
+  }),
+  relic({
+    id: 'c02_conduit', name: '暗蚀导管', rarity: 'blue', cost: 1,
+    tags: ['overkill'], flavor: '溢出的能量顺着导管流进每个人的肌肉。',
+    effects: [{ kind: 'permanentStrength', limitPerRun: true, darkToStrength: true }],
+  }),
+  relic({
+    id: 'c03_valve', name: '增压阀', rarity: 'blue', cost: 1,
+    tags: ['speed'], flavor: '压力表红到发烫，但速度从不撒谎。',
+    effects: [{ kind: 'speed', amount: 3 }, { kind: 'damage', target: ALLY_ALL, amount: 5, pierceBlock: true }],
+  }),
+  relic({
+    id: 'c04_brake', name: '刹车间', rarity: 'blue', cost: 0,
+    tags: ['speed', 'madness'], flavor: '全速倒车，把脑子里的轰鸣也甩出去。',
+    effects: [{ kind: 'speed', amount: -5 }, { kind: 'madnessClear', target: ALLY_ALL }],
+  }),
+  relic({
+    id: 'c05_resonator', name: '狂气共鸣器', rarity: 'blue', cost: 1,
+    tags: ['madness', 'aoe'], flavor: '一个人的疯狂，经它能变成一群人的灾难。',
+    effects: [{ kind: 'copyMadness', target: { side: 'ally', mode: 'highestMadnessAlly' } }],
+  }),
+  relic({
+    id: 'c06_doublefire', name: '双连发装置', rarity: 'blue', cost: 2,
+    tags: ['attack'], flavor: '扳机扣两下，第二下留给悔恨。',
+    effects: [{ kind: 'nextAttackDouble' }],
+  }),
+  relic({
+    id: 'c07_markbarrage', name: '标记弹幕', rarity: 'blue', cost: 1,
+    tags: ['mark'], flavor: '每一道瞄准线都是一句宣判。',
+    effects: [{ kind: 'applyStatus', target: EALL, status: 'mark', stacks: 1, duration: 2 }],
+  }),
+  relic({
+    id: 'c08_acid', name: '腐蚀酸液', rarity: 'blue', cost: 1,
+    tags: ['dot'], flavor: '蚀雾的液态形态，比雾更记仇。',
+    effects: [{ kind: 'applyStatus', target: EFRONT, status: 'corrosion', stacks: 2, duration: 3, value: 4 }],
+  }),
+  // ---- 风险收益 ----
+  relic({
+    id: 'r01_pact', name: '恶魔契约', rarity: 'orange', cost: 0,
+    tags: ['risk'], flavor: '签下名字的那刻，你的影子咧开了嘴。',
+    effects: [{ kind: 'damageMultTurn', damageMult: 2 }, { kind: 'applyStatus', target: ALLY_ALL, status: 'exhaust', stacks: 1, duration: 1 }],
+  }),
+  relic({
+    id: 'r02_sacrifice', name: '血祭献祭', rarity: 'orange', cost: 0,
+    tags: ['soulfire', 'risk'], flavor: '把最后一点体温换成一捧火。',
+    effects: [{ kind: 'soulfireGain', amount: 30 }, { kind: 'hpSet', hpTo: 1 }],
+  }),
+  relic({
+    id: 'r03_inhaler', name: '蚀雾吸入口', rarity: 'orange', cost: 0,
+    tags: ['draw', 'madness', 'risk'], flavor: '深吸一口。知识在肺里燃烧。',
+    effects: [{ kind: 'draw', amount: 3 }, { kind: 'madnessGain', target: ALLY_ALL, amount: 15 }],
+  }),
+  relic({
+    id: 'r04_abandoned', name: '废弃车厢', rarity: 'orange', cost: 2,
+    tags: ['risk', 'speed'], flavor: '拆掉一节车厢，换来的自由值得吗？',
+    effects: [{ kind: 'ignorePosTurn' }, { kind: 'permanentSpeed', amount: -2 }],
+  }),
+  relic({
+    id: 'r05_timewarp', name: '时空错位', rarity: 'orange', cost: 1,
+    tags: ['draw', 'risk'], flavor: '铁轨在雾里打了个结，你伸手够到了昨天的牌。',
+    effects: [{ kind: 'copyLastCard' }],
+  }),
+];
+
 // ---- 特殊融合产物（配方见 fusionRecipes.ts） ----
 export const FUSED_CARDS: CardDef[] = [
   relic({

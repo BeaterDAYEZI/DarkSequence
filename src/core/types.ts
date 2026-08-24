@@ -39,7 +39,9 @@ export type StatusId =
   | 'awakened'       // 觉醒中：伤害+50%、受伤-25%、专属牌费-1
   | 'critUp'         // 暴击率提升（value=单层数值，stacks=层数）
   | 'enraged'        // 暴走·敌：伤害+50%（value=倍率）
-  | 'swallowed';     // 被吞噬：移出战斗（需累计伤害救回）
+  | 'swallowed'      // 被吞噬：移出战斗（需累计伤害救回）
+  | 'corrosion'      // 腐蚀：每回合流失4点生命（value=每层流失量）
+  | 'exhaust';       // 虚脱：本回合只能打出1张牌
 
 // ---------- 条件（EffectSpec.condition 引用） ----------
 export type ConditionId =
@@ -85,7 +87,16 @@ export type EffectKind =
   | 'summon'            // 召唤（Boss用）
   | 'soulfireClear'     // 清空魂火（枕木自爆）
   | 'critGain'          // 暴击率提升（scope: battle=本场 run=全局）
-  | 'swallow';          // 吞噬1号位英雄（Boss蠕虫）
+  | 'swallow'           // 吞噬1号位英雄（Boss蠕虫）
+  | 'discardCard'       // 弃掉1张手牌（煤渣）
+  | 'hpSet'             // 设置生命值为指定值（血祭献祭→1）
+  | 'copyLastCard'      // 复制上一回合打出的最后一张牌（时空错位）
+  | 'damageMultTurn'    // 本回合所有英雄伤害×N（恶魔契约/魂火引擎）
+  | 'ignorePosTurn'     // 本回合所有英雄无视站位限制（废弃车厢）
+  | 'permanentSpeed'    // 列车速度本局永久±N（废弃车厢-2）
+  | 'permanentStrength' // 全队获得永久力量（暗蚀导管）
+  | 'nextAttackDouble'  // 本回合下一张攻击牌打出两次（第二次伤害减半）
+  | 'copyMadness';      // 复制一名队友狂气给全体敌人（狂气共鸣器）
 
 export interface EffectSpec {
   kind: EffectKind;
@@ -120,6 +131,12 @@ export interface EffectSpec {
   clearMadnessIfSpeedZero?: boolean;    // 速度归零→清除全队狂气
   fallbackDamage?: number;              // 魂火不足时改为伤害
   critScope?: 'battle' | 'run';         // critGain 作用域
+  // ---- 新卡牌机制附加 ----
+  copyFrom?: HeroId;                    // copyMadness：复制谁的狂气（空=打出者）
+  damageMult?: number;                  // damageMultTurn 倍率
+  limitPerRun?: boolean;                // permanentStrength：每局限1次
+  hpTo?: number;                        // hpSet 目标值
+  darkToStrength?: boolean;             // permanentStrength：力量=当前暗蚀×0.5
 }
 
 // ---------- 卡牌 ----------
@@ -373,6 +390,7 @@ export interface QueueAction {
   heroId?: HeroId;      // playCard/extraPlay 归属英雄
   enemyUid?: string;    // enemyAct 归属
   free?: boolean;       // extraPlay 免能量
+  halve?: boolean;      // 双连发：第二次伤害减半
 }
 
 export interface BattleState {
@@ -395,6 +413,10 @@ export interface BattleState {
   zoneId: string;                                         // 当前战斗所在区域
   blockNerf: number;                                      // 遗忘之轨：格挡获取-2（最低0）
   awakenedThisBattle: HeroId[];                           // 本场已觉醒过的英雄（回响增幅科技判定）
+  damageMult: number;                                     // 本回合伤害倍率（恶魔契约/魂火引擎）
+  ignorePosTurn: boolean;                                 // 本回合无视站位限制（废弃车厢）
+  nextAttackDouble: boolean;                              // 本回合下一张攻击牌双发
+  exhaustHeroes: HeroId[];                                // 本回合虚脱（只能打1张）的英雄
 }
 
 /** 单局状态快照（唯一真相源） */
@@ -413,6 +435,12 @@ export interface RunState {
   };
   /** 动态生成的卡牌（铭刻融合产物，读档时重建注册） */
   customCards: Record<string, CardDef>;
+  /** 永久成长（暗蚀导管等，跨战斗） */
+  permStrength: Record<HeroId, number>;
+  /** 列车速度本局永久修正（废弃车厢-2） */
+  permSpeedMod: number;
+  /** 每局限用1次的牌已使用标记（暗蚀导管） */
+  usedLimitCards: string[];
   heroes: Record<HeroId, HeroInstance>;
   resources: {
     shards: number;      // 残响碎片

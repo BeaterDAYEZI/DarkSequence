@@ -79,6 +79,10 @@ export class BattleEngine {
       zoneId: this.zone.id,
       blockNerf: 0,
       awakenedThisBattle: [],
+      damageMult: 1,
+      ignorePosTurn: false,
+      nextAttackDouble: false,
+      exhaustHeroes: [],
     };
   }
 
@@ -108,10 +112,11 @@ export class BattleEngine {
       }
     }
 
-    // 初始速度：锅炉增压科技+1，环境规则修正
+    // 初始速度：锅炉增压科技+1，环境规则修正，本局永久修正（废弃车厢-2）
     let speed = 0;
     if (this.ctx.techs.has('initialSpeed')) speed += 1;
     if (this.zone.environmentRule.id === 'speedStartDelta') speed += this.zone.environmentRule.amount ?? 0;
+    speed += this.run.permSpeedMod ?? 0;
     battle.trainSpeed = Math.max(0, Math.min(5, speed));
 
     // 岔道区域效果：左轨（记忆）全队力量+3 / 右轨（遗忘）格挡获取-2
@@ -285,8 +290,12 @@ export class BattleEngine {
     if (this.buffs.has(hero, 'silenceHeal') && card.tags.includes('heal')) {
       return '低语萦绕，无法使用治疗牌';
     }
-    // 车厢与速度条件
-    if (card.carriageReq) {
+    // 虚脱：本回合只能打1张（恶魔契约负面）
+    if (this.buffs.has(hero, 'exhaust') && battle.playedThisTurn.filter((p) => p.heroId === heroId).length >= 1) {
+      return '虚脱中，本回合只能打出1张牌';
+    }
+    // 车厢与速度条件（废弃车厢：本回合无视站位）
+    if (card.carriageReq && !battle.ignorePosTurn) {
       const { mode, pos } = card.carriageReq;
       if (mode === 'exact' && !pos.includes(hero.pos)) return `需要在${pos.join('/')}号车厢`;
       if (mode === 'not' && pos.includes(hero.pos)) return `不能在${pos.join('/')}号车厢`;
@@ -335,7 +344,7 @@ export class BattleEngine {
       const action = this.battle.queue.shift()!;
       switch (action.kind) {
         case 'playCard':
-          this.playCard(action.heroId!, action.cardId!, action.free);
+          this.playCard(action.heroId!, action.cardId!, action.free, action.halve);
           break;
         case 'extraPlay':
           this.processExtraPlay(action.heroId!);
@@ -366,7 +375,7 @@ export class BattleEngine {
   }
 
   /** 打出一张卡 */
-  playCard(heroId: HeroId, cardId: string, free = false): void {
+  playCard(heroId: HeroId, cardId: string, free = false, actionHalve = false): void {
     const battle = this.battle;
     const hero = battle.heroes[heroId];
     const card = registry.cards.get(cardId)!;
@@ -378,6 +387,7 @@ export class BattleEngine {
     this.deck.deck.discardPile.push(cardId);
     battle.playedThisTurn.push({ heroId, cardId });
     if (battle.playedThisTurn.length === 1) combatLog.setFirstCard(battle.turn, heroId, cardId);
+    combatLog.setLastCard(battle.turn, heroId, cardId);  // 时空错位用
     // 共鸣计数（打出前检查 → 倍率）
     let mult = 1;
     if (card.resonance) {
@@ -390,7 +400,16 @@ export class BattleEngine {
     for (const tag of card.tags) battle.resonanceCount[tag] = (battle.resonanceCount[tag] ?? 0) + 1;
 
     this.log(`▶ ${this.heroName(heroId)} 打出【${card.name}】（${cost === 0 ? '免费' : `-${cost}能量`}）`, 'system');
-    this.resolver.resolve(card.effects, { source: { side: 'hero', heroId }, card, mult, paidCost: cost });
+    this.resolver.resolve(card.effects, {
+      source: { side: 'hero', heroId }, card, mult, paidCost: cost,
+      halve: actionHalve,
+    });
+    // 双连发装置：下一张攻击牌打出两次（第二次伤害减半）
+    if (battle.nextAttackDouble && card.effects.some((e) => e.kind === 'damage')) {
+      battle.nextAttackDouble = false;
+      this.log(`🔁 双连发装置触发：${card.name} 再次打出（伤害减半）`, 'system');
+      this.battle.queue.unshift({ kind: 'playCard', heroId, cardId, free: true, halve: true });
+    }
     this.run.stats.turns += 0;
     this.run.stats.damage += 0;
     eventBus.emit('stateChanged', { scope: 'battle' });
@@ -455,6 +474,11 @@ export class BattleEngine {
     this.deck.discardHand();
     // 觉醒/暴走tick
     this.madness.tickEnd();
+    // 回合性效果重置（恶魔契约/废弃车厢/双连发/虚脱）
+    battle.damageMult = 1;
+    battle.ignorePosTurn = false;
+    battle.nextAttackDouble = false;
+    battle.exhaustHeroes = [];
     // Boss推进（脱轨判定）
     if (battle.enemies.some((e) => e.hp > 0 && registry.monsters.get(e.defId)?.bossAdvance)) {
       if (this.train.bossAdvance()) {

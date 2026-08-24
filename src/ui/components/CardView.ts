@@ -37,7 +37,9 @@ export function createCardEl(card: CardDef, opts: CardViewOptions = {}): HTMLEle
 const TAG_NAMES: Record<string, string> = {
   speed: '加速', displace: '位移', heal: '治疗', madness: '狂气',
   aoe: '群攻', arcane: '法术', melee: '近战', ranged: '远程',
-  physical: '物理', draw: '抽牌', resonance: '共鸣',
+  physical: '物理', draw: '抽牌', resonance: '共鸣', defense: '防御',
+  attack: '攻击', mark: '标记', crit: '暴击', overkill: '溢伤',
+  soulfire: '魂火', dot: '持续', risk: '风险',
 };
 
 function tagName(tag: string): string {

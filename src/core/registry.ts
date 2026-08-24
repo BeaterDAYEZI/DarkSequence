@@ -11,7 +11,7 @@ export interface ValidationReport {
 }
 
 const KNOWN_TAGS = new Set(['speed', 'displace', 'heal', 'madness', 'aoe', 'arcane', 'melee', 'ranged', 'physical', 'draw', 'resonance']);
-const KNOWN_STATUS = new Set(['bleed', 'vulnerable', 'fear', 'tenacity', 'imprison', 'healReduction', 'dodge', 'stun', 'mark', 'taunt', 'strength', 'revenge', 'guard', 'silenceHeal', 'awakened', 'critUp', 'enraged', 'swallowed']);
+const KNOWN_STATUS = new Set(['bleed', 'vulnerable', 'fear', 'tenacity', 'imprison', 'healReduction', 'dodge', 'stun', 'mark', 'taunt', 'strength', 'revenge', 'guard', 'silenceHeal', 'awakened', 'critUp', 'enraged', 'swallowed', 'corrosion', 'exhaust']);
 const KNOWN_TRAITS = new Set(['thorns', 'spiritBody', 'packInstinct', 'stealth', 'rooted', 'chainBound']);
 const KNOWN_CONDITIONS = new Set(['targetHpBelow50', 'speedGE2', 'speedGE3', 'madnessAbove50', 'killedThisHit']);
 const VALID_POS = new Set([1, 2, 3, 4]);

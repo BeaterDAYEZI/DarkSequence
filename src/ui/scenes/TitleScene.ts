@@ -5,6 +5,9 @@ import { registry } from '../../core/registry';
 import { RunController } from '../../game/RunController';
 import { SaveSystem } from '../../systems/run/SaveSystem';
 import { audio } from '../fx/AudioManager';
+import { DeckSelectPanel } from '../components/DeckSelectPanel';
+import type { DeckChoice } from '../../data/startingDecks';
+import type { HeroId } from '../../core/types';
 
 export class TitleScene implements Scene {
   private root!: HTMLElement;
@@ -39,11 +42,17 @@ export class TitleScene implements Scene {
     `;
 
     this.root.querySelector('.title-start')?.addEventListener('click', () => {
-      const app = appRef.current;
-      if (!app) return;
-      app.run?.dispose();
-      app.run = new RunController();
-      app.go('map');
+      // 弹出卡组选择面板
+      const panel = new DeckSelectPanel((choices: Record<HeroId, DeckChoice>) => {
+        panelEl.remove();
+        const app = appRef.current;
+        if (!app) return;
+        app.run?.dispose();
+        app.run = new RunController(undefined, choices);
+        app.go('map');
+      });
+      const panelEl = panel.render();
+      this.root.appendChild(panelEl);
     });
     this.root.querySelector('.title-continue')?.addEventListener('click', () => {
       const app = appRef.current;

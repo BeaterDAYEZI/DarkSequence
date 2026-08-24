@@ -10,7 +10,8 @@
     "test:mechanics": "tsx scripts/mechanicChecks.ts",
     "test:battle": "tsx scripts/headlessBattle.ts",
     "test:map": "tsx scripts/mapFlowTest.ts",
-    "test:sandbox": "node scripts/sandboxCheck.mjs"
+    "test:sandbox": "node scripts/sandboxCheck.mjs",
+    "test:newcards": "tsx scripts/newCardsTest.ts"
   },
   "devDependencies": {
     "playwright-core": "^1.62.1",

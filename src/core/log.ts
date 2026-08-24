@@ -9,6 +9,7 @@ export interface TurnRecord {
   turn: number;
   entries: LogEntry[];
   firstCardPlayed?: { heroId: string; cardId: string };  // 记忆铁轨用
+  lastCardPlayed?: { heroId: string; cardId: string };   // 时空错位用
 }
 
 class CombatLog {
@@ -33,9 +34,20 @@ class CombatLog {
     if (rec) rec.firstCardPlayed = { heroId, cardId };
   }
 
+  /** 记录某回合最后一张打出的牌（时空错位用） */
+  setLastCard(turn: number, heroId: string, cardId: string): void {
+    const rec = this.turnRecords.find((t) => t.turn === turn);
+    if (rec) rec.lastCardPlayed = { heroId, cardId };
+  }
+
   /** 取某回合第一张打出的牌（记忆铁轨） */
   getFirstCard(turn: number): { heroId: string; cardId: string } | undefined {
     return this.turnRecords.find((t) => t.turn === turn)?.firstCardPlayed;
+  }
+
+  /** 取某回合最后一张打出的牌（时空错位） */
+  getLastCard(turn: number): { heroId: string; cardId: string } | undefined {
+    return this.turnRecords.find((t) => t.turn === turn)?.lastCardPlayed;
   }
 
   getEntries(): readonly LogEntry[] {

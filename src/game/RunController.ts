@@ -1,5 +1,6 @@
 // 整局流程控制器：跑局状态机（旅行、节点进入、岔道、战斗结算、区域推进）
 import type { RunState, MapNode, ZoneDef, CardDef, Rarity, HeroId } from '../core/types';
+import type { DeckChoice } from '../data/startingDecks';
 import { registry } from '../core/registry';
 import { Rng, randomSeed } from '../core/rng';
 import { createNewRun } from '../systems/run/RunState';
@@ -23,9 +24,9 @@ export class RunController {
   private disposed = false;
   private offSave: (() => void) | null = null;
 
-  constructor(seed?: number) {
+  constructor(seed?: number, deckChoices?: Record<HeroId, DeckChoice>) {
     const s = seed ?? randomSeed();
-    this.run = createNewRun(s);
+    this.run = createNewRun(s, deckChoices);
     this.rng = new Rng(s);
     this.deck = new DeckSystem(this.run, this.rng);
     this.run.map = generateAllZones([...registry.zones.values()], this.rng);

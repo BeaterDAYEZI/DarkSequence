@@ -253,3 +253,54 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .fused { color: var(--accent); font-size: 10px; border: 1px solid var(--accent-dim); padding: 0 3px; }
 .event-card { background: var(--panel); border: 1px solid var(--border); padding: 10px 14px; margin-bottom: 8px; font-size: 13px; }
 .event-card li { margin: 4px 0; color: var(--text-dim); }
+
+/* ============ 开局卡组选择 ============ */
+.deck-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(5,5,8,0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.deck-modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 26px 34px;
+  max-width: 860px;
+  width: 92%;
+  max-height: 88%;
+  overflow-y: auto;
+}
+.deck-modal h2 { margin: 0 0 6px; color: var(--accent); letter-spacing: 0.2em; }
+.deck-note { color: var(--text-dim); font-size: 13px; }
+.deck-list { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
+.deck-hero { border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; background: var(--bg-2); }
+.deck-hero-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.deck-hero-head .hero-avatar { width: 28px; height: 28px; }
+.deck-options { display: flex; gap: 12px; }
+.deck-opt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 12px;
+  border-width: 2px;
+}
+.deck-opt .dim { font-size: 11px; }
+.deck-strategy { font-size: 10px; color: #55505f; line-height: 1.6; }
+.deck-opt.active { border-color: var(--accent); color: var(--accent); background: rgba(201,162,39,0.08); }
+.deck-opt:hover:not(.active) { border-color: var(--accent-dim); }
+.deck-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+.btn-deck-confirm {
+  font-size: 16px;
+  padding: 10px 36px;
+  background: linear-gradient(180deg, #2a2410, #1a1608);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+  letter-spacing: 0.2em;
+}

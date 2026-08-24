@@ -85,7 +85,9 @@ export class DamagePipeline {
     if (attacker?.side === 'hero') {
       const hero = battle.heroes[attacker.heroId];
       // 力量
-      dmg += buffs.count(hero, 'strength');
+      dmg += buffs.count(hero, 'strength') + (this.engine.run.permStrength[hero.heroId] ?? 0);
+      // 本回合伤害倍率（恶魔契约/魂火引擎）
+      dmg *= battle.damageMult;
       // 恐惧
       const fear = buffs.count(hero, 'fear');
       if (fear > 0) dmg *= Math.max(0, 1 - 0.2 * fear);
