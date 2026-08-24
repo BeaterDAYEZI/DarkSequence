@@ -239,14 +239,51 @@ export class BattleScene implements Scene {
     const hand = this.controller.hand.map((cardId) => {
       const card = this.controller.cardDef(cardId)!;
       const owner = card.heroId ? this.controller.engine.battle.heroes[card.heroId] : null;
-      const selectedCls = this.selected === cardId ? 'selected' : '';
+      const planIdx = this.plan.findIndex((p) => p.cardId === cardId);
+      const inPlan = planIdx >= 0;
+      const selectedCls = inPlan ? 'planned' : '';
       const ownerTag = card.heroId
         ? `<span class="hand-owner">${this.controller.heroDef(card.heroId).name}</span>`
         : '<span class="hand-owner relic">遗物</span>';
       const dim = owner && (!owner.alive || owner.runaway);
-      return `<div class="hand-slot ${selectedCls} ${dim ? 'dim' : ''}" data-card="${cardId}">${ownerTag}${createCardEl(card, { disabled: !!dim }).outerHTML}</div>`;
+      const badge = inPlan
+        ? `<span class="plan-badge">${planIdx + 1}</span>`
+        : '';
+      return `<div class="hand-slot ${selectedCls} ${dim ? 'dim' : ''}" data-card="${cardId}">${badge}${ownerTag}${createCardEl(card, { disabled: !!dim }).outerHTML}</div>`;
     }).join('');
     return hand || '<div class="hand-empty">手牌为空</div>';
+  }
+
+  /** 点击卡牌直接加入规划（或取消） */
+  private togglePlan(cardId: string): void {
+    const existing = this.plan.findIndex((p) => p.cardId === cardId);
+    if (existing >= 0) {
+      this.plan.splice(existing, 1);
+      this.render();
+      return;
+    }
+    const card = this.controller.cardDef(cardId)!;
+    // 遗物牌自动分配给第一个可打出的英雄
+    let heroId: HeroId | undefined = card.heroId;
+    if (!heroId) {
+      for (const hid of ['warwick', 'morgan', 'serafina', 'auris'] as HeroId[]) {
+        if (this.tryPlanError(hid, cardId) === null) {
+          heroId = hid;
+          break;
+        }
+      }
+      if (!heroId) {
+        this.toast('没有英雄能打出这张遗物牌');
+        return;
+      }
+    }
+    const err = this.tryPlanError(heroId, cardId);
+    if (err) {
+      this.toast(err);
+      return;
+    }
+    this.plan.push({ heroId, cardId });
+    this.render();
   }
 
   private renderPlanSlot(i: number): string {
@@ -286,56 +323,21 @@ export class BattleScene implements Scene {
   private bindEvents(): void {
     const q = (sel: string) => this.root.querySelectorAll<HTMLElement>(sel);
 
-    // 手牌选择
+    // 手牌点击 = 直接加入/取消规划
     q('.hand-slot').forEach((el) => {
       el.addEventListener('click', () => {
-        const cardId = el.dataset.card!;
-        if (this.selected === cardId) {
-          this.selected = null;
-        } else {
-          this.selected = cardId;
-        }
-        this.render();
+        this.togglePlan(el.dataset.card!);
       });
     });
 
-    // 规划槽：放置/移除
+    // 规划槽：点击移除对应卡牌
     q('.plan-slot').forEach((el) => {
       el.addEventListener('click', () => {
         const idx = Number(el.dataset.slot);
         if (this.plan[idx]) {
           this.plan.splice(idx, 1);
           this.render();
-          return;
         }
-        if (!this.selected) {
-          this.toast('先选择一张手牌');
-          return;
-        }
-        const cardId = this.selected;
-        const card = this.controller.cardDef(cardId)!;
-        // 遗物牌自动分配给第一个可打出的英雄
-        let heroId: HeroId | undefined = card.heroId;
-        if (!heroId) {
-          for (const hid of ['warwick', 'morgan', 'serafina', 'auris'] as HeroId[]) {
-            if (this.tryPlanError(hid, cardId) === null) {
-              heroId = hid;
-              break;
-            }
-          }
-          if (!heroId) {
-            this.toast('没有英雄能打出这张遗物牌');
-            return;
-          }
-        }
-        const err = this.tryPlanError(heroId, cardId);
-        if (err) {
-          this.toast(err);
-          return;
-        }
-        this.plan.push({ heroId, cardId });
-        this.selected = null;
-        this.render();
       });
     });
 
