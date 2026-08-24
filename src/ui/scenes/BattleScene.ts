@@ -209,7 +209,7 @@ export class BattleScene implements Scene {
       </div>`;
     }).join('');
     return `<div class="carriage-row">
-      <div class="carriage-track" style="background-image:url('${ASSETS.carriageRow}')"></div>
+      <img class="carriage-track-img" src="${ASSETS.carriageRow}" alt="列车" draggable="false"/>
       ${slots}
     </div>`;
   }

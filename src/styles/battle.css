@@ -26,8 +26,8 @@
   grid-row: 1;
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 8px 16px;
+  gap: 14px;
+  padding: 5px 16px;
   border-bottom: 1px solid var(--border);
   background: rgba(18,18,28,0.65);
 }
@@ -54,8 +54,8 @@
   grid-row: 2;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 8px 20px;
+  justify-content: space-evenly;
+  padding: 4px 20px;
   min-height: 0;
   min-width: 0;
 }
@@ -66,7 +66,7 @@
   gap: 10px;
 }
 .enemy-slot {
-  min-height: 96px;
+  min-height: 78px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -80,7 +80,7 @@
   background: linear-gradient(180deg, #201822, #17121c);
   border: 1px solid #4a3040;
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 4px 7px;
   font-size: 11px;
 }
 .enemy-card.boss {
@@ -139,24 +139,25 @@
 .carriage-row {
   position: relative;
   width: 100%;
-  margin: 2px 0;
+  margin: 20px 0 2px;
 }
-.carriage-track {
+.carriage-track-img {
   width: 100%;
-  height: 210px;
-  background-size: cover;
-  background-position: center;
+  height: 193px;
+  object-fit: cover;
+  object-position: center;
   border-radius: 6px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  display: block;
 }
 .carriage-pos {
   position: absolute;
-  top: -6px;
+  top: -38px;
   transform: translateX(-50%);
   display: flex;
   gap: 8px;
   justify-content: center;
-  align-items: flex-start;
+  align-items: flex-end;
 }
 .carriage-pos .hero-empty { color: #444; font-size: 18px; padding-top: 4px; }
 
@@ -174,7 +175,7 @@
 .hero-card.swallowed { border-style: dashed; opacity: 0.6; }
 .hero-portrait {
   width: 100%;
-  height: 96px;
+  height: 72px;
   object-fit: cover;
   object-position: center 22%;
   display: block;
@@ -269,7 +270,7 @@
   gap: 12px;
   overflow-x: auto;
   padding: 10px 4px;
-  min-height: 190px;
+  min-height: 132px;
   align-items: center;
   justify-content: center;
 }
@@ -303,7 +304,7 @@
 /* 卡牌 */
 .card {
   width: 150px;
-  height: 172px;
+  height: 132px;
   border-radius: 7px;
   padding: 6px;
   position: relative;
