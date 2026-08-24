@@ -136,7 +136,17 @@ export class AudioManager {
     a.preload = 'auto';
     this.bgm = a;
     this.currentKey = key;
-    if (this.enabled) a.play().catch(() => {});
+    if (this.enabled) {
+      // muted 播放绕过浏览器自动播放策略，随后取消静音
+      a.muted = true;
+      a.play()
+        .then(() => {
+          setTimeout(() => {
+            if (this.enabled && this.bgm === a) a.muted = false;
+          }, 200);
+        })
+        .catch(() => { /* 仍被拦截：等待用户首次交互后 unlock() 恢复 */ });
+    }
   }
 
   private stopBgm(): void {
