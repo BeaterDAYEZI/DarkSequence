@@ -344,15 +344,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 /* 战斗 */
 .hud-icon { width: 18px; height: 18px; vertical-align: -3px; margin-right: 3px; }
 .enemy-card { position: relative; overflow: hidden; }
-.enemy-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(160,160,200,0.12);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  z-index: 2;
-}
+.enemy-card::after { content: ''; }
 .enemy-art {
   width: 100%;
   height: 92px;
@@ -366,23 +358,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   background-position: center;
   border: 1px solid #3a3a52;
 }
-.carriage-slot::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(10,10,18,0.12);
-  border-radius: 8px;
-  pointer-events: none;
-}
-.carriage-slot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(150,150,200,0.10);
-  mix-blend-mode: screen;
-  border-radius: 8px;
-  pointer-events: none;
-}
+/* 车厢美术图直接显示，无蒙版 */
 .carriage-slot > * { position: relative; z-index: 1; }
 .hero-avatar {
   width: 30px;
@@ -411,7 +387,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(30,30,44,0.25) 0%, rgba(16,16,26,0.55) 55%, rgba(12,12,20,0.78) 100%);
+  background: linear-gradient(180deg, transparent 0%, transparent 40%, rgba(8,8,14,0.35) 100%);
   pointer-events: none;
 }
 .card-frame > * { position: relative; z-index: 1; }
