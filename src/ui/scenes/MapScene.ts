@@ -123,9 +123,9 @@ export class MapScene implements Scene {
       const preview = this.nodePreview(n, mapped);
       const art = (ASSETS.nodes as Record<string, string>)[n.type] ?? ASSETS.nodes.battle;
       return `<g class="${cls}" data-node="${n.id}" transform="translate(${nodeX(p.x)}, ${nodeY(p.y)})">
-        <image href="${art}" x="-34" y="-38" width="68" height="68" class="node-art"/>
-        <text class="node-label" y="42" text-anchor="middle">${NODE_NAME[n.type]}</text>
-        ${preview ? `<text class="node-preview" y="56" text-anchor="middle">${preview}</text>` : ''}
+        <image href="${art}" x="-42" y="-46" width="84" height="84" class="node-art"/>
+        <text class="node-label" y="48" text-anchor="middle">${NODE_NAME[n.type]}</text>
+        ${preview ? `<text class="node-preview" y="62" text-anchor="middle">${preview}</text>` : ''}
       </g>`;
     }).join('');
 
@@ -172,10 +172,15 @@ export class MapScene implements Scene {
           </svg>
         </div>
         <div class="map-foot">${this.footerText(reachable)}</div>
-        ${this.banner ? `<div class="zone-banner">${this.banner}</div>` : ''}
+        ${this.banner ? `<div class="zone-banner" id="zone-banner">${this.banner}</div>` : ''}
         ${this.modalHtml()}
       </div>
     `;
+    // 区域横幅：4秒后自动淡出，避免遮挡路线
+    const banner = this.root.querySelector('#zone-banner');
+    if (banner) {
+      setTimeout(() => banner.classList.add('fade-out'), 4000);
+    }
     this.bind();
   }
 

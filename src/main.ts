@@ -21,6 +21,7 @@ const root = document.getElementById('app');
 if (!root) throw new Error('缺少 #app 挂载点');
 
 loadAllData();
+document.body.dataset.scene = 'title';
 
 const app = new App(root);
 appRef.current = app;

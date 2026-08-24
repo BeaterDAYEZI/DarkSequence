@@ -26,6 +26,7 @@ export class SceneManager {
     root.innerHTML = '';
     this.current = scene;
     this.currentName = name;
+    document.body.dataset.scene = name;
     scene.onEnter(root, params);
     eventBus.emit('sceneChanged', { scene: name });
   }

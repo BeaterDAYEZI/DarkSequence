@@ -19,12 +19,12 @@
   background: rgba(14,14,22,0.95);
   flex-wrap: wrap;
 }
-.map-zone { font-size: 20px; color: var(--accent); letter-spacing: 0.3em; }
-.map-env { font-size: 11px; color: var(--text-dim); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; }
-.map-res { display: flex; gap: 14px; font-size: 14px; }
+.map-zone { font-size: 26px; color: var(--accent); letter-spacing: 0.3em; }
+.map-env { font-size: 13px; color: var(--text-dim); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; }
+.map-res { display: flex; gap: 18px; font-size: 18px; }
 .map-res span { cursor: help; }
-.map-heroes { font-size: 11px; color: var(--text-dim); margin-left: auto; max-width: 380px; text-align: right; }
-.btn-menu { font-size: 11px; padding: 4px 12px; }
+.map-heroes { font-size: 14px; color: var(--text-dim); margin-left: auto; max-width: 380px; text-align: right; }
+.btn-menu { font-size: 14px; padding: 7px 18px; }
 
 .map-main {
   flex: 1;
@@ -33,7 +33,7 @@
   display: flex;
   justify-content: center;
 }
-.map-svg { width: 100%; max-width: 560px; height: 100%; min-height: 900px; }
+.map-svg { width: 100%; max-width: 640px; height: 100%; }
 
 /* 节点 */
 .map-node { cursor: default; }
@@ -44,8 +44,8 @@
   transition: all 0.2s;
 }
 .map-node .node-icon { font-size: 20px; }
-.map-node .node-label { font-size: 10px; fill: var(--text-dim); }
-.map-node .node-preview { font-size: 8px; fill: #555; }
+.map-node .node-label { font-size: 12px; fill: var(--text-dim); font-weight: bold; }
+.map-node .node-preview { font-size: 10px; fill: #777; }
 
 .map-node.resolved .node-circle { fill: #101018; stroke: #23233a; opacity: 0.6; }
 .map-node.resolved .node-icon { opacity: 0.5; }
@@ -54,7 +54,7 @@
   stroke-width: 3;
   animation: node-pulse 1.6s ease-in-out infinite;
 }
-.map-node.current .node-icon { font-size: 24px; }
+
 .map-node.reachable { cursor: pointer; }
 .map-node.reachable .node-circle {
   stroke: var(--hp-good);
@@ -88,21 +88,21 @@
 /* 区域横幅 */
 .zone-banner {
   position: absolute;
-  top: 70px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(20,16,8,0.95);
-  border: 1px solid var(--accent-dim);
+  top: 52px;
+  left: 0;
+  right: 0;
+  background: rgba(16,12,6,0.85);
+  border-bottom: 1px solid var(--accent-dim);
   color: var(--accent);
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  max-width: 80%;
+  padding: 8px 24px;
+  font-size: 14px;
+  letter-spacing: 0.08em;
   text-align: center;
   z-index: 10;
   animation: banner-in 0.5s ease-out;
+  transition: opacity 0.6s;
 }
+.zone-banner.fade-out { opacity: 0; pointer-events: none; }
 @keyframes banner-in {
   from { opacity: 0; transform: translate(-50%, -12px); }
   to { opacity: 1; transform: translate(-50%, 0); }

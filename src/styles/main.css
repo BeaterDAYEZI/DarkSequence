@@ -176,10 +176,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   bottom: -6px;
   left: 0;
   right: 0;
+  display: none;
   height: 60px;
   pointer-events: none;
   z-index: 0;
-  display: flex;
   justify-content: center;
 }
 .train-silhouette .headlight {
@@ -451,3 +451,5 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   transform: translateX(-50%);
   opacity: 0.9;
 }
+
+body[data-scene='title'] .train-silhouette { display: flex; }
