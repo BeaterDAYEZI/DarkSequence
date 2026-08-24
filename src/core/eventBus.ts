@@ -5,6 +5,8 @@ export type EventMap = {
   battlePhase: { phase: string };
   sceneChanged: { scene: string };
   report: { errors: string[]; warnings: string[] };
+  awaken: { heroId: string };
+  awakenEnd: { heroId: string };
 };
 
 type Handler<K extends keyof EventMap> = (payload: EventMap[K]) => void;

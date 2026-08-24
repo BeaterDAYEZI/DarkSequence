@@ -10,7 +10,7 @@ const errors = [];
 const failedReqs = [];
 page.on('pageerror', (e) => errors.push(`PAGEERROR: ${e.message}`));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(`CONSOLE: ${m.text()}`); });
-page.on('requestfailed', (r) => failedReqs.push(`${r.url().split('/').pop()} (${r.failure()?.errorText})`));
+page.on('requestfailed', (r) => { const url = r.url(); if (url.endsWith('.png') || url.endsWith('.jpg')) failedReqs.push(url.split('/').pop() + ' (' + (r.failure()?.errorText ?? '') + ')'); });
 
 await page.setContent('<iframe sandbox="allow-scripts" src="http://localhost:5173/?diag=1" style="width:1394px;height:768px;border:0"></iframe>');
 await page.waitForTimeout(4500);

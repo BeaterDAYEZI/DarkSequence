@@ -6,6 +6,7 @@ import { describeEffect } from '../../core/effectText';
 import { ASSETS } from '../../core/assets';
 import { appRef } from '../../app/appRef';
 import { SaveSystem } from '../../systems/run/SaveSystem';
+import { audio } from '../fx/AudioManager';
 
 export class CampPanel {
   private tab: 'heroes' | 'cards' | 'fusion' | 'tech' = 'heroes';
@@ -15,7 +16,9 @@ export class CampPanel {
   constructor(
     private rc: RunController,
     private onClose: () => void,
-  ) {}
+  ) {
+    audio.playBgm('camp'); // 打开营地 → 营地音乐
+  }
 
   render(): HTMLElement {
     const el = document.createElement('div');
@@ -53,8 +56,12 @@ export class CampPanel {
       });
     });
     this.bindBody(el);
-    el.querySelector('.btn-camp-leave')?.addEventListener('click', this.onClose);
+    el.querySelector('.btn-camp-leave')?.addEventListener('click', () => {
+      audio.playBgm('map'); // 关闭营地 → 恢复区域探索
+      this.onClose();
+    });
     el.querySelector('.btn-camp-end')?.addEventListener('click', () => {
+      audio.playBgm('map');
       this.rc.dispose();
       SaveSystem.saveRun(this.rc.run); // 进度已由自动存档保存，这里兜底
       appRef.current!.run = null;

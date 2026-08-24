@@ -5,6 +5,7 @@ import { registry } from '../../core/registry';
 import { ASSETS } from '../../core/assets';
 import { RunController } from '../../game/RunController';
 import { SaveSystem } from '../../systems/run/SaveSystem';
+import { audio } from '../fx/AudioManager';
 
 interface EndParams {
   kind: 'gameover' | 'victory';
@@ -20,6 +21,8 @@ export class EndScene implements Scene {
     SaveSystem.clear();
     rc?.dispose();
     if (app) app.run = null;
+    // 结算音乐：胜利播标题曲，败北播失败曲
+    audio.playBgm(p.kind === 'victory' ? 'title' : 'fail');
     const stats = rc?.run.stats ?? { kills: 0, damage: 0, turns: 0 };
     const heroCards = rc
       ? Object.values(rc.run.heroes).map((h) => {

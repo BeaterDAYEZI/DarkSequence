@@ -13,6 +13,7 @@ import { createCardEl } from '../components/CardView';
 import { createSteamGauge } from '../components/SteamGauge';
 import type { HeroId, HeroInstance, EnemyInstance, StatusInstance, MapNode, BattleState } from '../../core/types';
 import { ASSETS, bossPhaseArt } from '../../core/assets';
+import { audio } from '../fx/AudioManager';
 
 interface BattleParams {
   /** 整局流程模式（地图进入） */
@@ -58,6 +59,9 @@ export class BattleScene implements Scene {
       // 整局流程模式
       this.runController = p.rc;
       this.battleNode = p.rc.nodeById(p.nodeId);
+      // Boss战切换Boss音乐
+      if (this.battleNode.type === 'boss') audio.playBgm('boss');
+      else audio.playBgm('battle');
       const zone = p.rc.zoneOf(p.nodeId);
       const monsters = p.monsters ?? p.rc.encounterMonsters(this.battleNode);
       const techEffects = p.rc.run.techUnlocked

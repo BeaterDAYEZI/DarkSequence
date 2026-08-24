@@ -1,7 +1,18 @@
-// 程序化音效：WebAudio振荡器合成（无外部资源），音效开关持久化
+// 音频管理：BGM（场景音乐循环）+ 程序化音效（WebAudio振荡器），开关持久化
 import { eventBus } from '../../core/eventBus';
 
 const AUDIO_KEY = 'dark-sequence-audio';
+
+/** 场景音乐映射 */
+const BGM_MAP: Record<string, string> = {
+  title: '/assets/audio/menu.wav',     // 主菜单标题界面
+  map: '/assets/audio/explore.wav',    // 区域探索
+  battle: '/assets/audio/battle.wav',  // 普通战斗
+  boss: '/assets/audio/boss.wav',      // Boss战
+  camp: '/assets/audio/camp.wav',      // 营地调度站
+  fail: '/assets/audio/fail.wav',      // 游戏失败
+  awaken: '/assets/audio/awaken.wav',  // 狂气觉醒（战斗内覆盖曲）
+};
 
 /** 安全读取localStorage（VS Code集成浏览器等沙箱环境可能抛SecurityError） */
 function safeGet(key: string): string | null {
@@ -22,9 +33,16 @@ function safeSet(key: string, value: string): void {
 
 export class AudioManager {
   private ctx: AudioContext | null = null;
+  private bgm: HTMLAudioElement | null = null;
+  private currentKey: string | null = null;
+  /** 觉醒覆盖中的曲目（结束恢复场景曲） */
+  private overrideKey: string | null = null;
+  /** 场景级曲目（sceneChanged 时更新） */
+  private sceneKey: string | null = null;
   enabled = safeGet(AUDIO_KEY) !== 'off';
 
   constructor() {
+    // 程序化音效
     eventBus.on('battleEvent', (e) => {
       if (!this.enabled) return;
       switch (e.kind) {
@@ -36,15 +54,29 @@ export class AudioManager {
         case 'narration': this.whistle(); break;
       }
     });
+    // 场景切换 → 切 BGM
+    eventBus.on('sceneChanged', (e) => {
+      const key = e.scene === 'end' ? 'fail' : e.scene;
+      this.sceneKey = key in BGM_MAP ? key : null;
+      if (!this.overrideKey) this.playBgm(this.sceneKey);
+    });
+    // 觉醒：覆盖场景曲；觉醒结束恢复
+    eventBus.on('awaken', () => this.playAwaken());
+    eventBus.on('awakenEnd', () => this.endAwaken());
   }
 
   toggle(): boolean {
     this.enabled = !this.enabled;
     safeSet(AUDIO_KEY, this.enabled ? 'on' : 'off');
+    if (this.enabled) {
+      this.bgm?.play().catch(() => {});
+    } else {
+      this.bgm?.pause();
+    }
     return this.enabled;
   }
 
-  /** 首次用户交互后解锁音频 */
+  /** 首次用户交互后解锁音频（含恢复被浏览器拦截的 BGM） */
   unlock(): void {
     if (!this.ctx) {
       try {
@@ -54,6 +86,66 @@ export class AudioManager {
       }
     }
     this.ctx?.resume().catch(() => {});
+    if (this.enabled && this.bgm && this.bgm.paused) {
+      this.bgm.play().catch(() => {});
+    }
+  }
+
+  // ================= BGM =================
+  /** 播放指定场景音乐（循环） */
+  playBgm(key: string | null): void {
+    if (!key) {
+      this.stopBgm();
+      return;
+    }
+    if (this.overrideKey) return; // 觉醒覆盖中，忽略场景切换
+    this.switchBgm(key);
+  }
+
+  /** 觉醒曲：覆盖当前场景曲，循环播放 */
+  playAwaken(): void {
+    this.overrideKey = 'awaken';
+    this.switchBgm('awaken');
+  }
+
+  /** 觉醒结束：恢复场景曲 */
+  endAwaken(): void {
+    this.overrideKey = null;
+    if (this.sceneKey) this.switchBgm(this.sceneKey);
+    else this.stopBgm();
+  }
+
+  private switchBgm(key: string): void {
+    const url = BGM_MAP[key];
+    if (!url) {
+      this.stopBgm();
+      return;
+    }
+    if (this.currentKey === key && this.bgm) {
+      if (this.enabled && this.bgm.paused) this.bgm.play().catch(() => {});
+      return;
+    }
+    if (this.bgm) {
+      this.bgm.pause();
+      this.bgm.src = '';
+      this.bgm = null;
+    }
+    const a = new Audio(url);
+    a.loop = true;
+    a.volume = 0.65;
+    a.preload = 'auto';
+    this.bgm = a;
+    this.currentKey = key;
+    if (this.enabled) a.play().catch(() => {});
+  }
+
+  private stopBgm(): void {
+    if (this.bgm) {
+      this.bgm.pause();
+      this.bgm.src = '';
+      this.bgm = null;
+    }
+    this.currentKey = null;
   }
 
   private beep(freq: number, dur: number, type: OscillatorType = 'sine', gain = 0.05): void {

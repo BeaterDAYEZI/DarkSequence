@@ -1,6 +1,7 @@
 // 狂气系统：狂气增减、觉醒触发、暴走失控
 import type { BattleEngine } from './BattleEngine';
 import type { HeroId } from '../../core/types';
+import { eventBus } from '../../core/eventBus';
 
 const MADNESS_MAX = 100;
 
@@ -58,6 +59,7 @@ export class MadnessSystem {
     this.engine.buffs.apply(hero, 'awakened', 1, duration);
     this.engine.log(`⚡ ${this.engine.heroName(heroId)} 觉醒！持续${duration}回合（伤害+50%，受伤-25%，专属牌费-1）`, 'system');
     this.engine.markAwakened(heroId);
+    eventBus.emit('awaken', { heroId });
     // 塞拉芬娜阈值"丧钟"：自身觉醒时全队恢复8点生命
     if (this.engine.hasThreshold(heroId, 'deathKnell')) {
       this.engine.log('丧钟触发：全队恢复8点生命', 'heal');
@@ -86,6 +88,7 @@ export class MadnessSystem {
         if (hero.awakeningTurns <= 0) {
           this.engine.buffs.remove(hero, 'awakened');
           this.engine.log(`${this.engine.heroName(hero.heroId)} 的觉醒消退`, 'system');
+          eventBus.emit('awakenEnd', { heroId: hero.heroId });
         }
       }
       hero.runaway = false;
