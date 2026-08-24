@@ -10,10 +10,19 @@
   </head>
   <body>
     <div id="app"></div>
-    <div id="boot-stamp" style="position:fixed;top:0;left:0;z-index:99998;background:#0a2a0a;color:#80e080;padding:4px 10px;font-size:12px;font-family:monospace;">✅ HTML已加载 (diag-v3)</div>
     <script>
+      // 诊断模式（?diag=1）：显示加载标记与错误条；正常访问完全隐藏
+      window.DIAG = new URLSearchParams(location.search).get('diag') === '1';
+      if (window.DIAG) {
+        var stamp = document.createElement('div');
+        stamp.id = 'boot-stamp';
+        stamp.style.cssText = 'position:fixed;top:0;left:0;z-index:99998;background:#0a2a0a;color:#80e080;padding:4px 10px;font-size:12px;font-family:monospace;';
+        stamp.textContent = '✅ HTML已加载 (diag-v3)';
+        document.body.appendChild(stamp);
+      }
       // 启动诊断：捕获阶段监听（连"脚本加载失败"也能抓到）
       function showBox(text, bg) {
+        if (!window.DIAG) return;
         var box = document.createElement('div');
         box.style.cssText = 'position:fixed;top:24px;left:0;right:0;z-index:99999;background:' + (bg || '#2a0a0a') + ';color:#ffb0b0;padding:10px 16px;font-size:13px;font-family:monospace;white-space:pre-wrap;border-bottom:2px solid #a03030;';
         box.textContent = text;
@@ -32,7 +41,7 @@
       // 3秒后仍未渲染 → 模块未执行
       setTimeout(function () {
         var app = document.getElementById('app');
-        if (!app || app.children.length === 0) {
+        if (window.DIAG && (!app || app.children.length === 0)) {
           showBox('⏱ 3秒后页面仍未渲染——模块脚本未执行（加载被拦截或失败）。请把本页顶部所有文字截图发我。', '#2a1a0a');
         }
       }, 3000);
