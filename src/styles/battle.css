@@ -14,8 +14,8 @@
   grid-template-columns: minmax(0, 1fr) min(300px, 25vw);
   grid-template-rows: auto minmax(0, 1fr) auto;
   background:
-    radial-gradient(ellipse at 50% 30%, rgba(30,30,50,0.6) 0%, transparent 60%),
-    linear-gradient(180deg, #0c0c12 0%, #101018 100%);
+    radial-gradient(ellipse at 50% 30%, rgba(90,90,130,0.5) 0%, transparent 70%),
+    linear-gradient(180deg, #22222e 0%, #1a1a26 100%);
   position: relative;
   overflow: hidden;
 }
@@ -29,7 +29,7 @@
   gap: 18px;
   padding: 8px 16px;
   border-bottom: 1px solid var(--border);
-  background: rgba(16,16,24,0.9);
+  background: rgba(18,18,28,0.65);
 }
 .hud-soulfire { color: var(--ember); font-size: 16px; }
 .hud-soulfire b { font-size: 20px; }
@@ -234,7 +234,7 @@
   grid-column: 1;
   grid-row: 3;
   border-top: 1px solid var(--border);
-  background: rgba(12,12,18,0.95);
+  background: rgba(16,16,24,0.75);
   padding: 8px 16px 10px;
   min-width: 0;
 }
@@ -371,7 +371,7 @@
   grid-column: 2;
   grid-row: 1 / span 3;
   border-left: 1px solid var(--border);
-  background: rgba(10,10,14,0.9);
+  background: rgba(12,12,18,0.72);
   display: flex;
   flex-direction: column;
   min-height: 0;

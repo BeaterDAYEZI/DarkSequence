@@ -166,7 +166,7 @@ export class MapScene implements Scene {
         </div>
         <div class="map-main">
           <svg class="map-svg" viewBox="0 0 ${MAP_VIEW_W} ${Math.max(9 * MAP_ROW_H + 80, 900)}" preserveAspectRatio="xMidYMin meet">
-            <rect width="${MAP_VIEW_W}" height="1000" fill="rgba(10,10,16,0.45)"/>
+            <rect width="${MAP_VIEW_W}" height="1000" fill="rgba(10,10,16,0.12)"/>
             ${edgeEls}
             ${nodeEls}
           </svg>

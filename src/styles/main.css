@@ -259,7 +259,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   position: fixed;
   inset: 0;
   z-index: 50;
-  background: rgba(5,5,8,0.88);
+  background: rgba(5,5,8,0.65);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,9 +307,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ============ 美术资源实装 ============ */
 /* 标题 */
-.title-scene { background-size: cover; background-position: center; }
+.title-scene { background-size: cover; background-position: center; filter: brightness(1.35); }
 .title-logo { width: min(480px, 70vw); margin-bottom: 6px; filter: drop-shadow(0 4px 18px rgba(0,0,0,0.8)); }
-.title-content { background: linear-gradient(180deg, rgba(14,12,10,0.82), rgba(8,6,5,0.9)); }
+.title-content { background: linear-gradient(180deg, rgba(16,13,10,0.55), rgba(10,8,6,0.68)); }
 .btn-art {
   background-image: url('/assets/ui/btn.png');
   background-size: 100% 100%;
@@ -322,7 +322,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-art:hover:not(:disabled) { filter: brightness(1.25); color: #fff; }
 
 /* 地图 */
-.map-scene { background-size: cover; background-position: center; }
+.map-scene { background-size: cover; background-position: center; filter: brightness(1.3); }
 .map-node .node-art { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7)); }
 .map-node.resolved .node-art { opacity: 0.45; filter: grayscale(0.7); }
 .map-node.current .node-art { filter: drop-shadow(0 0 12px rgba(201,162,39,0.9)); }
@@ -348,7 +348,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(8,8,14,0.35);
+  background: rgba(10,10,18,0.12);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.carriage-slot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(140,140,190,0.10);
+  mix-blend-mode: screen;
   border-radius: 8px;
   pointer-events: none;
 }
@@ -361,6 +370,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   object-position: center 18%;
   border: 2px solid var(--hero-color, #555);
   background: #16161f;
+  filter: brightness(1.2);
 }
 
 /* 卡牌底框 */
@@ -412,7 +422,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 /* 结算立绘 */
-.end-scene { background-size: cover; background-position: center; }
+.end-scene { background-size: cover; background-position: center; filter: brightness(1.3); }
 .end-box { background: rgba(14,12,10,0.88); }
 .end-heroes { display: flex; gap: 14px; justify-content: center; margin: 18px 0; }
 .end-hero { width: 110px; text-align: center; }
@@ -424,6 +434,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   border-radius: 8px;
   border: 2px solid var(--border);
   box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+  filter: brightness(1.2);
 }
 .end-hero.dead .end-hero-art { filter: grayscale(1) brightness(0.5); }
 .end-hero-name { font-size: 12px; margin-top: 6px; font-weight: bold; }
