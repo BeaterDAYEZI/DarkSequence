@@ -45,6 +45,7 @@ export const ASSETS = {
   rail: '/assets/map/rail.png',
   // 列车
   carriage: ['/assets/train/carriage1.png', '/assets/train/carriage2.png', '/assets/train/carriage3.png', '/assets/train/carriage4.png'],
+  carriageRow: '/assets/train/row.png',
   trainSilhouette: '/assets/train/silhouette.png',
   // UI
   btn: '/assets/ui/btn.png',

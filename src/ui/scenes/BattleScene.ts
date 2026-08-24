@@ -201,16 +201,17 @@ export class BattleScene implements Scene {
 
   private renderCarriages(): string {
     const battle = this.controller.battle;
-    const carriageNames = ['', '煤水车', '客厢', '瞭望台', '车尾平台'];
-    const carriageNotes = ['', '近战+10% 远程-20%', '', '远程+10% 近战-20%', '攻击-10% 治疗+20%'];
-    return [1, 2, 3, 4].map((pos) => {
+    // 4节车厢连成一条列车带，英雄按1/4位置浮在对应车厢上
+    const slots = [1, 2, 3, 4].map((pos) => {
       const heroes = Object.values(battle.heroes).filter((h) => h.pos === pos);
-      return `
-        <div class="carriage-slot" data-pos="${pos}" style="background-image:url('${ASSETS.carriage[pos - 1]}')">
-          <div class="carriage-head"><span>${pos}号·${carriageNames[pos]}</span><span class="carriage-note">${carriageNotes[pos]}</span></div>
-          <div class="carriage-heroes">${heroes.map((h) => this.heroCard(h)).join('') || '<div class="hero-empty">·</div>'}</div>
-        </div>`;
+      return `<div class="carriage-pos" style="left:${((pos - 0.5) / 4) * 100}%">
+        ${heroes.map((h) => this.heroCard(h)).join('') || '<div class="hero-empty">·</div>'}
+      </div>`;
     }).join('');
+    return `<div class="carriage-row">
+      <div class="carriage-track" style="background-image:url('${ASSETS.carriageRow}')"></div>
+      ${slots}
+    </div>`;
   }
 
   private heroCard(h: HeroInstance): string {
