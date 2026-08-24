@@ -223,15 +223,17 @@ export class BattleScene implements Scene {
     const swallowed = this.controller.engine.buffs.has(h, 'swallowed');
     return `
       <div class="hero-card ${dead ? 'dead' : ''} ${swallowed ? 'swallowed' : ''}" style="--hero-color:${def.color}">
-        <div class="hero-head">
-          <img class="hero-avatar" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
-          <span class="hero-name">${def.name}</span>
-          <span class="madness-lamp ${lamp}" title="狂气 ${madness}/100">${h.awakeningTurns > 0 ? '⚡' : '●'}</span>
+        <img class="hero-portrait" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
+        <div class="hero-info">
+          <div class="hero-head">
+            <span class="hero-name">${def.name}</span>
+            <span class="madness-lamp ${lamp}" title="狂气 ${madness}/100">${h.awakeningTurns > 0 ? '⚡' : '●'}</span>
+          </div>
+          <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${dead ? '残影化' : `${h.hp}/${h.maxHp}`}</span></div>
+          ${h.block > 0 ? `<div class="block-badge">🛡️${h.block}</div>` : ''}
+          <div class="hero-madness ${h.awakeningTurns > 0 ? 'awakening' : ''}">狂气 ${madness}${h.awakeningTurns > 0 ? ` · 觉醒${h.awakeningTurns}回合` : ''}${h.runaway ? ' · 暴走!' : ''}</div>
+          ${h.statuses.length ? `<div class="status-row">${h.statuses.map((s) => this.statusChip(s)).join('')}</div>` : ''}
         </div>
-        <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${dead ? '残影化' : `${h.hp}/${h.maxHp}`}</span></div>
-        ${h.block > 0 ? `<div class="block-badge">🛡️${h.block}</div>` : ''}
-        <div class="hero-madness ${h.awakeningTurns > 0 ? 'awakening' : ''}">狂气 ${madness}${h.awakeningTurns > 0 ? ` · 觉醒${h.awakeningTurns}回合` : ''}${h.runaway ? ' · 暴走!' : ''}</div>
-        ${h.statuses.length ? `<div class="status-row">${h.statuses.map((s) => this.statusChip(s)).join('')}</div>` : ''}
       </div>`;
   }
 
