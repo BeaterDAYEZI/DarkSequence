@@ -76,11 +76,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .title-content {
   position: relative;
   text-align: center;
-  padding: 40px 60px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(18,18,26,0.92), rgba(10,10,14,0.94));
-  box-shadow: 0 0 60px rgba(0,0,0,0.8), inset 0 0 40px rgba(0,0,0,0.5);
-  max-width: 720px;
+  padding: 44px 60px 54px;
+  border: 1px solid rgba(201,162,39,0.28);
+  background: linear-gradient(180deg, rgba(8,6,4,0.42), rgba(6,4,3,0.55));
+  box-shadow: 0 0 80px rgba(0,0,0,0.55);
+  max-width: 760px;
+  backdrop-filter: blur(2px);
 }
 .title-kicker {
   letter-spacing: 0.6em;
@@ -97,16 +98,18 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 .title-sub {
   margin-top: 8px;
-  color: var(--text-dim);
+  color: #b8b2a4;
   letter-spacing: 0.2em;
   font-size: 14px;
+  text-shadow: 0 2px 4px #000;
 }
 .title-quote {
   color: var(--text);
   font-style: italic;
   line-height: 1.9;
   margin: 26px 0;
-  opacity: 0.85;
+  opacity: 0.95;
+  text-shadow: 0 2px 6px #000;
 }
 .title-report {
   text-align: left;
@@ -467,13 +470,15 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 /* 列车剪影 */
 .train-silhouette-img {
   width: 100%;
-  max-width: 860px;
-  height: auto;
+  height: 150px;
+  object-fit: cover;
+  object-position: center 60%;
   position: absolute;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0.9;
+  left: 0;
+  opacity: 0.7;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 35%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 35%);
 }
 
 body[data-scene='title'] .train-silhouette { display: flex; }
