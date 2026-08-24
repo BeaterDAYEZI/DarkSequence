@@ -1,45 +1,42 @@
 @echo off
-chcp 65001 >nul
-title æš—èš€ç‰Œåº Â· Dark Sequence
+chcp 936 >nul
+title AnShi PaiXu - Dark Sequence
 cd /d "%~dp0"
 
 echo ============================================
-echo   æš—èš€ç‰Œåº Â· Dark Sequence å¯åŠ¨å™¨
+echo    °µÊ´ÅÆÐò Dark Sequence Æô¶¯Æ÷
 echo ============================================
 echo.
 
-REM æ£€æŸ¥ä¾èµ–æ˜¯å¦å·²å®‰è£…
-if not exist node_modules (
-    echo [é¦–æ¬¡è¿è¡Œ] æ­£åœ¨å®‰è£…ä¾èµ–ï¼Œè¯·ç¨å€™...
-    call npm install --cache .npm-cache
-    if errorlevel 1 (
-        echo.
-        echo [é”™è¯¯] ä¾èµ–å®‰è£…å¤±è´¥ã€‚è¯·ç¡®è®¤å·²å®‰è£… Node.jsï¼ˆhttps://nodejs.orgï¼‰
-        pause
-        exit /b 1
-    )
-)
+REM ¼ì²é·þÎñÆ÷ÊÇ·ñÒÑÔÚÔËÐÐ
+netstat -ano 2>nul | findstr ":5173" | findstr "LISTENING" >nul
+if not errorlevel 1 goto :already
 
-echo [å¯åŠ¨] æ­£åœ¨å¯åŠ¨æ¸¸æˆæœåŠ¡å™¨...
-start "" cmd /c "title æš—èš€ç‰ŒåºæœåŠ¡å™¨ && npm run dev -- --host 127.0.0.1"
+if exist node_modules goto :ready
+echo [Ê×´ÎÔËÐÐ] ÕýÔÚ°²×°ÒÀÀµ£¬ÇëÉÔºò£¨Ô¼1-2·ÖÖÓ£©...
+call npm install --cache .npm-cache
+if errorlevel 1 goto :err
+:ready
 
-REM ç­‰å¾…æœåŠ¡å™¨å°±ç»ªï¼ˆæœ€å¤šç­‰15ç§’ï¼‰
-set /a tries=0
-:wait
-set /a tries+=1
-if %tries% gtr 15 (
-    echo [æç¤º] æœåŠ¡å™¨å¯åŠ¨è¾ƒæ…¢ï¼Œè¯·æ‰‹åŠ¨æ‰“å¼€ http://localhost:5173/
-    goto open
-)
-timeout /t 1 /nobreak >nul
-curl -s -o nul http://localhost:5173/ 2>nul
-if errorlevel 1 goto wait
+echo [Æô¶¯] ÓÎÏ··þÎñÆ÷Æô¶¯ÖÐ...
+start "" /b cmd /c "timeout /t 3 /nobreak >nul & start http://localhost:5173/"
 
-:open
-echo [å®Œæˆ] æ­£åœ¨æ‰“å¼€æ¸¸æˆçª—å£...
+npm run dev
+goto :end
+
+:already
+echo [ÌáÊ¾] ÓÎÏ··þÎñÆ÷ÒÑÔÚÔËÐÐ£¬Ö±½Ó´ò¿ªÓÎÏ·...
 start "" http://localhost:5173/
+goto :end
+
+:err
 echo.
-echo æç¤ºï¼šæ¸¸æˆæœåŠ¡å™¨çª—å£è¯·ä¿æŒå¼€å¯ã€‚å…³é—­å®ƒæ¸¸æˆä¹Ÿä¼šå…³é—­ã€‚
-echo ä¸‹æ¬¡ç›´æŽ¥åŒå‡»æœ¬æ–‡ä»¶å³å¯å†æ¬¡å¯åŠ¨ã€‚
+echo [´íÎó] Æô¶¯Ê§°Ü£¬Çë°Ñ±¾´°¿ÚÄÚÈÝ½ØÍ¼·¢¸ø¿ª·¢Õß¡£
 echo.
-pause >nul
+pause
+goto :end
+
+:end
+echo.
+echo ·þÎñÆ÷ÒÑ¹Ø±Õ£¬ÓÎÏ·½áÊø¡£
+timeout /t 2 /nobreak >nul
