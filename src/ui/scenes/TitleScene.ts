@@ -18,7 +18,7 @@ export class TitleScene implements Scene {
     const report = registry.validateAll();
 
     root.innerHTML = `
-      <div class="title-scene" style="background-image:url('${ASSETS.bgTitle}')">
+      <div class="title-scene" style="--title-bg:url('${ASSETS.bgTitle}')">
         <div class="title-fog"></div>
         <div class="title-content">
           <div class="title-kicker">DARK SEQUENCE</div>
@@ -37,7 +37,7 @@ export class TitleScene implements Scene {
           ${SaveSystem.hasSave() ? '<button class="title-continue btn-art" title="从上次的进度继续">继续旅程</button>' : ''}
           <button class="title-debug" title="直接试玩区域一教学遭遇">试玩战斗</button>
           <button class="title-audio" title="切换音效">${audio.enabled ? '🔊 音效开' : '🔇 音效关'}</button>
-          <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨</div>
+          <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨<br/><span class="version-tag">v0.8.1-art2</span></div>
         </div>
       </div>
     `;

@@ -264,3 +264,15 @@
 .end-heroes { font-size: 12px; color: var(--text-dim); margin-bottom: 18px; }
 .end-buttons { display: flex; gap: 12px; justify-content: center; }
 .btn-restart { border-color: var(--accent-dim); color: var(--accent); }
+
+/* ============ 背景图（追加在默认样式之后，避免被简写覆盖） ============ */
+.map-scene {
+  background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)), var(--map-bg);
+  background-size: cover, cover;
+  background-position: center, center;
+}
+.end-scene {
+  background-image: linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.08)), var(--end-bg);
+  background-size: cover, cover;
+  background-position: center, center;
+}

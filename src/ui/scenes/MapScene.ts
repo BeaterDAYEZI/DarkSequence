@@ -150,7 +150,7 @@ export class MapScene implements Scene {
 
     const zoneBg = ASSETS.bgZone[Number(zone.id.replace('zone', '')) - 1] ?? ASSETS.bgZone[0];
     this.root.innerHTML = `
-      <div class="map-scene" style="background-image:url('${zoneBg}')">
+      <div class="map-scene" style="--map-bg:url('${zoneBg}')">
         <div class="map-top">
           <div class="map-zone">${zone.name}${zone.isPlaceholder ? '（占位）' : ''}</div>
           <div class="map-env" title="${zone.environmentRule.desc}">⚙ ${zone.environmentRule.name}</div>
