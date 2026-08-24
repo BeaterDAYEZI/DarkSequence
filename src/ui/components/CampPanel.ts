@@ -3,6 +3,7 @@ import { registry } from '../../core/registry';
 import { RARITY_NAME, type HeroId } from '../../core/types';
 import { RunController } from '../../game/RunController';
 import { describeEffect } from '../../core/effectText';
+import { ASSETS } from '../../core/assets';
 import { appRef } from '../../app/appRef';
 import { SaveSystem } from '../../systems/run/SaveSystem';
 
@@ -86,7 +87,7 @@ export class CampPanel {
       return `
         <div class="camp-hero ${h.alive ? '' : 'dead'}">
           <div class="camp-hero-head">
-            <span class="hero-avatar" style="background:${def.color}">${def.name[0]}</span>
+            <img class="hero-avatar" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
             <b>${def.name}</b><span class="dim">· ${def.title}</span>
             <span class="hp-text">${h.alive ? `${h.hp}/${h.maxHp}` : '残影化'}</span>
             <span class="dim">灌注${h.obsessionCount}次 · ${thresholds}</span>

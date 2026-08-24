@@ -8,6 +8,7 @@ import { audio } from '../fx/AudioManager';
 import { DeckSelectPanel } from '../components/DeckSelectPanel';
 import type { DeckChoice } from '../../data/startingDecks';
 import type { HeroId } from '../../core/types';
+import { ASSETS } from '../../core/assets';
 
 export class TitleScene implements Scene {
   private root!: HTMLElement;
@@ -17,11 +18,11 @@ export class TitleScene implements Scene {
     const report = registry.validateAll();
 
     root.innerHTML = `
-      <div class="title-scene">
+      <div class="title-scene" style="background-image:url('${ASSETS.bgTitle}')">
         <div class="title-fog"></div>
         <div class="title-content">
           <div class="title-kicker">DARK SEQUENCE</div>
-          <h1 class="title-main">暗蚀牌序</h1>
+          <img class="title-logo" src="${ASSETS.logo}" alt="暗蚀牌序" />
           <div class="title-sub">幽灵列车版 · 牌组构筑 Roguelike</div>
           <p class="title-quote">"在绝望的牌序中寻找疯狂的通解，<br/>让痛苦本身成为你指数级膨胀的燃料。"</p>
           <div class="title-report ${report.errors.length ? 'has-error' : 'ok'}">
@@ -32,8 +33,8 @@ export class TitleScene implements Scene {
               ${report.errors.length === 0 && report.warnings.length === 0 ? '<li class="ok">✓ 一切就绪（当前为工程骨架）</li>' : ''}
             </ul>
           </div>
-          <button class="title-start" title="开始一局新的旅程">开始旅程</button>
-          ${SaveSystem.hasSave() ? '<button class="title-continue" title="从上次的进度继续">继续旅程</button>' : ''}
+          <button class="title-start btn-art" title="开始一局新的旅程">开始旅程</button>
+          ${SaveSystem.hasSave() ? '<button class="title-continue btn-art" title="从上次的进度继续">继续旅程</button>' : ''}
           <button class="title-debug" title="直接试玩区域一教学遭遇">试玩战斗</button>
           <button class="title-audio" title="切换音效">${audio.enabled ? '🔊 音效开' : '🔇 音效关'}</button>
           <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨</div>

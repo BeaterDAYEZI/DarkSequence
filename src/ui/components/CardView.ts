@@ -1,6 +1,7 @@
-// 卡牌DOM工厂：数据驱动渲染，4品质样式
+// 卡牌DOM工厂：数据驱动渲染，4品质样式（绿/蓝/橙用美术底框，白色保持代码边框）
 import type { CardDef } from '../../core/types';
 import { describeEffect } from '../../core/effectText';
+import { ASSETS } from '../../core/assets';
 
 export interface CardViewOptions {
   /** 是否显示费用折扣后的实际费用 */
@@ -9,6 +10,12 @@ export interface CardViewOptions {
   dim?: boolean;
 }
 
+const FRAME_ART: Partial<Record<CardDef['rarity'], string>> = {
+  green: ASSETS.cardFrame.green,
+  blue: ASSETS.cardFrame.blue,
+  orange: ASSETS.cardFrame.orange,
+};
+
 export function createCardEl(card: CardDef, opts: CardViewOptions = {}): HTMLElement {
   const el = document.createElement('div');
   el.className = `card rarity-${card.rarity}${opts.disabled ? ' disabled' : ''}${opts.dim ? ' dim' : ''}`;
@@ -16,8 +23,11 @@ export function createCardEl(card: CardDef, opts: CardViewOptions = {}): HTMLEle
 
   const cost = opts.effectiveCost ?? card.cost;
   const heroColor = card.heroId ? `var(--hero-${card.heroId})` : 'var(--relic-color)';
+  const frame = FRAME_ART[card.rarity];
+  const frameStyle = frame ? ` style="background-image:url('${frame}')"` : '';
 
   el.innerHTML = `
+    <div class="card-frame${frame ? ' art' : ''}"${frameStyle}>
     <div class="card-cost">${cost === 0 ? '✦' : cost}</div>
     <div class="card-hero" style="color:${heroColor}">${card.heroId ? card.heroId.slice(0, 2).toUpperCase() : '遗物'}</div>
     <div class="card-name">${card.name}</div>
@@ -29,6 +39,7 @@ export function createCardEl(card: CardDef, opts: CardViewOptions = {}): HTMLEle
       ${card.carriageReq ? `<span class="tag tag-req">车厢${card.carriageReq.pos.join('/')}号</span>` : ''}
       ${card.speedReq?.min !== undefined ? `<span class="tag tag-req">速度≥${card.speedReq.min}</span>` : ''}
       ${card.resonance ? `<span class="tag tag-res">共鸣·${card.resonance.tag}</span>` : ''}
+    </div>
     </div>
   `;
   return el;

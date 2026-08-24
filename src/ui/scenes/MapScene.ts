@@ -5,6 +5,7 @@ import { registry } from '../../core/registry';
 import { eventBus } from '../../core/eventBus';
 import type { RunController } from '../../game/RunController';
 import type { MapNode } from '../../core/types';
+import { ASSETS } from '../../core/assets';
 import { CampPanel } from '../components/CampPanel';
 
 const NODE_ICON: Record<string, string> = {
@@ -113,16 +114,16 @@ export class MapScene implements Scene {
     const mapped = this.run.flags[`mapped_${zone.id}`] === true;
     const resources = this.run.resources;
 
-    // 节点圆
+    // 节点（美术图标）
     const nodeEls = zoneNodes.map((n) => {
       const p = pos.get(n.id)!;
       const isCurrent = n.id === current.id;
       const isReachable = reachable.some((r) => r.id === n.id);
       const cls = `map-node type-${n.type}${isCurrent ? ' current' : ''}${n.resolved ? ' resolved' : ''}${isReachable ? ' reachable' : ''}`;
       const preview = this.nodePreview(n, mapped);
+      const art = (ASSETS.nodes as Record<string, string>)[n.type] ?? ASSETS.nodes.battle;
       return `<g class="${cls}" data-node="${n.id}" transform="translate(${nodeX(p.x)}, ${nodeY(p.y)})">
-        <circle r="26" class="node-circle"/>
-        <text class="node-icon" y="8" text-anchor="middle">${NODE_ICON[n.type] ?? '·'}</text>
+        <image href="${art}" x="-34" y="-38" width="68" height="68" class="node-art"/>
         <text class="node-label" y="42" text-anchor="middle">${NODE_NAME[n.type]}</text>
         ${preview ? `<text class="node-preview" y="56" text-anchor="middle">${preview}</text>` : ''}
       </g>`;
@@ -147,13 +148,14 @@ export class MapScene implements Scene {
       return edges;
     }).join('');
 
+    const zoneBg = ASSETS.bgZone[Number(zone.id.replace('zone', '')) - 1] ?? ASSETS.bgZone[0];
     this.root.innerHTML = `
-      <div class="map-scene">
+      <div class="map-scene" style="background-image:url('${zoneBg}')">
         <div class="map-top">
           <div class="map-zone">${zone.name}${zone.isPlaceholder ? '（占位）' : ''}</div>
           <div class="map-env" title="${zone.environmentRule.desc}">⚙ ${zone.environmentRule.name}</div>
           <div class="map-res">
-            <span title="魂火">🔥${resources.soulfire}</span>
+            <span title="魂火"><img src="${ASSETS.iconSoulfire}" class="res-icon"/>${resources.soulfire}</span>
             <span title="残响碎片">💠${resources.shards}</span>
             <span title="执念值">🕯️${resources.obsession}</span>
             <span title="蚀刻剂">🧪${resources.etchant}</span>
@@ -164,7 +166,7 @@ export class MapScene implements Scene {
         </div>
         <div class="map-main">
           <svg class="map-svg" viewBox="0 0 ${MAP_VIEW_W} ${Math.max(9 * MAP_ROW_H + 80, 900)}" preserveAspectRatio="xMidYMin meet">
-            <rect width="500" height="1000" fill="rgba(10,10,16,0.4)"/>
+            <rect width="${MAP_VIEW_W}" height="1000" fill="rgba(10,10,16,0.45)"/>
             ${edgeEls}
             ${nodeEls}
           </svg>

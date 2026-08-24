@@ -304,3 +304,139 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--accent);
   letter-spacing: 0.2em;
 }
+
+/* ============ 美术资源实装 ============ */
+/* 标题 */
+.title-scene { background-size: cover; background-position: center; }
+.title-logo { width: min(480px, 70vw); margin-bottom: 6px; filter: drop-shadow(0 4px 18px rgba(0,0,0,0.8)); }
+.title-content { background: linear-gradient(180deg, rgba(14,12,10,0.82), rgba(8,6,5,0.9)); }
+.btn-art {
+  background-image: url('/assets/ui/btn.png');
+  background-size: 100% 100%;
+  background-color: transparent;
+  border: none;
+  color: #e8d8a0;
+  text-shadow: 0 1px 2px #000;
+  font-weight: bold;
+}
+.btn-art:hover:not(:disabled) { filter: brightness(1.25); color: #fff; }
+
+/* 地图 */
+.map-scene { background-size: cover; background-position: center; }
+.map-node .node-art { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7)); }
+.map-node.resolved .node-art { opacity: 0.45; filter: grayscale(0.7); }
+.map-node.current .node-art { filter: drop-shadow(0 0 12px rgba(201,162,39,0.9)); }
+.res-icon { width: 16px; height: 16px; vertical-align: -2px; margin-right: 3px; }
+
+/* 战斗 */
+.hud-icon { width: 18px; height: 18px; vertical-align: -3px; margin-right: 3px; }
+.enemy-card { position: relative; overflow: hidden; }
+.enemy-art {
+  width: 100%;
+  height: 92px;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 3px 8px rgba(0,0,0,0.8));
+}
+.enemy-card.boss .enemy-art { height: 130px; }
+.carriage-slot {
+  background-size: cover;
+  background-position: center;
+  border: 1px solid #3a3a52;
+}
+.carriage-slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8,8,14,0.35);
+  border-radius: 8px;
+  pointer-events: none;
+}
+.carriage-slot > * { position: relative; z-index: 1; }
+.hero-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 18%;
+  border: 2px solid var(--hero-color, #555);
+  background: #16161f;
+}
+
+/* 卡牌底框 */
+.card-frame {
+  position: absolute;
+  inset: 0;
+  border-radius: 7px;
+  overflow: hidden;
+  background-size: 100% 100%;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+}
+.card-frame.art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,14,0.15) 0%, rgba(10,10,14,0.55) 55%, rgba(10,10,14,0.88) 100%);
+  pointer-events: none;
+}
+.card-frame > * { position: relative; z-index: 1; }
+
+/* 压力表 */
+.steam-gauge { width: 120px; }
+.gauge-wrap { position: relative; width: 96px; height: 96px; margin: 0 auto; }
+.gauge-face { width: 100%; height: 100%; object-fit: contain; }
+.gauge-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  transform-origin: 50% 50%;
+  transition: transform 0.4s cubic-bezier(0.3, 0, 0.3, 1);
+  pointer-events: none;
+}
+.gauge-value {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 0 4px #000;
+}
+
+/* 结算立绘 */
+.end-scene { background-size: cover; background-position: center; }
+.end-box { background: rgba(14,12,10,0.88); }
+.end-heroes { display: flex; gap: 14px; justify-content: center; margin: 18px 0; }
+.end-hero { width: 110px; text-align: center; }
+.end-hero-art {
+  width: 84px;
+  height: 126px;
+  object-fit: cover;
+  object-position: center 15%;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+}
+.end-hero.dead .end-hero-art { filter: grayscale(1) brightness(0.5); }
+.end-hero-name { font-size: 12px; margin-top: 6px; font-weight: bold; }
+.end-hero-hp { font-size: 11px; color: var(--text-dim); }
+
+/* 列车剪影 */
+.train-silhouette-img {
+  width: 100%;
+  max-width: 860px;
+  height: auto;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.9;
+}

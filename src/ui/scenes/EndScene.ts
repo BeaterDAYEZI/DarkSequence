@@ -2,6 +2,7 @@
 import type { Scene } from '../../app/SceneManager';
 import { appRef } from '../../app/appRef';
 import { registry } from '../../core/registry';
+import { ASSETS } from '../../core/assets';
 import { RunController } from '../../game/RunController';
 import { SaveSystem } from '../../systems/run/SaveSystem';
 
@@ -20,14 +21,20 @@ export class EndScene implements Scene {
     rc?.dispose();
     if (app) app.run = null;
     const stats = rc?.run.stats ?? { kills: 0, damage: 0, turns: 0 };
-    const heroSummary = rc
-      ? Object.values(rc.run.heroes)
-        .map((h) => `${registry.heroes.get(h.heroId)?.name} ${h.alive ? `${h.hp}/${h.maxHp}` : '✝残影'}`)
-        .join(' · ')
+    const heroCards = rc
+      ? Object.values(rc.run.heroes).map((h) => {
+        const def = registry.heroes.get(h.heroId)!;
+        return `
+          <div class="end-hero ${h.alive ? '' : 'dead'}">
+            <img class="end-hero-art" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
+            <div class="end-hero-name">${def.name}</div>
+            <div class="end-hero-hp">${h.alive ? `${h.hp}/${h.maxHp}` : '✝ 残影化'}</div>
+          </div>`;
+      }).join('')
       : '';
 
     root.innerHTML = `
-      <div class="end-scene ${p.kind}">
+      <div class="end-scene ${p.kind}" style="background-image:url('${p.kind === 'victory' ? ASSETS.bgVictory : ASSETS.bgDefeat}')">
         <div class="end-box">
           ${p.kind === 'victory' ? `
             <div class="end-kicker">THE MOUNTAIN AT THE END OF THE WORLD</div>
@@ -42,7 +49,7 @@ export class EndScene implements Scene {
             <div>造成伤害 <b>${stats.damage}</b></div>
             ${rc ? `<div>到达区域 <b>${registry.zones.get(rc.currentNode.zoneId)?.name ?? '？'}</b></div>` : ''}
           </div>
-          ${heroSummary ? `<div class="end-heroes">${heroSummary}</div>` : ''}
+          ${heroCards ? `<div class="end-heroes">${heroCards}</div>` : ''}
           <div class="end-buttons">
             <button class="btn-restart">重新启程</button>
             <button class="btn-title">返回标题</button>

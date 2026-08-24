@@ -1,4 +1,6 @@
 // 氛围层：全屏Canvas蚀雾粒子 + 底部列车剪影 + 车灯光柱（性能友好，帧率无关）
+import { ASSETS } from '../../core/assets';
+
 export class Atmosphere {
   private canvas!: HTMLCanvasElement;
   private ctx!: CanvasRenderingContext2D;
@@ -11,12 +13,7 @@ export class Atmosphere {
     host.appendChild(this.canvas);
     const silhouette = document.createElement('div');
     silhouette.className = 'train-silhouette';
-    silhouette.innerHTML = `
-      <div class="headlight"></div>
-      <div class="train-body">
-        <span class="wheel">⬤</span><span class="wheel">⬤</span>
-        <span class="wheel">⬤</span><span class="wheel">⬤</span>
-      </div>`;
+    silhouette.innerHTML = `<img class="train-silhouette-img" src="${ASSETS.trainSilhouette}" alt="" draggable="false"/>`;
     host.appendChild(silhouette);
     this.ctx = this.canvas.getContext('2d')!;
     this.resize();

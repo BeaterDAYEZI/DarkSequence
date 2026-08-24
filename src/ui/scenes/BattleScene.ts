@@ -12,6 +12,7 @@ import { SaveSystem } from '../../systems/run/SaveSystem';
 import { createCardEl } from '../components/CardView';
 import { createSteamGauge } from '../components/SteamGauge';
 import type { HeroId, HeroInstance, EnemyInstance, StatusInstance, MapNode, BattleState } from '../../core/types';
+import { ASSETS, bossPhaseArt } from '../../core/assets';
 
 interface BattleParams {
   /** 整局流程模式（地图进入） */
@@ -100,8 +101,8 @@ export class BattleScene implements Scene {
     this.root.innerHTML = `
       <div class="battle-scene">
         <div class="battle-top">
-          <div class="hud-soulfire" title="魂火：溢伤转化而来，用于列车服务">🔥 <b>${battle.soulfire}</b></div>
-          <div class="hud-energy" title="能量：每回合重置">⚡ <b>${battle.energy}</b>/${battle.energyMax}</div>
+          <div class="hud-soulfire" title="魂火：溢伤转化而来，用于列车服务"><img src="${ASSETS.iconSoulfire}" class="hud-icon"/> <b>${battle.soulfire}</b></div>
+          <div class="hud-energy" title="能量：每回合重置"><img src="${ASSETS.iconEnergy}" class="hud-icon"/> <b>${battle.energy}</b>/${battle.energyMax}</div>
           <div class="hud-dark ${battle.darkEnergy > 0 ? 'active' : ''}" title="暗蚀能量：本场战斗的连锁资源">🌑 ${Math.round(battle.darkEnergy * 10) / 10}</div>
           <div class="hud-zone">${controller.zone.name}</div>
           <div class="hud-gauge-slot"></div>
@@ -182,8 +183,10 @@ export class BattleScene implements Scene {
     const intent = e.intent;
     const isBoss = registry.monsters.get(e.defId)?.bossAdvance;
     const stunned = this.controller.engine.buffs.has(e, 'stun');
+    const art = bossPhaseArt(e.defId, e.phaseIndex);
     return `
       <div class="enemy-card ${isBoss ? 'boss' : ''} ${e.hp <= 0 ? 'dead' : ''}">
+        <img class="enemy-art" src="${art}" alt="${e.name}" draggable="false"/>
         <div class="enemy-head"><span class="enemy-name">${e.name}</span><span class="enemy-speed">速${e.speed}</span></div>
         <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${e.hp}/${e.maxHp}</span></div>
         ${e.block > 0 ? `<div class="block-badge">🛡️${e.block}</div>` : ''}
@@ -199,7 +202,7 @@ export class BattleScene implements Scene {
     return [1, 2, 3, 4].map((pos) => {
       const heroes = Object.values(battle.heroes).filter((h) => h.pos === pos);
       return `
-        <div class="carriage-slot" data-pos="${pos}">
+        <div class="carriage-slot" data-pos="${pos}" style="background-image:url('${ASSETS.carriage[pos - 1]}')">
           <div class="carriage-head"><span>${pos}号·${carriageNames[pos]}</span><span class="carriage-note">${carriageNotes[pos]}</span></div>
           <div class="carriage-heroes">${heroes.map((h) => this.heroCard(h)).join('') || '<div class="hero-empty">·</div>'}</div>
         </div>`;
@@ -216,7 +219,7 @@ export class BattleScene implements Scene {
     return `
       <div class="hero-card ${dead ? 'dead' : ''} ${swallowed ? 'swallowed' : ''}" style="--hero-color:${def.color}">
         <div class="hero-head">
-          <span class="hero-avatar">${def.name[0]}</span>
+          <img class="hero-avatar" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
           <span class="hero-name">${def.name}</span>
           <span class="madness-lamp ${lamp}" title="狂气 ${madness}/100">${h.awakeningTurns > 0 ? '⚡' : '●'}</span>
         </div>

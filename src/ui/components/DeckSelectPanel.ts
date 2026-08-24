@@ -1,5 +1,6 @@
 // 开局卡组选择面板：四英雄 A套（稳健）/B套（爆发）选择
 import { registry } from '../../core/registry';
+import { ASSETS } from '../../core/assets';
 import { STARTING_DECK_INFO, type DeckChoice } from '../../data/startingDecks';
 import type { HeroId } from '../../core/types';
 
@@ -24,7 +25,7 @@ export class DeckSelectPanel {
             return `
               <div class="deck-hero" style="--hero-color:${def.color}">
                 <div class="deck-hero-head">
-                  <span class="hero-avatar" style="background:${def.color}">${def.name[0]}</span>
+                  <img class="hero-avatar" src="${ASSETS.heroes[hid]}" alt="${def.name}" draggable="false"/>
                   <b>${def.name}</b><span class="dim">· ${def.title}</span>
                 </div>
                 <div class="deck-options">
