@@ -1,0 +1,133 @@
+0 verbose cli D:\node.exe D:\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.17.0
+2 info using node@v24.19.0
+3 silly config load:file:D:\node_modules\npm\npmrc
+4 silly config load:file:E:\DarkSequence\.npmrc
+5 silly config load:file:C:\Users\周立宇\.npmrc
+6 silly config load:file:D:\npm-global\etc\npmrc
+7 verbose title npm install playwright-core
+8 verbose argv "install" "--save-dev" "playwright-core" "--cache" "E:/DarkSequence/.npm-cache"
+9 verbose logfile logs-max:10 dir:E:\DarkSequence\.npm-cache\_logs\2026-08-21T01_49_24_151Z-
+10 verbose logfile E:\DarkSequence\.npm-cache\_logs\2026-08-21T01_49_24_151Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly fetch manifest playwright-core@*
+15 silly packumentCache full:https://registry.npmmirror.com/playwright-core cache-miss
+16 http fetch GET 200 https://registry.npmmirror.com/playwright-core 16112ms (cache miss)
+17 silly packumentCache full:https://registry.npmmirror.com/playwright-core set size:2343092 disposed:false
+18 silly placeDep ROOT playwright-core@1.62.1 OK for: dark-sequence@0.1.0 want: *
+19 silly reify moves {}
+20 silly audit bulk request {
+20 silly audit   '@esbuild/aix-ppc64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/android-arm': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/android-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/android-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/darwin-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/darwin-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/freebsd-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/freebsd-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-arm': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-ia32': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-loong64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-mips64el': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-ppc64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-riscv64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-s390x': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/linux-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/netbsd-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/netbsd-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/openbsd-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/openbsd-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/openharmony-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/sunos-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/win32-arm64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/win32-ia32': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@esbuild/win32-x64': [ '0.25.12', '0.28.2' ],
+20 silly audit   '@napi-rs/lzma-linux-x64-gnu': [ '1.5.1' ],
+20 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-android-arm64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-darwin-arm64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-darwin-x64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-freebsd-x64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-loong64-musl': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-ppc64-musl': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-openbsd-x64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.62.4' ],
+20 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.62.4' ],
+20 silly audit   '@types/estree': [ '1.0.9' ],
+20 silly audit   esbuild: [ '0.25.12', '0.28.2' ],
+20 silly audit   fdir: [ '6.5.0' ],
+20 silly audit   fsevents: [ '2.3.3' ],
+20 silly audit   nanoid: [ '3.3.18' ],
+20 silly audit   picocolors: [ '1.1.1' ],
+20 silly audit   picomatch: [ '4.0.5' ],
+20 silly audit   postcss: [ '8.5.26' ],
+20 silly audit   rollup: [ '4.62.4' ],
+20 silly audit   'source-map-js': [ '1.2.1' ],
+20 silly audit   tinyglobby: [ '0.2.17' ],
+20 silly audit   tsx: [ '4.23.12' ],
+20 silly audit   typescript: [ '5.9.3' ],
+20 silly audit   vite: [ '6.4.3' ],
+20 silly audit   'playwright-core': [ '1.62.1' ]
+20 silly audit }
+21 http cache playwright-core@https://registry.npmmirror.com/playwright-core/-/playwright-core-1.62.1.tgz 1ms (cache hit)
+22 silly tarball no local data for playwright-core@https://registry.npmmirror.com/playwright-core/-/playwright-core-1.62.1.tgz. Extracting by manifest.
+23 http fetch POST 404 https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk 68ms
+24 verbose audit error HttpErrorGeneral: 404 Not Found - POST https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk - [NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet
+24 verbose audit error     at D:\node_modules\npm\node_modules\npm-registry-fetch\lib\check-response.js:103:15
+24 verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+24 verbose audit error     at async #getReport (D:\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:275:19)
+24 verbose audit error     at async AuditReport.run (D:\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:100:19) {
+24 verbose audit error   headers: [Object: null prototype] {
+24 verbose audit error     server: [ 'Tengine' ],
+24 verbose audit error     date: [ 'Fri, 21 Aug 2026 01:49:41 GMT' ],
+24 verbose audit error     'content-type': [ 'application/json' ],
+24 verbose audit error     'transfer-encoding': [ 'chunked' ],
+24 verbose audit error     connection: [ 'keep-alive' ],
+24 verbose audit error     'strict-transport-security': [ 'max-age=5184000' ],
+24 verbose audit error     via: [ 'kunlun3.cn9405[,404666]' ],
+24 verbose audit error     'timing-allow-origin': [ '*' ],
+24 verbose audit error     eagleid: [ '6ae3669717872769818971444e' ],
+24 verbose audit error     'x-fetch-attempts': [ '1' ]
+24 verbose audit error   },
+24 verbose audit error   statusCode: 404,
+24 verbose audit error   code: 'E404',
+24 verbose audit error   method: 'POST',
+24 verbose audit error   uri: 'https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk',
+24 verbose audit error   body: {
+24 verbose audit error     error: '[NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet'
+24 verbose audit error   },
+24 verbose audit error   pkgid: undefined
+24 verbose audit error }
+25 silly audit error [object Object]
+26 silly audit report null
+27 http fetch GET 200 https://cdn.npmmirror.com/packages/playwright-core/1.62.1/playwright-core-1.62.1.tgz 15393ms (cache miss)
+28 silly ADD node_modules/playwright-core
+29 warn allow-scripts 2 packages have install scripts not yet covered by allowScripts:
+29 warn allow-scripts   esbuild@0.25.12 (postinstall: node install.js)
+29 warn allow-scripts   esbuild@0.28.2 (postinstall: node install.js)
+29 warn allow-scripts
+29 warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+30 verbose cwd E:\DarkSequence
+31 verbose os Windows_NT 10.0.19045
+32 verbose node v24.19.0
+33 verbose npm  v11.17.0
+34 verbose exit 0
+35 info ok
