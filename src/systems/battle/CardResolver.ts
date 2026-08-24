@@ -55,6 +55,24 @@ export class CardResolver {
 
     switch (e.kind) {
       case 'damage': {
+        // 怪物移动攻击：目标车厢无英雄 → 自动爬向最近的存活英雄（其所在车厢）再攻击
+        if (ctx.source.side === 'enemy' && e.target?.side === 'ally' && e.target.mode === 'pos') {
+          const heroesNow = Object.values(battle.heroes).filter((h) => h.alive && !engine.buffs.has(h, 'swallowed'));
+          const hasTarget = (e.target.pos ?? []).some((p) => heroesNow.some((h) => h.pos === p));
+          if (!hasTarget && heroesNow.length > 0 && ctx.source.enemyUid) {
+            const enemy = battle.enemies.find((x) => x.uid === ctx.source.enemyUid);
+            if (enemy) {
+              const nearest = [...heroesNow].sort((a, b) =>
+                Math.abs(enemy.pos - a.pos) - Math.abs(enemy.pos - b.pos))[0];
+              if (nearest && nearest.pos !== enemy.pos) {
+                engine.log(`${enemy.name} 爬向${nearest.pos}号车厢攻击${engine.heroName(nearest.heroId)}`, 'info');
+                enemy.pos = nearest.pos;
+              }
+              // 目标改为最近英雄所在位置
+              e = { ...e, target: { side: 'ally', mode: 'pos', pos: [nearest.pos] } };
+            }
+          }
+        }
         const targets = engine.targets.resolve(e.target, ctx.source.heroId);
         const plusDark = e.plusPerDark ? battle.darkEnergy * e.plusPerDark : 0;
         let baseAmount = roll(e.amount) + plusDark;

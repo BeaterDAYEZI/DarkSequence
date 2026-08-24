@@ -31,14 +31,20 @@ export class TrainSystem {
       for (const hero of Object.values(battle.heroes)) {
         hero.pos = this.forward(hero.pos);
       }
-      // Boss被推开回位（向车尾）
+      // 敌人相对列车反向移动：加速时怪物被甩向车尾，减速时扑向车头
       for (const e of battle.enemies) {
-        if (this.isBoss(e)) e.pos = Math.min(POS_MAX, e.pos + actual);
+        if (e.hp <= 0 || this.isBoss(e)) continue; // Boss由推进机制管理
+        e.pos = Math.min(POS_MAX, Math.max(POS_MIN, e.pos + actual));
       }
     } else {
       // 减速：英雄整体后退
       for (const hero of Object.values(battle.heroes)) {
         hero.pos = this.backward(hero.pos);
+      }
+      // 敌人相对列车反向：减速时怪物向前扑（向车头）
+      for (const e of battle.enemies) {
+        if (e.hp <= 0 || this.isBoss(e)) continue;
+        e.pos = Math.min(POS_MAX, Math.max(POS_MIN, e.pos + actual));
       }
     }
     battle.speedPlayedThisTurn += actual;
