@@ -1,6 +1,7 @@
 // 伤害管线：闪避/援护/嘲讽 → 伤害修正 → 暴击 → 格挡 → 荆棘 → 溢伤连锁 → 死亡结算
 import type { BattleEngine } from './BattleEngine';
 import type { HeroId, AttackType, DamageType, HeroInstance, EnemyInstance } from '../../core/types';
+import { eventBus } from '../../core/eventBus';
 
 /** 已解析目标（可判别联合：kind 与 unit 类型联动） */
 type ResolvedTarget = { kind: 'hero'; unit: HeroInstance } | { kind: 'enemy'; unit: EnemyInstance };
@@ -173,6 +174,7 @@ export class DamagePipeline {
       t.unit.block -= absorbed;
       applied -= absorbed;
       this.engine.log(`${this.unitName(t)} 的格挡吸收了 ${absorbed} 点伤害`, 'info');
+      this.emitFx('block', t, absorbed);
     }
     if (opts.reduceBlockPerHit && t.unit.block > 0) {
       t.unit.block = Math.max(0, t.unit.block - opts.reduceBlockPerHit);
@@ -184,6 +186,11 @@ export class DamagePipeline {
     }
 
     t.unit.hp -= applied;
+    // 特效：受击/暴击
+    if (applied > 0) {
+      const crit = opts.critMult === 2 || opts.lastHitCrit;
+      this.emitFx(crit ? 'crit' : 'hit', t, applied);
+    }
     // 不灭：免疫死亡（生命最低为1）
     if (t.kind === 'hero' && this.engine.buffs.has(t.unit, 'undying') && t.unit.hp <= 0) {
       t.unit.hp = 1;
@@ -213,6 +220,7 @@ export class DamagePipeline {
 
     // ---------- 死亡结算 ----------
     if (t.kind === 'enemy' && hpAfter <= 0) {
+      this.emitFx('kill', t, 0);
       this.engine.onEnemyKilled(t.unit, attacker?.side === 'hero' ? attacker.heroId : undefined);
     } else if (t.kind === 'hero' && hpAfter <= 0) {
       this.engine.onHeroFell(t.unit.heroId);
@@ -276,6 +284,16 @@ export class DamagePipeline {
     if (t.kind === 'enemy' && attacker?.side === 'hero' && opts.allToDarkMult && applied > 0 && t.unit.hp > 0) {
       this.engine.gainDarkEnergy(applied * opts.allToDarkMult);
     }
+  }
+
+  private emitFx(type: 'hit' | 'crit' | 'kill' | 'block', t: ResolvedTarget, amount: number): void {
+    eventBus.emit('fx', {
+      type,
+      side: t.kind === 'hero' ? 'hero' : 'enemy',
+      heroId: t.kind === 'hero' ? t.unit.heroId : undefined,
+      uid: t.kind === 'enemy' ? t.unit.uid : undefined,
+      amount,
+    });
   }
 
   private rollCrit(hero: HeroInstance, critMult?: number, lastHitCrit?: boolean): number {

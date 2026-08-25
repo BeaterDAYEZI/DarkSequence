@@ -72,6 +72,8 @@ export class BattleScene implements Scene {
     this.selected = null;
     const p = (params ?? {}) as BattleParams;
     this.offs.push(eventBus.on('battleEvent', (e) => this.appendLogLine(e)));
+    this.offs.push(eventBus.on('fx', (e) => this.handleFx(e)));
+    this.offs.push(eventBus.on('awaken', (e) => this.handleFx({ type: 'awaken', side: 'hero', heroId: e.heroId })));
 
     if (p.rc && p.nodeId) {
       // 整局流程模式
@@ -163,6 +165,54 @@ export class BattleScene implements Scene {
     logList.scrollTop = logList.scrollHeight;
   }
 
+  /** 战斗特效：受击/暴击/治疗/击杀/打牌动画 + 飘字 */
+  private handleFx(e: { type: 'hit' | 'crit' | 'heal' | 'kill' | 'block' | 'play' | 'awaken'; side?: 'enemy' | 'hero'; heroId?: string; uid?: string; amount?: number }): void {
+    const root = this.root;
+    if (!root.isConnected) return;
+    let el: HTMLElement | null = null;
+    if (e.side === 'enemy' && e.uid) el = root.querySelector(`[data-uid="${e.uid}"]`);
+    if (e.side === 'hero' && e.heroId) el = root.querySelector(`[data-hero="${e.heroId}"]`);
+
+    if (e.type === 'play') {
+      // 打牌特效：最近打出的手牌闪金光
+      const hand = root.querySelectorAll('.hand-slot');
+      const last = hand[hand.length - 1];
+      if (last) {
+        last.classList.remove('fx-play');
+        void (last as HTMLElement).offsetWidth;
+        last.classList.add('fx-play');
+      }
+      return;
+    }
+    if (e.type === 'awaken' && e.heroId) {
+      const heroEl = root.querySelector(`[data-hero="${e.heroId}"]`);
+      if (heroEl) {
+        heroEl.classList.remove('fx-awaken');
+        void (heroEl as HTMLElement).offsetWidth;
+        heroEl.classList.add('fx-awaken');
+      }
+      return;
+    }
+    if (!el) return;
+    const cls = `fx-${e.type}`;
+    el.classList.remove('fx-hit', 'fx-crit', 'fx-heal', 'fx-kill', 'fx-block');
+    void (el as HTMLElement).offsetWidth; // 重启动画
+    el.classList.add(cls);
+    // 飘字
+    if (e.amount && e.amount > 0 && (e.type === 'hit' || e.type === 'crit' || e.type === 'heal')) {
+      this.spawnFloat(el, e.amount, e.type);
+    }
+  }
+
+  /** 伤害/治疗飘字 */
+  private spawnFloat(el: HTMLElement, amount: number, type: string): void {
+    const f = document.createElement('div');
+    f.className = `float-text float-${type}`;
+    f.textContent = `${type === 'heal' ? '+' : '-'}${amount}`;
+    el.appendChild(f);
+    setTimeout(() => f.remove(), 1100);
+  }
+
   /** Boss推进轨道：车头→车尾4格，显示Boss位置与脱轨警告 */
   private bossTrack(): string {
     const battle = this.controller.battle;
@@ -208,12 +258,14 @@ export class BattleScene implements Scene {
     const stunned = this.controller.engine.buffs.has(e, 'stun');
     const art = bossPhaseArt(e.defId, e.phaseIndex);
     return `
-      <div class="enemy-card ${isBoss ? 'boss' : ''} ${e.hp <= 0 ? 'dead' : ''}">
+      <div class="enemy-unit ${isBoss ? 'boss' : ''} ${e.hp <= 0 ? 'dead' : ''}" data-uid="${e.uid}">
         <img class="enemy-art" src="${art}" alt="${e.name}" draggable="false"/>
-        <div class="enemy-head"><span class="enemy-name">${e.name}</span><span class="enemy-speed">速${e.speed}</span></div>
-        <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${e.hp}/${e.maxHp}</span></div>
+        <div class="enemy-tag">
+          <div class="enemy-name">${e.name}</div>
+          <div class="enemy-intent ${stunned ? 'stunned' : ''}">${stunned ? '💫 眩晕' : (intent ? `${intent.icon} ${intent.name}` : '……')}</div>
+        </div>
+        <div class="enemy-hpbar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${e.hp}/${e.maxHp}</span></div>
         ${e.block > 0 ? `<div class="block-badge">🛡️${e.block}</div>` : ''}
-        <div class="enemy-intent ${stunned ? 'stunned' : ''}">${stunned ? '💫 眩晕' : (intent ? `${intent.icon} ${intent.name}` : '……')}</div>
         ${e.statuses.length ? `<div class="status-row">${e.statuses.map((s) => this.statusChip(s)).join('')}</div>` : ''}
       </div>`;
   }
@@ -241,18 +293,18 @@ export class BattleScene implements Scene {
     const dead = !h.alive;
     const swallowed = this.controller.engine.buffs.has(h, 'swallowed');
     return `
-      <div class="hero-card ${dead ? 'dead' : ''} ${swallowed ? 'swallowed' : ''}" style="--hero-color:${def.color}">
-        <img class="hero-portrait" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
-        <div class="hero-info">
+      <div class="hero-unit ${dead ? 'dead' : ''} ${swallowed ? 'swallowed' : ''}" data-hero="${h.heroId}" style="--hero-color:${def.color}">
+        <img class="hero-art" src="${ASSETS.heroes[h.heroId]}" alt="${def.name}" draggable="false"/>
+        <div class="hero-tag">
           <div class="hero-head">
             <span class="hero-name">${def.name}</span>
-            <span class="madness-lamp ${lamp}" title="狂气 ${madness}/100">${h.awakeningTurns > 0 ? '⚡' : '●'}</span>
+            <span class="madness-lamp ${lamp}" data-tip="狂气：${madness}/100
+达到100触发觉醒（伤害+50%、受伤-25%、专属牌费-1）
+觉醒中再满100 → 暴走" >${h.awakeningTurns > 0 ? '⚡' : '●'}</span>
           </div>
           <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${dead ? '残影化' : `${h.hp}/${h.maxHp}`}</span></div>
           ${h.block > 0 ? `<div class="block-badge">🛡️${h.block}</div>` : ''}
-          <div class="hero-madness ${h.awakeningTurns > 0 ? 'awakening' : ''}" data-tip="狂气：0-100
-达到100触发觉醒（伤害+50%、受伤-25%、专属牌费-1，持续2回合）
-觉醒中狂气再次达到100 → 暴走（觉醒中断、受20点真伤、本回合无法行动）">狂气 ${madness}${h.awakeningTurns > 0 ? ` · 觉醒${h.awakeningTurns}回合` : ''}${h.runaway ? ' · 暴走!' : ''}</div>
+          <div class="hero-madness ${h.awakeningTurns > 0 ? 'awakening' : ''}">狂气 ${madness}${h.awakeningTurns > 0 ? ` · 觉醒${h.awakeningTurns}回合` : ''}${h.runaway ? ' · 暴走!' : ''}</div>
           ${h.statuses.length ? `<div class="status-row">${h.statuses.map((s) => this.statusChip(s)).join('')}</div>` : ''}
         </div>
       </div>`;

@@ -503,6 +503,7 @@ export class BattleEngine {
     for (const tag of card.tags) battle.resonanceCount[tag] = (battle.resonanceCount[tag] ?? 0) + 1;
 
     this.log(`▶ ${this.heroName(heroId)} 打出【${card.name}】（${cost === 0 ? '免费' : `-${cost}能量`}）`, 'system');
+    eventBus.emit('fx', { type: 'play', side: 'hero', heroId });
     this.resolver.resolve(card.effects, {
       source: { side: 'hero', heroId }, card, mult, paidCost: cost,
       halve: actionHalve,
@@ -689,6 +690,7 @@ export class BattleEngine {
     const heal = Math.max(0, Math.round(amount * ratio));
     hero.hp = Math.min(hero.maxHp, hero.hp + heal);
     this.log(`${this.heroName(heroId)} 恢复 ${heal} 点生命`, 'heal');
+    if (heal > 0) eventBus.emit('fx', { type: 'heal', side: 'hero', heroId, amount: heal });
     // 塞拉芬娜阈值"安魂"：治疗时清除2点狂气
     if (this.hasThreshold('serafina', 'requiemT') && heroId !== 'serafina') {
       this.madness.reduce(heroId, 2);

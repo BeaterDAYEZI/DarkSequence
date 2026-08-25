@@ -7,6 +7,7 @@ export type EventMap = {
   report: { errors: string[]; warnings: string[] };
   awaken: { heroId: string };
   awakenEnd: { heroId: string };
+  fx: { type: 'hit' | 'crit' | 'heal' | 'kill' | 'block' | 'play' | 'awaken'; side?: 'enemy' | 'hero'; heroId?: string; uid?: string; amount?: number };
 };
 
 type Handler<K extends keyof EventMap> = (payload: EventMap[K]) => void;
