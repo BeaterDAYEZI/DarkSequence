@@ -123,7 +123,7 @@ export class MapScene implements Scene {
       const preview = this.nodePreview(n, mapped);
       const art = (ASSETS.nodes as Record<string, string>)[n.type] ?? ASSETS.nodes.battle;
       return `<g class="${cls}" data-node="${n.id}" transform="translate(${nodeX(p.x)}, ${nodeY(p.y)})">
-        <image href="${art}" x="-42" y="-46" width="84" height="84" class="node-art"/>
+        <image href="${art}" x="-50" y="-54" width="100" height="100" class="node-art"/>
         <text class="node-label" y="48" text-anchor="middle">${NODE_NAME[n.type]}</text>
         ${preview ? `<text class="node-preview" y="62" text-anchor="middle">${preview}</text>` : ''}
       </g>`;

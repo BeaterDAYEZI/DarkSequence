@@ -19,12 +19,12 @@
   background: rgba(14,14,22,0.95);
   flex-wrap: wrap;
 }
-.map-zone { font-size: 26px; color: var(--accent); letter-spacing: 0.3em; }
-.map-env { font-size: 13px; color: var(--text-dim); border: 1px solid var(--border); padding: 2px 8px; border-radius: 10px; }
-.map-res { display: flex; gap: 18px; font-size: 18px; }
+.map-zone { font-size: 32px; color: #f0d878; letter-spacing: 0.3em; text-shadow: 0 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(201,162,39,0.3); font-weight: bold; }
+.map-env { font-size: 15px; color: var(--text-dim); border: 1px solid var(--accent-dim); padding: 3px 10px; border-radius: 10px; color: #d8c890; }
+.map-res { display: flex; gap: 20px; font-size: 22px; font-weight: bold; }
 .map-res span { cursor: help; }
-.map-heroes { font-size: 14px; color: var(--text-dim); margin-left: auto; max-width: 380px; text-align: right; }
-.btn-menu { font-size: 14px; padding: 7px 18px; }
+.map-heroes { font-size: 16px; color: var(--text-dim); margin-left: auto; max-width: 380px; text-align: right; }
+.btn-menu { font-size: 16px; padding: 8px 20px; }
 
 .map-main {
   flex: 1;
@@ -44,8 +44,21 @@
   transition: all 0.2s;
 }
 .map-node .node-icon { font-size: 20px; }
-.map-node .node-label { font-size: 12px; fill: var(--text-dim); font-weight: bold; }
-.map-node .node-preview { font-size: 10px; fill: #777; }
+.map-node .node-label {
+  font-size: 15px;
+  fill: #f0e8d0;
+  font-weight: bold;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 3px;
+}
+.map-node .node-preview {
+  font-size: 13px;
+  fill: #e8d8a8;
+  paint-order: stroke;
+  stroke: #000;
+  stroke-width: 2.5px;
+}
 
 .map-node.resolved .node-circle { fill: #101018; stroke: #23233a; opacity: 0.6; }
 .map-node.resolved .node-icon { opacity: 0.5; }
@@ -77,9 +90,10 @@
 }
 
 .map-foot {
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-top: 1px solid var(--border);
-  font-size: 13px;
+  font-size: 16px;
+  color: #e8dcb8;
   color: var(--text-dim);
   text-align: center;
   background: rgba(14,14,22,0.95);
@@ -278,7 +292,7 @@
 .map-relics { display: flex; gap: 6px; align-items: center; }
 .map-relics::before { content: '遗物'; font-size: 11px; color: var(--text-dim); }
 .relic-chip {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--accent);
   border: 1px solid var(--accent-dim);
   border-radius: 10px;
