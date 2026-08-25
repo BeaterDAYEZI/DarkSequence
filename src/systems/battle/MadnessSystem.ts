@@ -12,6 +12,8 @@ export class MadnessSystem {
   gain(heroId: HeroId, amount: number, note?: string): boolean {
     const hero = this.engine.ctx.battle.heroes[heroId];
     if (!hero || !hero.alive) return false;
+    // 静心：免疫狂气增长
+    if (this.engine.buffs.has(hero, 'madnessImmune')) return false;
     const before = hero.madness;
     hero.madness = Math.min(MADNESS_MAX, hero.madness + amount);
     this.engine.log(`${this.engine.heroName(heroId)} 狂气 ${before} → ${hero.madness}`, 'madness');

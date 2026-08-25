@@ -1,0 +1,766 @@
+
+
+一、TypeScript 类型定义（src/types/game.ts）
+typescript
+// ========== 核心类型 ==========export type CardQuality = 'white' | 'green' | 'blue' | 'orange' | 'relic';export type CardTag =  | 'defense'      // 防御  | 'attack'       // 攻击  | 'soulfire'     // 魂火  | 'speed'        // 速度  | 'frenzy'       // 狂气  | 'heal'         // 治疗  | 'mark'         // 标记  | 'displace'     // 位移  | 'aoe'          // 范围伤害  | 'draw'         // 抽牌  | 'debuff'       // 减益  | 'buff'         // 增益  | 'dot'          // 持续伤害  | 'finisher'     // 处决  | 'selfloss'     // 自损  | 'purify'       // 净化  | 'counter'      // 反击/反制  | 'taunt'        // 嘲讽  | 'overkill'     // 溢伤联动  | 'relic'        // 遗物标签  | 'risky';       // 高风险export interface CardEffect {  type: 'damage' | 'heal' | 'block' | 'buff' | 'debuff' | 'displace' | 'draw' | 'soulfire' | 'frenzy' | 'mark' | 'clear_debuff' | 'revive' | 'copy' | 'consume';  value: number | string;  target?: 'self' | 'ally' | 'enemy' | 'all_enemies' | 'all_allies' | 'single_enemy' | 'single_ally';  duration?: number;  condition?: string;}export interface CardData {  id: string;                // 唯一标识，如 warwick_wall_white  heroId?: string;          // 所属英雄（专属牌必填）  name: string;  quality: CardQuality;  cost: number;             // 0-3费  description: string;      // 显示在牌面上的描述文本  tags: CardTag[];  effects: CardEffect[];  flavorText?: string;      // 可选：卡牌风味文本}export interface HeroData {  id: string;  name: string;  title: string;  description: string;  defaultPosition: 1 | 2 | 3 | 4; // 初始车厢位置  deckIds: string[];        // 该英雄所有卡牌ID（含5张×4品质=20张）  baseStats: {    hp: number;    attack: number;    block: number;    critRate: number;  };}export interface RelicData extends CardData {  quality: 'relic';         // 遗物品质固定  heroId?: never;           // 遗物不属于任何英雄}
+
+二、标签字典（src/data/tags.ts）
+typescript
+// 所有合法标签白名单，校验系统据此检查export const VALID_TAGS: CardTag[] = [  'defense', 'attack', 'soulfire', 'speed', 'frenzy',   'heal', 'mark', 'displace', 'aoe', 'draw', 'debuff',   'buff', 'dot', 'finisher', 'selfloss', 'purify',   'counter', 'taunt', 'overkill', 'relic', 'risky'];
+
+三、四位英雄完整卡牌数据（src/data/heroCards.ts）
+每个英雄5张专属牌 × 4品质（白/绿/蓝/橙） = 20张。我按 heroId_cardName_quality 格式统一编号。
+🛡️ 沃里克（Warwick）
+id
+名称
+品质
+费用
+效果描述
+标签
+风味文本
+warwick_wall_white
+壁垒之盾
+白
+1
+获得8点格挡
+defense
+“铁壁之下，无惧蚀雾。”
+warwick_wall_green
+壁垒之盾
+绿
+1
+获得10点格挡，恢复2点生命
+defense, heal
+
+warwick_wall_blue
+壁垒之盾
+蓝
+1
+获得12点格挡，恢复3点生命，清除1层负面
+defense, heal, purify
+
+warwick_wall_orange
+壁垒之盾
+橙
+1
+获得15点格挡，本回合替所有队友承受伤害
+defense, taunt
+“以身为轨，护众人前行。”
+warwick_hammer_white
+锈铁锤击
+白
+1
+对1号位敌人造成4-6点伤害
+attack
+
+warwick_hammer_green
+锈铁锤击
+绿
+1
+对1号位造成6-8点伤害
+attack
+
+warwick_hammer_blue
+锈铁锤击
+蓝
+1
+对1号位造成8-10点伤害，附加1层易伤
+attack, debuff
+
+warwick_hammer_orange
+锈铁锤击
+橙
+1
+对1号位造成10-12点伤害，若列车速度≥3则眩晕目标
+attack, debuff, speed
+“速度即力量。”
+warwick_charge_white
+列车冲锋
+白
+1
+列车速度+1，对1号位造成3点伤害
+speed, attack
+
+warwick_charge_green
+列车冲锋
+绿
+1
+列车速度+2，造成5点伤害，自身+2格挡
+speed, attack, defense
+
+warwick_charge_blue
+列车冲锋
+蓝
+1
+速度+2，造成7点伤害，自身+3格挡
+speed, attack, defense
+
+warwick_charge_orange
+列车冲锋
+橙
+1
+速度+3，造成9点伤害，强制敌方后退1格
+speed, attack, displace
+“撞碎一切阻碍。”
+warwick_taunt_white
+嘲讽咆哮
+白
+0
+嘲讽全体敌人，自身+5狂气
+taunt, frenzy
+
+warwick_taunt_green
+嘲讽咆哮
+绿
+0
+嘲讽持续2回合，每次被攻击全队+1魂火
+taunt, frenzy, soulfire
+
+warwick_taunt_blue
+嘲讽咆哮
+蓝
+0
+嘲讽2回合，每次被攻击全队+2魂火，自身+3格挡
+taunt, frenzy, soulfire, defense
+
+warwick_taunt_orange
+嘲讽咆哮
+橙
+0
+嘲讽2回合，每次被攻击全队+3魂火，自身+5格挡，清除自身1层负面
+taunt, frenzy, soulfire, defense, purify
+“冲我来！”
+warwick_endure_white
+残喘之躯
+白
+0
+消耗3点生命，获得10点格挡
+selfloss, defense
+
+warwick_endure_green
+残喘之躯
+绿
+0
+消耗2点生命，获得13点格挡
+selfloss, defense
+
+warwick_endure_blue
+残喘之躯
+蓝
+0
+消耗2点生命，获得16点格挡，清除1层负面
+selfloss, defense, purify
+
+warwick_endure_orange
+残喘之躯
+橙
+0
+消耗1点生命，获得20点格挡，清除所有负面，本回合免疫死亡
+selfloss, defense, purify
+“只要还有一口气。”
+
+⚔️ 摩根（Morgan）
+id
+名称
+品质
+费用
+效果描述
+标签
+风味文本
+morgan_axe_white
+断首斩
+白
+1
+对1-2号位造成6-9点伤害
+attack
+
+morgan_axe_green
+断首斩
+绿
+1
+造成8-11点伤害，若目标生命&lt;50%则额外+30%
+attack, finisher
+
+morgan_axe_blue
+断首斩
+蓝
+1
+造成10-13点伤害，目标&lt;50%生命时+40%
+attack, finisher
+
+morgan_axe_orange
+断首斩
+橙
+1
+造成14-18点伤害，若击杀目标则立刻获得额外行动
+attack, finisher
+“一个，两个，三个……”
+morgan_rage_white
+血腥狂怒
+白
+1
+自身+3力量（持续2回合），+5狂气
+buff, frenzy
+
+morgan_rage_green
+血腥狂怒
+绿
+1
++4力量，+8狂气，抽1张牌
+buff, frenzy, draw
+
+morgan_rage_blue
+血腥狂怒
+蓝
+1
++5力量，+10狂气，抽1张牌，本回合暴击率+15%
+buff, frenzy, draw
+
+morgan_rage_orange
+血腥狂怒
+橙
+1
++6力量，+15狂气，抽1张牌，暴击率+20%，持续3回合
+buff, frenzy, draw
+“愤怒是最好的燃料。”
+morgan_hook_white
+链钩突进
+白
+1
+速度+1，将敌方3号位拉拽至1号位
+speed, displace
+
+morgan_hook_green
+链钩突进
+绿
+1
+速度+2，拉拽后自身+3力量
+speed, displace, buff
+
+morgan_hook_blue
+链钩突进
+蓝
+1
+速度+2，拉拽后+4力量，施加1层易伤
+speed, displace, buff, debuff
+
+morgan_hook_orange
+链钩突进
+橙
+1
+速度+3，拉拽后+5力量，施加2层易伤，速度越高暴击加成越高（速度×3%）
+speed, displace, buff, debuff
+“过来，受死。”
+morgan_gaze_white
+刽子手凝视
+白
+0
+对单体施加1层恐惧（伤害-20%）
+debuff
+
+morgan_gaze_green
+刽子手凝视
+绿
+0
+施加2层恐惧，并施加标记（全队对其伤害+30%）
+debuff, mark
+
+morgan_gaze_blue
+刽子手凝视
+蓝
+0
+施加2层恐惧，标记持续2回合，目标速度-2
+debuff, mark
+
+morgan_gaze_orange
+刽子手凝视
+橙
+0
+施加3层恐惧，标记持续3回合，目标死亡时全队恢复10点生命
+debuff, mark, heal
+“我盯着你，你就已经死了。”
+morgan_carnival_white
+血祭狂欢
+白
+2
+对1-2号位造成3-5点伤害，每层暗蚀能量+1伤害
+aoe, overkill
+
+morgan_carnival_green
+血祭狂欢
+绿
+2
+对1-3号位造成4-6点伤害，每层暗蚀+1.5
+aoe, overkill
+
+morgan_carnival_blue
+血祭狂欢
+蓝
+2
+对1-3号位造成5-7点伤害，每层暗蚀+2
+aoe, overkill
+
+morgan_carnival_orange
+血祭狂欢
+橙
+2
+对全体敌人造成6-9点伤害，每层暗蚀+3，清空所有暗蚀能量
+aoe, overkill
+“盛宴开始！”
+
+🔔 塞拉芬娜（Seraphina）
+id
+名称
+品质
+费用
+效果描述
+标签
+风味文本
+seraphina_heal_white
+治愈钟鸣
+白
+1
+恢复一名队友6-8点生命
+heal
+
+seraphina_heal_green
+治愈钟鸣
+绿
+1
+恢复8-10点，清除1层负面
+heal, purify
+
+seraphina_heal_blue
+治愈钟鸣
+蓝
+1
+恢复10-12点，清除2层负面，减少该队友10点狂气
+heal, purify, frenzy
+
+seraphina_heal_orange
+治愈钟鸣
+橙
+1
+恢复14-18点，清除所有负面，减少15点狂气，本回合免疫狂气增长
+heal, purify, frenzy
+“钟声之下，万物安宁。”
+seraphina_hymn_white
+护佑圣歌
+白
+1
+全队获得4点格挡
+defense
+
+seraphina_hymn_green
+护佑圣歌
+绿
+1
+全队获得6点格挡，速度+1
+defense, speed
+
+seraphina_hymn_blue
+护佑圣歌
+蓝
+1
+全队获得8点格挡，速度+1，获得坚韧（下次受伤减半）
+defense, speed
+
+seraphina_hymn_orange
+护佑圣歌
+橙
+1
+全队获得10点格挡，速度+2，坚韧持续2次受伤
+defense, speed
+“歌声即护盾。”
+seraphina_bell_white
+赎罪之铃
+白
+1
+对4号位敌人造成3-5点伤害，施加50%减疗
+attack, debuff
+
+seraphina_bell_green
+赎罪之铃
+绿
+1
+造成5-7点伤害，减疗75%，窃取5点魂火
+attack, debuff, soulfire
+
+seraphina_bell_blue
+赎罪之铃
+蓝
+1
+造成6-8点伤害，减疗100%，窃取8点魂火
+attack, debuff, soulfire
+
+seraphina_bell_orange
+赎罪之铃
+橙
+1
+造成8-10点伤害，永久减疗，窃取10点魂火，扰乱敌人站位
+attack, debuff, soulfire, displace
+“赎罪吧。”
+seraphina_mass_white
+安魂弥撒
+白
+1
+将自身5点狂气转移给敌方全体
+frenzy
+
+seraphina_mass_green
+安魂弥撒
+绿
+1
+转移8点狂气，恢复自身3点生命
+frenzy, heal
+
+seraphina_mass_blue
+安魂弥撒
+蓝
+1
+转移10点狂气，全队恢复5点生命
+frenzy, heal
+
+seraphina_mass_orange
+安魂弥撒
+橙
+1
+转移15点狂气，全队恢复8点生命，若自身狂气归零则额外抽2张牌
+frenzy, heal, draw
+“把痛苦交给我。”
+seraphina_doom_white
+毁灭之钟
+白
+2
+对所有敌人造成2-4点伤害，自身+5狂气
+aoe, frenzy
+
+seraphina_doom_green
+毁灭之钟
+绿
+2
+造成3-5点伤害，+8狂气，若狂气&gt;50%则伤害翻倍
+aoe, frenzy
+
+seraphina_doom_blue
+毁灭之钟
+蓝
+2
+造成5-7点伤害，+10狂气，狂气&gt;50%时伤害×2.5
+aoe, frenzy
+
+seraphina_doom_orange
+毁灭之钟
+橙
+2
+造成7-10点伤害，+15狂气，若打出后狂气达到100%（觉醒）则本牌无消耗且再打一次
+aoe, frenzy
+“毁灭吧，然后重生。”
+
+🌌 奥瑞斯（Oris）
+id
+名称
+品质
+费用
+效果描述
+标签
+风味文本
+oris_shot_white
+暗蚀射击
+白
+1
+对3-4号位敌人造成5-8点伤害
+attack
+
+oris_shot_green
+暗蚀射击
+绿
+1
+造成7-10点伤害，溢出伤害×1.5转化为暗蚀能量
+attack, overkill
+
+oris_shot_blue
+暗蚀射击
+蓝
+1
+造成9-12点伤害，溢出伤害×2转化为暗蚀能量
+attack, overkill
+
+oris_shot_orange
+暗蚀射击
+橙
+1
+造成12-16点伤害，所有伤害均以1.5倍转化为暗蚀能量（不依赖溢出）
+attack, overkill
+“暗蚀即是我瞄准的星辰。”
+oris_mark_white
+蚀刻标记
+白
+0
+标记一个敌人（受伤+30%）
+mark
+
+oris_mark_green
+蚀刻标记
+绿
+0
+标记并施加1层易伤，持续2回合
+mark, debuff
+
+oris_mark_blue
+蚀刻标记
+蓝
+0
+标记全体敌人，持续2回合
+mark
+
+oris_mark_orange
+蚀刻标记
+橙
+0
+标记全体敌人，被标记目标每次受伤奥瑞斯获得1点临时力量（本回合）
+mark, buff
+“群星皆可标定。”
+oris_phase_white
+相位转移
+白
+1
+速度-1，自身获得闪避
+speed, defense
+
+oris_phase_green
+相位转移
+绿
+1
+速度-1，闪避，恢复2点生命
+speed, defense, heal
+
+oris_phase_blue
+相位转移
+蓝
+1
+速度-2，闪避，恢复3点生命，抽1张牌
+speed, defense, heal, draw
+
+oris_phase_orange
+相位转移
+橙
+1
+速度-2，闪避持续2次攻击，若速度归零则清除全队所有狂气
+speed, defense, frenzy
+“在静止中寻找顿悟。”
+oris_starfall_white
+群星陨落
+白
+2
+随机攻击3次，每次3点伤害
+aoe
+
+oris_starfall_green
+群星陨落
+绿
+2
+攻击4次，每次3点，暴击率翻倍
+aoe
+
+oris_starfall_blue
+群星陨落
+蓝
+2
+攻击4次，每次4点，暴击率翻倍
+aoe
+
+oris_starfall_orange
+群星陨落
+橙
+2
+攻击5次，每次5点，每次命中降低敌人1点格挡，最后一击必定暴击
+aoe, debuff
+“星辰坠落，无人幸免。”
+oris_forbidden_white
+禁忌知识
+白
+0
+抽2张牌，+15狂气
+draw, frenzy
+
+oris_forbidden_green
+禁忌知识
+绿
+0
+抽2张牌，+12狂气，本次战斗暴击率+3%（可叠加）
+draw, frenzy, buff
+
+oris_forbidden_blue
+禁忌知识
+蓝
+0
+抽3张牌，+12狂气，暴击率+4%（可叠加）
+draw, frenzy, buff
+
+oris_forbidden_orange
+禁忌知识
+橙
+0
+抽3张牌，+10狂气，暴击率+5%（可叠加），永久增加本局游戏暴击率+2%
+draw, frenzy, buff
+“真理的代价。”
+
+四、20张公共遗物牌（src/data/relics.ts）
+品质统一为 relic，不参与白绿蓝橙升级链，规避校验错误。
+id
+名称
+费用
+效果
+标签
+风味文本
+relic_gear
+锈蚀齿轮
+0
+抽1张牌，速度+1
+draw, speed
+
+relic_armor
+蚀铁护甲片
+1
+获得5点格挡，恢复2点生命
+defense, heal
+
+relic_crystal
+共鸣水晶
+0
+全队+2狂气，全队恢复3点生命
+frenzy, heal
+
+relic_signal
+信号灯
+1
+本回合全队暴击率+15%
+buff
+
+relic_bandage
+急救绷带
+0
+清除一名队友全部流血/中毒
+heal, purify
+
+relic_cinder
+煤渣
+0
+弃1张手牌，获得5点魂火
+soulfire, risky
+
+relic_rivet
+铁轨铆钉
+1
+对1号位造成4点伤害，速度-1
+attack, speed
+
+relic_engine
+魂火引擎
+1
+消耗10点魂火，本回合所有伤害+30%
+soulfire, buff
+
+relic_conduit
+暗蚀导管
+1
+将当前暗蚀×0.5转化为全队永久力量（每局限1次）
+overkill, buff
+
+relic_valve
+增压阀
+1
+速度+3，全队-5点生命
+speed, selfloss
+
+relic_brake
+刹车间
+0
+速度归零，清除全队所有狂气
+speed, frenzy
+“安全第一。”
+relic_resonator
+狂气共鸣器
+1
+将一名队友的狂气复制给全体敌人
+frenzy, aoe
+
+relic_double
+双连发装置
+2
+本回合下一张攻击牌打出两次（第二次伤害减半）
+attack, buff
+
+relic_markbarrage
+标记弹幕
+1
+标记全体敌人，持续2回合
+mark
+
+relic_acid
+腐蚀酸液
+1
+施加2层腐蚀（每回合流失4点生命），持续3回合
+dot, debuff
+
+relic_pact
+恶魔契约
+0
+本回合伤害×2，结束后全队虚脱（下回合只能打1张牌）
+buff, risky
+“用未来换现在。”
+relic_bloodsac
+血祭献祭
+0
+获得30点魂火，当前英雄生命降至1点
+soulfire, selfloss, risky
+
+relic_inhale
+蚀雾吸入口
+0
+抽3张牌，全队+15狂气
+draw, frenzy, risky
+
+relic_wagon
+废弃车厢
+2
+本回合所有英雄无视站位限制，速度永久-2
+displace, risky
+
+relic_timemirror
+时空错位
+1
+复制上一回合最后打出的牌，复制时随机弃掉1张手牌
+draw, risky
+
+
+五、英雄基础配置汇总（src/data/heroes.ts）
+typescript
+import { HeroData } from '../types/game';export const HEROES: HeroData[] = [  {    id: 'warwick',    name: '沃里克',    title: '守夜人',    description: '铁轨之下埋着我的兄弟，但我还在前行。',    defaultPosition: 1,    deckIds: [      'warwick_wall_white', 'warwick_wall_green', 'warwick_wall_blue', 'warwick_wall_orange',      'warwick_hammer_white', 'warwick_hammer_green', 'warwick_hammer_blue', 'warwick_hammer_orange',      'warwick_charge_white', 'warwick_charge_green', 'warwick_charge_blue', 'warwick_charge_orange',      'warwick_taunt_white', 'warwick_taunt_green', 'warwick_taunt_blue', 'warwick_taunt_orange',      'warwick_endure_white', 'warwick_endure_green', 'warwick_endure_blue', 'warwick_endure_orange'    ],    baseStats: { hp: 45, attack: 8, block: 10, critRate: 5 }  },  {    id: 'morgan',    name: '摩根',    title: '行刑者',    description: '你问我为何嗜血？因为列车的汽笛声让我想起断头台的滑轮。',    defaultPosition: 2,    deckIds: [      'morgan_axe_white', 'morgan_axe_green', 'morgan_axe_blue', 'morgan_axe_orange',      'morgan_rage_white', 'morgan_rage_green', 'morgan_rage_blue', 'morgan_rage_orange',      'morgan_hook_white', 'morgan_hook_green', 'morgan_hook_blue', 'morgan_hook_orange',      'morgan_gaze_white', 'morgan_gaze_green', 'morgan_gaze_blue', 'morgan_gaze_orange',      'morgan_carnival_white', 'morgan_carnival_green', 'morgan_carnival_blue', 'morgan_carnival_orange'    ],    baseStats: { hp: 30, attack: 12, block: 4, critRate: 15 }  },  {    id: 'seraphina',    name: '塞拉芬娜',    title: '鸣钟者',    description: '每一段铁轨都是亡者的脊柱，我的钟声能让他们暂时安息。',    defaultPosition: 3,    deckIds: [      'seraphina_heal_white', 'seraphina_heal_green', 'seraphina_heal_blue', 'seraphina_heal_orange',      'seraphina_hymn_white', 'seraphina_hymn_green', 'seraphina_hymn_blue', 'seraphina_hymn_orange',      'seraphina_bell_white', 'seraphina_bell_green', 'seraphina_bell_blue', 'seraphina_bell_orange',      'seraphina_mass_white', 'seraphina_mass_green', 'seraphina_mass_blue', 'seraphina_mass_orange',      'seraphina_doom_white', 'seraphina_doom_green', 'seraphina_doom_blue', 'seraphina_doom_orange'    ],    baseStats: { hp: 28, attack: 6, block: 4, critRate: 5 }  },  {    id: 'oris',    name: '奥瑞斯',    title: '观星者',    description: '蚀雾之上还有星辰，它们告诉我：列车每颠簸一次，维度就会裂开一道缝。',    defaultPosition: 4,    deckIds: [      'oris_shot_white', 'oris_shot_green', 'oris_shot_blue', 'oris_shot_orange',      'oris_mark_white', 'oris_mark_green', 'oris_mark_blue', 'oris_mark_orange',      'oris_phase_white', 'oris_phase_green', 'oris_phase_blue', 'oris_phase_orange',      'oris_starfall_white', 'oris_starfall_green', 'oris_starfall_blue', 'oris_starfall_orange',      'oris_forbidden_white', 'oris_forbidden_green', 'oris_forbidden_blue', 'oris_forbidden_orange'    ],    baseStats: { hp: 25, attack: 10, block: 2, critRate: 10 }  }];
+
+六、整合后的校验结果预期
+把这套数据导入后，你的校验面板会大幅绿化：
+错误类型
+原来
+处理后
+标签未注册
+43个
+0个（所有标签均在白名单内）
+遗物牌缺少绿色品质
+若干
+0个（遗物品固定为relic，跳过升级检查）
+卡牌ID重复
+0
+0（ID命名规则统一）
+费用值异常
+0
+0（全部在0-2范围内）
+剩下的极少数错误可能来自：
+
+某些效果字段（如 effects 数组里的 target 值不匹配枚举）
+
+
+风味文本里包含特殊字符导致解析问题
+
+你把这套代码合并后跑一下，告诉我还剩哪些报错，我继续帮你兜底修复。

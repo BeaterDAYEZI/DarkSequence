@@ -6,7 +6,7 @@ const STATUS_NAME: Record<string, string> = {
   imprison: '禁锢', healReduction: '减疗', dodge: '闪避', stun: '眩晕',
   mark: '标记', taunt: '嘲讽', strength: '力量', revenge: '复仇',
   guard: '援护', silenceHeal: '低语', awakened: '觉醒', critUp: '暴击强化',
-  enraged: '暴走', swallowed: '吞噬', corrosion: '腐蚀', exhaust: '虚脱',
+  enraged: '暴走', swallowed: '吞噬', corrosion: '腐蚀', exhaust: '虚脱', undying: '不灭', madnessImmune: '静心', slow: '减速',
 };
 
 function targetText(t?: TargetSelector): string {

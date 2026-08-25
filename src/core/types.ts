@@ -41,7 +41,10 @@ export type StatusId =
   | 'enraged'        // 暴走·敌：伤害+50%（value=倍率）
   | 'swallowed'      // 被吞噬：移出战斗（需累计伤害救回）
   | 'corrosion'      // 腐蚀：每回合流失4点生命（value=每层流失量）
-  | 'exhaust';       // 虚脱：本回合只能打出1张牌
+  | 'exhaust'        // 虚脱：本回合只能打出1张牌
+  | 'undying'        // 不灭：本回合免疫死亡（生命最低为1）
+  | 'madnessImmune'  // 静心：本回合免疫狂气增长
+  | 'slow';          // 减速：目标速度-层数
 
 // ---------- 条件（EffectSpec.condition 引用） ----------
 export type ConditionId =
@@ -245,6 +248,8 @@ export interface HeroDef {
   color: string;              // 主题色
   defaultCarriage: CarriagePos;
   baseHp: number;
+  /** 基础面板（文档 v1：攻击/格挡/暴击率，供未来数值系统） */
+  baseStats: { attack: number; block: number; critRate: number };
   attackType: AttackType;
   damageType: DamageType;
   awakening: { duration: number };

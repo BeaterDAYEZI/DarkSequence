@@ -330,7 +330,7 @@ export class BattleEngine {
     // 敌方行动（按速度降序）
     const enemyActs = battle.enemies
       .filter((e) => e.hp > 0)
-      .sort((a, b) => b.speed - a.speed)
+      .sort((a, b) => this.ai.effectiveSpeed(b) - this.ai.effectiveSpeed(a))
       .map((e) => ({ kind: 'enemyAct' as const, enemyUid: e.uid }));
     battle.queue = battle.playerFirst ? [...queue, ...enemyActs] : [...enemyActs, ...queue];
     battle.phase = 'execution';

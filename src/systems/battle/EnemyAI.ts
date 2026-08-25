@@ -58,6 +58,12 @@ export class EnemyAI {
     return action;
   }
 
+  /** 减速修正后的有效速度（slow 层数 -2/层） */
+  effectiveSpeed(enemy: EnemyInstance): number {
+    const slow = this.engine.buffs.count(enemy, 'slow');
+    return Math.max(0, enemy.speed - slow * 2);
+  }
+
   /** 执行意图行动 */
   executeIntent(enemy: EnemyInstance): void {
     const action = this.enemyActionById(enemy, enemy.intent?.actionId);

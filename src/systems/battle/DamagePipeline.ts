@@ -180,6 +180,10 @@ export class DamagePipeline {
     }
 
     t.unit.hp -= applied;
+    // 不灭：免疫死亡（生命最低为1）
+    if (t.kind === 'hero' && this.engine.buffs.has(t.unit, 'undying') && t.unit.hp <= 0) {
+      t.unit.hp = 1;
+    }
     const hpAfter = t.unit.hp;
     this.engine.log(`${opts.source ?? ''} ${this.unitName(t)} 受到 ${applied} 点伤害（${hpBefore} → ${Math.max(0, hpAfter)}）`, 'damage');
 

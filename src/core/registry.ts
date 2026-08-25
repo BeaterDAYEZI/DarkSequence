@@ -10,8 +10,8 @@ export interface ValidationReport {
   warnings: string[];
 }
 
-const KNOWN_TAGS = new Set(['speed', 'displace', 'heal', 'madness', 'aoe', 'arcane', 'melee', 'ranged', 'physical', 'draw', 'resonance']);
-const KNOWN_STATUS = new Set(['bleed', 'vulnerable', 'fear', 'tenacity', 'imprison', 'healReduction', 'dodge', 'stun', 'mark', 'taunt', 'strength', 'revenge', 'guard', 'silenceHeal', 'awakened', 'critUp', 'enraged', 'swallowed', 'corrosion', 'exhaust']);
+const KNOWN_TAGS = new Set(['speed', 'displace', 'heal', 'madness', 'frenzy', 'aoe', 'arcane', 'melee', 'ranged', 'physical', 'draw', 'resonance', 'defense', 'attack', 'soulfire', 'mark', 'debuff', 'buff', 'dot', 'finisher', 'selfloss', 'purify', 'counter', 'taunt', 'overkill', 'relic', 'risky', 'crit', 'risk', 'resonance', 'defense']);
+const KNOWN_STATUS = new Set(['bleed', 'vulnerable', 'fear', 'tenacity', 'imprison', 'healReduction', 'dodge', 'stun', 'mark', 'taunt', 'strength', 'revenge', 'guard', 'silenceHeal', 'awakened', 'critUp', 'enraged', 'swallowed', 'corrosion', 'exhaust', 'undying', 'madnessImmune', 'slow']);
 const KNOWN_TRAITS = new Set(['thorns', 'spiritBody', 'packInstinct', 'stealth', 'rooted', 'chainBound']);
 const KNOWN_CONDITIONS = new Set(['targetHpBelow50', 'speedGE2', 'speedGE3', 'madnessAbove50', 'killedThisHit']);
 const VALID_POS = new Set([1, 2, 3, 4]);
@@ -76,12 +76,11 @@ export class Registry {
       if (c.resonance && c.resonance.countReq < 1) err(`卡 ${c.id} 共鸣需求非法`);
       this.validateEffects(c.effects, `卡 ${c.id}`, err);
     }
-    // 谱系完整性：每张 hero 卡应有同谱系更高品质（橙卡除外）
+    // 谱系完整性：专属卡应有同谱系更高品质（橙卡与遗物牌除外）
     for (const c of this.cards.values()) {
-      if (c.rarity !== 'orange') {
-        const up = this.nextRarity(c);
-        if (!up) warn(`卡 ${c.id} 谱系 ${c.lineageId} 缺少 ${RARITY_ORDER[RARITY_ORDER.indexOf(c.rarity as Rarity) + 1]} 品质升级卡`);
-      }
+      if (c.kind === 'relic' || c.rarity === 'orange') continue;
+      const up = this.nextRarity(c);
+      if (!up) warn(`卡 ${c.id} 谱系 ${c.lineageId} 缺少 ${RARITY_ORDER[RARITY_ORDER.indexOf(c.rarity as Rarity) + 1]} 品质升级卡`);
     }
 
     // --- 怪物 ---
