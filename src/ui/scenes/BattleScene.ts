@@ -64,6 +64,7 @@ export class BattleScene implements Scene {
   private plan: { heroId: HeroId; cardId: string }[] = [];
   private offs: (() => void)[] = [];
   private rewardDone = false;
+  private executing = false;
   private lastReward = '';
 
   onEnter(root: HTMLElement, params?: unknown): void {
@@ -167,7 +168,12 @@ export class BattleScene implements Scene {
 
   /** 战斗特效：受击/暴击/治疗/击杀/打牌动画 + 飘字 */
   private handleFx(e: { type: 'hit' | 'crit' | 'heal' | 'kill' | 'block' | 'play' | 'awaken'; side?: 'enemy' | 'hero'; heroId?: string; uid?: string; amount?: number }): void {
+    (window as unknown as { __fxCount?: number }).__fxCount = ((window as unknown as { __fxCount?: number }).__fxCount ?? 0) + 1;
     const root = this.root;
+    if (e.type === 'hit' && e.side === 'hero') {
+      const found = !!root.querySelector('[data-hero="' + e.heroId + '"]');
+      (window as unknown as { __fxDebug?: string }).__fxDebug = 'heroId=' + e.heroId + ' found=' + found;
+    }
     if (!root.isConnected) return;
     let el: HTMLElement | null = null;
     if (e.side === 'enemy' && e.uid) el = root.querySelector(`[data-uid="${e.uid}"]`);
@@ -210,7 +216,7 @@ export class BattleScene implements Scene {
     f.className = `float-text float-${type}`;
     f.textContent = `${type === 'heal' ? '+' : '-'}${amount}`;
     el.appendChild(f);
-    setTimeout(() => f.remove(), 1100);
+    setTimeout(() => f.remove(), 950);
   }
 
   /** Boss推进轨道：车头→车尾4格，显示Boss位置与脱轨警告 */
@@ -431,7 +437,8 @@ export class BattleScene implements Scene {
 
     // 确认出牌
     this.root.querySelector('.btn-confirm')?.addEventListener('click', () => {
-      if (this.controller.outcome.result !== 'ongoing') return;
+      if (this.controller.outcome.result !== 'ongoing' || this.executing) return;
+      this.executing = true;
       this.controller.submitPlan(this.plan);
       this.plan = [];
       this.selected = null;
@@ -440,7 +447,11 @@ export class BattleScene implements Scene {
         this.controller.run.resources.soulfire = this.controller.battle.soulfire;
       }
       this.saveBattleSnapshot(); // 下一回合开始快照
-      this.render();
+      // 延迟渲染：让打牌金光/伤害飘字/受击动画播完（约0.6s）
+      setTimeout(() => {
+        this.executing = false;
+        this.render();
+      }, 600);
     });
 
     // 魂火服务
