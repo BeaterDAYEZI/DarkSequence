@@ -149,8 +149,8 @@ export class CampPanel {
     }).join('');
     const ready = this.fusionA && this.fusionB;
     return `
-      <div class="dim">选择两张遗物牌进行铭刻融合：效果串联、费用A+B-1（上限4）、品质取高</div>
-      <div class="fusion-list">${list || '<div class="dim">牌组中没有遗物牌</div>'}</div>
+      <div class="dim">选择两张公共牌进行铭刻融合：效果串联、费用A+B-1（上限4）、品质取高</div>
+      <div class="fusion-list">${list || '<div class="dim">牌组中没有公共牌</div>'}</div>
       <div class="fusion-pick">已选：${this.fusionA ? registry.cards.get(this.fusionA)?.name : '？'} ＋ ${this.fusionB ? registry.cards.get(this.fusionB)?.name : '？'}</div>
       <div class="fusion-actions">
         <button class="btn-fuse ${ready ? '' : 'poor'}" data-via="etchant">融合（1🧪蚀刻剂）</button>

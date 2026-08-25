@@ -291,9 +291,13 @@ export class RunController {
     return { text: '兑换完成——获得1瓶蚀刻剂' };
   }
 
-  /** 已装备遗物名称列表（显示用） */
+  /** 已装备遗物名称列表（显示用，中文名） */
   get relicNames(): string[] {
-    return this.run.relics.map((id) => id.replace('relic_', ''));
+    const RELIC_NAMES: Record<string, string> = {
+      relic_gear: '锈蚀齿轮', relic_armor: '蚀铁护甲片', relic_engine: '魂火引擎',
+      relic_pact: '恶魔契约', relic_bloodsac: '血祭献祭',
+    };
+    return this.run.relics.map((id) => RELIC_NAMES[id] ?? id.replace('relic_', ''));
   }
 
   // ================= 事件 =================

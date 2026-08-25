@@ -22,14 +22,14 @@ export function createCardEl(card: CardDef, opts: CardViewOptions = {}): HTMLEle
   el.dataset.cardId = card.id;
 
   const cost = opts.effectiveCost ?? card.cost;
-  const heroColor = card.heroId ? `var(--hero-${card.heroId})` : 'var(--relic-color)';
+  const heroColor = card.heroId ? `var(--hero-${card.heroId})` : 'var(--public-color)';
   const frame = FRAME_ART[card.rarity];
   const frameStyle = frame ? ` style="background-image:url('${frame}')"` : '';
 
   el.innerHTML = `
     <div class="card-frame${frame ? ' art' : ''}"${frameStyle}>
     <div class="card-cost">${cost === 0 ? '✦' : cost}</div>
-    <div class="card-hero" style="color:${heroColor}">${card.heroId ? card.heroId.slice(0, 2).toUpperCase() : '遗物'}</div>
+    <div class="card-hero" style="color:${heroColor}">${card.heroId ? card.heroId.slice(0, 2).toUpperCase() : '公共'}</div>
     <div class="card-name">${card.name}</div>
     <div class="card-effects">${card.effects.map((e) => `<div>${describeEffect(e)}</div>`).join('')}</div>
     ${card.flavor ? `<div class="card-flavor">${card.flavor}</div>` : ''}

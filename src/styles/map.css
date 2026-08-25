@@ -275,9 +275,10 @@
   background-position: center;
 }
 
-.map-relics { display: flex; gap: 6px; }
+.map-relics { display: flex; gap: 6px; align-items: center; }
+.map-relics::before { content: '遗物'; font-size: 11px; color: var(--text-dim); }
 .relic-chip {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent);
   border: 1px solid var(--accent-dim);
   border-radius: 10px;
