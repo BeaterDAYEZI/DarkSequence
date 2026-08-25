@@ -295,9 +295,34 @@ export class RunController {
   get relicNames(): string[] {
     const RELIC_NAMES: Record<string, string> = {
       relic_gear: '锈蚀齿轮', relic_armor: '蚀铁护甲片', relic_engine: '魂火引擎',
-      relic_pact: '恶魔契约', relic_bloodsac: '血祭献祭',
+      relic_pact: '恶魔契约', relic_bloodsac: '血祭献祭', relic_signal: '信号灯',
+      relic_crystal: '共鸣水晶', relic_bandage: '急救绷带', relic_cinder: '煤渣',
+      relic_valve: '增压阀', relic_brake: '刹车间', relic_markbarrage: '标记弹幕',
+      relic_conduit: '暗蚀导管', relic_inhale: '蚀雾吸入口', relic_rivet: '铁轨铆钉',
     };
     return this.run.relics.map((id) => RELIC_NAMES[id] ?? id.replace('relic_', ''));
+  }
+
+  /** 遗物效果说明（悬浮提示用） */
+  get relicTips(): string[] {
+    const RELIC_TIPS: Record<string, string> = {
+      relic_gear: '锈蚀齿轮：列车初始速度+1，每回合抽牌+1',
+      relic_armor: '蚀铁护甲片：全队每回合获得3点格挡',
+      relic_engine: '魂火引擎：溢伤转化魂火比例+10%',
+      relic_pact: '恶魔契约：生命低于30%时，伤害×1.5（濒死狂暴）',
+      relic_bloodsac: '血祭献祭：战斗开始+20魂火，第一名英雄-10生命',
+      relic_signal: '信号灯：每回合开始全队暴击率+15%（本回合）',
+      relic_crystal: '共鸣水晶：每回合开始全队恢复3点生命',
+      relic_bandage: '急救绷带：每回合开始清除全队流血与腐蚀',
+      relic_cinder: '煤渣：每回合开始获得5点魂火',
+      relic_valve: '增压阀：列车初始速度+1（战斗开始全队-5生命）',
+      relic_brake: '刹车间：每场战斗开始清除全队狂气',
+      relic_markbarrage: '标记弹幕：战斗开始标记全体敌人',
+      relic_conduit: '暗蚀导管：战斗开始获得10点暗蚀能量',
+      relic_inhale: '蚀雾吸入口：每回合抽牌数+1',
+      relic_rivet: '铁轨铆钉：战斗开始对最前敌人造成4点伤害',
+    };
+    return this.run.relics.map((id) => RELIC_TIPS[id] ?? id);
   }
 
   // ================= 事件 =================

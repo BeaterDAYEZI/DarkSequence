@@ -29,16 +29,30 @@ interface BattleParams {
   encounterId?: string;
 }
 
-const STATUS_CHIP: Record<string, { icon: string; name: string }> = {
-  bleed: { icon: '🩸', name: '流血' }, vulnerable: { icon: '💔', name: '易伤' },
-  fear: { icon: '😨', name: '恐惧' }, tenacity: { icon: '🛡️', name: '坚韧' },
-  imprison: { icon: '⛓️', name: '禁锢' }, healReduction: { icon: '🚫', name: '减疗' },
-  dodge: { icon: '💨', name: '闪避' }, stun: { icon: '💫', name: '眩晕' },
-  mark: { icon: '🎯', name: '标记' }, taunt: { icon: '📣', name: '嘲讽' },
-  strength: { icon: '💪', name: '力量' }, revenge: { icon: '🔥', name: '复仇' },
-  guard: { icon: '🛡️', name: '援护' }, silenceHeal: { icon: '🤫', name: '低语' },
-  awakened: { icon: '⚡', name: '觉醒' }, critUp: { icon: '✨', name: '暴击强化' },
-  enraged: { icon: '😡', name: '暴走' }, swallowed: { icon: '🪱', name: '吞噬' },
+const STATUS_CHIP: Record<string, { icon: string; name: string; tip: string }> = {
+  bleed: { icon: '🩸', name: '流血', tip: '流血：每回合流失2点生命' },
+  vulnerable: { icon: '💔', name: '易伤', tip: '易伤：受到的伤害+30%/层' },
+  fear: { icon: '😨', name: '恐惧', tip: '恐惧：造成的伤害-20%/层' },
+  tenacity: { icon: '🛡️', name: '坚韧', tip: '坚韧：下次受到的伤害减半（次数耗尽消失）' },
+  imprison: { icon: '⛓️', name: '禁锢', tip: '禁锢：本回合无法使用位移/加速牌' },
+  healReduction: { icon: '🚫', name: '减疗', tip: '减疗：受到的治疗降低（50%/75%/100%）' },
+  dodge: { icon: '💨', name: '闪避', tip: '闪避：抵挡一次攻击（次数耗尽消失）' },
+  stun: { icon: '💫', name: '眩晕', tip: '眩晕：跳过本回合行动' },
+  mark: { icon: '🎯', name: '标记', tip: '标记：受到的伤害+30%（部分标记有特殊联动）' },
+  taunt: { icon: '📣', name: '嘲讽', tip: '嘲讽：强制敌人攻击自己（部分嘲讽被攻击时全队+魂火）' },
+  strength: { icon: '💪', name: '力量', tip: '力量：攻击时附加力量值伤害' },
+  revenge: { icon: '🔥', name: '复仇', tip: '复仇：复活后本场战斗伤害+50%' },
+  guard: { icon: '🛡️', name: '援护', tip: '援护：替所有队友承受伤害' },
+  silenceHeal: { icon: '🤫', name: '低语', tip: '低语：本回合无法使用治疗牌' },
+  awakened: { icon: '⚡', name: '觉醒', tip: '觉醒：伤害+50%、受伤-25%、专属牌费-1（持续2回合）' },
+  critUp: { icon: '✨', name: '暴击强化', tip: '暴击强化：提升暴击率（层数×数值）' },
+  enraged: { icon: '😡', name: '暴走', tip: '暴走（敌）：伤害+50%' },
+  swallowed: { icon: '🪱', name: '吞噬', tip: '吞噬：被Boss吞入腹中，对Boss累计15点伤害可救回' },
+  corrosion: { icon: '🧪', name: '腐蚀', tip: '腐蚀：每回合流失4点生命（持续3回合）' },
+  exhaust: { icon: '🫠', name: '虚脱', tip: '虚脱：本回合只能打出1张牌' },
+  undying: { icon: '💀', name: '不灭', tip: '不灭：本回合免疫死亡（生命最低为1）' },
+  madnessImmune: { icon: '🧘', name: '静心', tip: '静心：本回合免疫狂气增长' },
+  slow: { icon: '🐌', name: '减速', tip: '减速：目标速度-2/层（影响行动顺序）' },
 };
 
 export class BattleScene implements Scene {
@@ -50,6 +64,7 @@ export class BattleScene implements Scene {
   private plan: { heroId: HeroId; cardId: string }[] = [];
   private offs: (() => void)[] = [];
   private rewardDone = false;
+  private lastReward = '';
 
   onEnter(root: HTMLElement, params?: unknown): void {
     this.root = root;
@@ -112,7 +127,10 @@ export class BattleScene implements Scene {
           <div class="hud-energy" title="能量：每回合重置"><img src="${ASSETS.iconEnergy}" class="hud-icon"/> <b>${battle.energy}</b>/${battle.energyMax}</div>
           <div class="hud-dark ${battle.darkEnergy > 0 ? 'active' : ''}" title="暗蚀能量：本场战斗的连锁资源">🌑 ${Math.round(battle.darkEnergy * 10) / 10}</div>
           <div class="hud-zone">${controller.zone.name}</div>
-          <div class="hud-gauge-slot"></div>
+          <div class="hud-gauge-slot" data-tip="列车速度：0-5
+决定先手：速度 ≥ 敌方速度总和 → 我方先手
+部分卡牌需要特定速度才能打出（如速度≥3眩晕）
+加速牌会让英雄整体前进、怪物被甩向车尾"></div>
           <div class="hud-turn">第 ${battle.turn} 回合</div>
         </div>
         <div class="battlefield">
@@ -232,15 +250,17 @@ export class BattleScene implements Scene {
           </div>
           <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%"></div><span class="hp-text">${dead ? '残影化' : `${h.hp}/${h.maxHp}`}</span></div>
           ${h.block > 0 ? `<div class="block-badge">🛡️${h.block}</div>` : ''}
-          <div class="hero-madness ${h.awakeningTurns > 0 ? 'awakening' : ''}">狂气 ${madness}${h.awakeningTurns > 0 ? ` · 觉醒${h.awakeningTurns}回合` : ''}${h.runaway ? ' · 暴走!' : ''}</div>
+          <div class="hero-madness ${h.awakeningTurns > 0 ? 'awakening' : ''}" data-tip="狂气：0-100
+达到100触发觉醒（伤害+50%、受伤-25%、专属牌费-1，持续2回合）
+觉醒中狂气再次达到100 → 暴走（觉醒中断、受20点真伤、本回合无法行动）">狂气 ${madness}${h.awakeningTurns > 0 ? ` · 觉醒${h.awakeningTurns}回合` : ''}${h.runaway ? ' · 暴走!' : ''}</div>
           ${h.statuses.length ? `<div class="status-row">${h.statuses.map((s) => this.statusChip(s)).join('')}</div>` : ''}
         </div>
       </div>`;
   }
 
   private statusChip(s: StatusInstance): string {
-    const meta = STATUS_CHIP[s.id] ?? { icon: '❓', name: s.id };
-    return `<span class="status-chip" title="${meta.name}×${s.stacks}${s.duration > 0 ? `（${s.duration}回合）` : ''}">${meta.icon}${s.stacks > 1 ? s.stacks : ''}</span>`;
+    const meta = STATUS_CHIP[s.id] ?? { icon: '❓', name: s.id, tip: s.id };
+    return `<span class="status-chip" data-tip="${meta.tip}（${meta.name}×${s.stacks}${s.duration > 0 ? `，${s.duration}回合` : ''}）">${meta.icon}${s.stacks > 1 ? s.stacks : ''}</span>`;
   }
 
   private renderHand(): string {
@@ -312,6 +332,10 @@ export class BattleScene implements Scene {
     const victoryReward = o.result === 'victory'
       ? (isBoss ? '区域Boss被击溃——前往下一区域' : (this.battleNode?.type === 'elite' ? '精英被击溃' : '遭遇战胜利'))
       : '';
+    // 本场战斗基础奖励（返回地图时结算）
+    const baseReward = o.result === 'victory' && this.runController
+      ? `本场奖励：执念+${isBoss ? 20 : this.battleNode?.type === 'elite' ? 10 : 5} · 残响碎片+${isBoss ? 30 : this.battleNode?.type === 'elite' ? 15 : 8}`
+      : '';
     const backBtn = o.result === 'victory' && this.runController && !this.rewardDone
       ? '<button class="btn-back btn-reward">领取奖励 🎁</button>'
       : o.result === 'victory' && this.runController
@@ -323,6 +347,8 @@ export class BattleScene implements Scene {
           <h2>${o.result === 'victory' ? '🏆 ' + victoryReward : '💀 列车停摆'}</h2>
           ${o.reason ? `<p>${o.reason}</p>` : ''}
           <p class="overlay-stats">${o.turns} 回合 · 击杀 ${this.controller.engine.stats.kills} · 魂火 ${battle.soulfire}</p>
+          ${baseReward ? `<p class="overlay-reward">💰 ${baseReward}</p>` : ''}
+          ${this.lastReward ? `<p class="overlay-reward">🎁 ${this.lastReward}</p>` : ''}
           <p class="overlay-heroes">${heroes.map((h) => `${this.controller.engine.heroName(h.heroId)} ${h.hp}/${h.maxHp}${h.alive ? '' : '✝'}`).join(' · ')}</p>
           ${backBtn}
         </div>
@@ -385,8 +411,8 @@ export class BattleScene implements Scene {
       // 立即锁定，防止场景重建后重复领取
       this.rewardDone = true;
       const options = generateRewards(run, this.controller.engine.ctx.rng);
-      const panel = new RewardPanel(options, () => {
-        // 选择完成：稍后回到地图
+      const panel = new RewardPanel(options, (opt, result) => {
+        this.lastReward = result;
       }, () => {
         this.render();
       });
@@ -405,7 +431,8 @@ export class BattleScene implements Scene {
           appRef.current?.go('end', { kind: 'victory' });
           return;
         }
-        appRef.current?.go('map', { banner: isBoss ? `Boss被击溃！${rewards.join('；')}` : undefined });
+        const banner = [isBoss ? `Boss被击溃！${rewards.join('；')}` : '', this.lastReward].filter(Boolean).join('；');
+        appRef.current?.go('map', { banner });
       } else {
         appRef.current?.go('end', { kind: 'gameover', reason: o.reason });
       }

@@ -155,13 +155,25 @@ export class MapScene implements Scene {
           <div class="map-zone">${zone.name}${zone.isPlaceholder ? '（占位）' : ''}</div>
           <div class="map-env" title="${zone.environmentRule.desc}">⚙ ${zone.environmentRule.name}</div>
           <div class="map-res">
-            <span title="魂火"><img src="${ASSETS.iconSoulfire}" class="res-icon"/>${resources.soulfire}</span>
-            <span title="残响碎片">💠${resources.shards}</span>
-            <span title="执念值">🕯️${resources.obsession}</span>
-            <span title="蚀刻剂">🧪${resources.etchant}</span>
-            <span title="蚀铁">⛓️${resources.darkIron}</span>
+            <span data-tip="魂火——唯一通用货币
+获取：溢伤转化、战斗奖励、事件
+用途：列车加速、调度站消费（融合/复活/回血/重绘/复制/兑换）"><img src="${ASSETS.iconSoulfire}" class="res-icon"/>${resources.soulfire}</span>
+            <span data-tip="残响碎片——升级英雄专属牌品质
+获取：战斗胜利、精英掉落
+用途：白→绿→蓝→橙 升级（营地-卡牌升级）">💠${resources.shards}</span>
+            <span data-tip="执念值——灌注英雄属性
+获取：战斗胜利、营地事件
+用途：灌注力量/壁垒/敏捷/意志，累计3/6/10次突破阈值解锁被动">🕯️${resources.obsession}</span>
+            <span data-tip="蚀刻剂——铭刻融合
+获取：Boss掉落、调度站兑换（20魂火→1）
+用途：融合两张卡牌为一张更强卡">🧪${resources.etchant}</span>
+            <span data-tip="蚀铁——解锁列车科技树
+获取：区域Boss掉落、岔道奖励、分解遗物
+用途：科技树全局永久升级">⛓️${resources.darkIron}</span>
           </div>
-          <div class="map-relics" title="已装备遗物（全局被动）">${this.rc.relicNames.map((n) => `<span class="relic-chip">◆${n}</span>`).join('') || ''}</div>
+          <div class="map-relics" data-tip="全局遗物——被动效果，永久持续
+不占牌组、不出现在手牌
+获取：三选一奖励；最多装备${this.rc.run.relicSlots}件（击败区域2/4Boss解锁新槽位）">${this.rc.relicNames.map((n, i) => `<span class="relic-chip" data-tip="${this.rc.relicTips[i] ?? n}">◆${n}</span>`).join('') || '<span class="relic-chip-empty">未装备</span>'}</div>
           <div class="map-heroes">${this.rc.heroSummary}</div>
           <button class="btn-menu">菜单</button>
         </div>

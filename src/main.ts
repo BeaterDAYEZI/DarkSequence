@@ -13,6 +13,7 @@ import { registry } from './core/registry';
 import { loadAllData } from './data/index';
 import { runDebugBattle, autoPlan } from './debug/battleDebug';
 import { audio } from './ui/fx/AudioManager';
+import { initTooltip } from './ui/components/Tooltip';
 
 // 控制台调试入口（headless战斗验证）
 Object.assign(window, { runDebugBattle, autoPlan });
@@ -22,6 +23,7 @@ if (!root) throw new Error('缺少 #app 挂载点');
 
 loadAllData();
 document.body.dataset.scene = 'title';
+initTooltip();
 
 const app = new App(root);
 appRef.current = app;

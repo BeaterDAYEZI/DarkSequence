@@ -4,7 +4,7 @@ import type { RewardOption } from '../../systems/run/RewardSystem';
 export class RewardPanel {
   constructor(
     private options: RewardOption[],
-    private onPick: (option: RewardOption) => void,
+    private onPick: (option: RewardOption, result: string) => void,
     private onDone: () => void,
   ) {}
 
@@ -32,7 +32,7 @@ export class RewardPanel {
         const result = opt.apply();
         b.setAttribute("disabled", "");
         b.classList.add('picked');
-        this.onPick(opt);
+        this.onPick(opt, result);
         const note = document.createElement('div');
         note.className = 'reward-result';
         note.textContent = `✅ ${result}`;

@@ -504,3 +504,24 @@ body[data-scene='title'] .train-silhouette { display: flex; }
   border-radius: 6px;
   background: rgba(30,60,30,0.3);
 }
+
+/* ============ 悬浮说明气泡 ============ */
+.game-tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 280px;
+  background: rgba(14,12,8,0.96);
+  border: 1px solid var(--accent-dim);
+  color: #e8dcb8;
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 8px 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: pre-line;
+}
+.game-tooltip.show { opacity: 1; transform: translateY(0); }

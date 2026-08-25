@@ -453,3 +453,14 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.6), 0 0 0 2px #1a1408;
   z-index: 3;
 }
+
+.overlay-reward {
+  color: var(--accent);
+  font-size: 13px;
+  margin: 6px 0;
+  border: 1px solid var(--accent-dim);
+  border-radius: 6px;
+  padding: 6px 12px;
+  background: rgba(201,162,39,0.08);
+  display: inline-block;
+}
