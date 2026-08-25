@@ -92,14 +92,14 @@
 .enemy-unit.dead { opacity: 0.25; filter: grayscale(1); }
 .enemy-art {
   width: 100%;
-  max-width: 140px;
-  height: 130px;
+  max-width: 160px;
+  height: 150px;
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.8)) brightness(1.05);
   transition: transform 0.2s;
 }
-.enemy-unit.boss .enemy-art { height: 170px; max-width: 180px; }
+.enemy-unit.boss .enemy-art { height: 185px; max-width: 195px; }
 .enemy-tag {
   margin-top: -4px;
   text-align: center;
@@ -111,7 +111,7 @@
 .enemy-name {
   color: #f0d8d8;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 14px;
   text-shadow: 0 1px 3px #000;
 }
 .enemy-intent { color: #e0b0b0; font-size: 11px; margin-top: 2px; }
@@ -176,7 +176,7 @@
 }
 .carriage-track-img {
   width: 100%;
-  height: 193px;
+  height: 168px;
   object-fit: cover;
   object-position: center;
   border-radius: 6px;
@@ -185,7 +185,7 @@
 }
 .carriage-pos {
   position: absolute;
-  top: -38px;
+  top: -30px;
   transform: translateX(-50%);
   display: flex;
   gap: 8px;
@@ -197,7 +197,7 @@
 /* 英雄卡 */
 .hero-unit {
   position: relative;
-  width: 150px;
+  width: 185px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -207,7 +207,7 @@
 .hero-unit.swallowed { opacity: 0.6; }
 .hero-art {
   width: 100%;
-  height: 128px;
+  height: 150px;
   object-fit: contain;
   object-position: center bottom;
   filter: drop-shadow(0 3px 8px rgba(0,0,0,0.8)) brightness(1.1);
@@ -230,7 +230,7 @@
 .hero-name {
   color: var(--hero-color, var(--text));
   font-weight: bold;
-  font-size: 13px;
+  font-size: 15px;
   text-shadow: 0 1px 3px #000;
 }
 .hero-unit .hp-bar { width: 95%; margin: 3px auto 0; }
