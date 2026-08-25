@@ -58,13 +58,13 @@ rc.travelTo('zone1_n3');
 check('岔道节点不可直接通过', rc.currentNode.type === 'fork');
 
 // 5. 岔道选择：左轨（记忆）
-const relicCountBefore = [...rc.run.deck.drawPile, ...rc.run.deck.hand, ...rc.run.deck.discardPile]
-  .filter((c) => !registry.cards.get(c)?.heroId).length;
+const relicCountBefore = [...rc.run.deck.drawPile, ...rc.run.deck.hand, ...rc.run.deck.discardPile, ...Object.values(rc.run.deck.resting).flat()]
+  .filter((c) => registry.cards.get(c)?.kind === 'hero').length;
 const forkResult = rc.chooseFork('memory');
 check('岔道选择返回结果', forkResult.chosenNodeId === 'zone1_n4L');
-check('记忆之轨删除一张遗物牌',
-  [...rc.run.deck.drawPile, ...rc.run.deck.hand, ...rc.run.deck.discardPile]
-    .filter((c) => !registry.cards.get(c)?.heroId).length === relicCountBefore - 1);
+check('记忆之轨删除一张卡牌',
+  [...rc.run.deck.drawPile, ...rc.run.deck.hand, ...rc.run.deck.discardPile, ...Object.values(rc.run.deck.resting).flat()]
+    .filter((c) => registry.cards.get(c)?.kind === 'hero').length === relicCountBefore - 1);
 check('区域记忆标记已记录', rc.run.forkMemory['zone1'] === 'memory');
 check('可达节点为左轨战斗', rc.getReachable().some((n) => n.id === 'zone1_n4L')
   && !rc.getReachable().some((n) => n.id === 'zone1_n4R'));
@@ -94,13 +94,13 @@ check('可达节点为左轨战斗', rc.getReachable().some((n) => n.id === 'zon
   const rc2 = new RunController(987654);
   rc2.run.currentNodeId = 'zone1_n3';
   rc2.nodeById('zone1_n3').resolved = true;
-  const relicBefore = [...rc2.run.deck.drawPile, ...rc2.run.deck.hand, ...rc2.run.deck.discardPile]
-    .filter((c) => !registry.cards.get(c)?.heroId).length;
+  const relicBefore = [...rc2.run.deck.drawPile, ...rc2.run.deck.hand, ...rc2.run.deck.discardPile, ...Object.values(rc2.run.deck.resting).flat()]
+    .filter((c) => registry.cards.get(c)?.kind === 'hero').length;
   const fork2 = rc2.chooseFork('oblivion');
   check('右轨选择指向事件节点', fork2.chosenNodeId === 'zone1_n4R');
-  check('遗忘之轨复制一张遗物牌',
-    [...rc2.run.deck.drawPile, ...rc2.run.deck.hand, ...rc2.run.deck.discardPile]
-      .filter((c) => !registry.cards.get(c)?.heroId).length === relicBefore + 1);
+  check('遗忘之轨复制一张卡牌',
+    [...rc2.run.deck.drawPile, ...rc2.run.deck.hand, ...rc2.run.deck.discardPile, ...Object.values(rc2.run.deck.resting).flat()]
+      .filter((c) => registry.cards.get(c)?.kind === 'hero').length === relicBefore + 1);
   const enterEvent = rc2.travelTo('zone1_n4R');
   check('右轨事件节点可进入', enterEvent?.type === 'event');
 }

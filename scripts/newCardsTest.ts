@@ -6,6 +6,8 @@ import { loadAllData } from '../src/data/index';
 import { Rng } from '../src/core/rng';
 import { createNewRun } from '../src/systems/run/RunState';
 import { BattleEngine } from '../src/systems/battle/BattleEngine';
+import type { TargetSelector } from '../src/core/types';
+const ALLY_ALL: TargetSelector = { side: 'ally', mode: 'all' };
 
 loadAllData();
 const zone = registry.zones.get('zone1')!;
@@ -40,7 +42,10 @@ console.log('===== 1. 恶魔契约（伤害×2 + 虚脱） =====');
   engine.pipeline.dealDamage({ attacker: { side: 'hero', heroId: 'morgan' }, target: { side: 'enemy', uid: scarecrow.uid }, amount: 6, attackType: 'melee', damageType: 'physical', singleTarget: true, source: '[测试]' });
   const baseDmg = scarecrow.maxHp - scarecrow.hp;
   scarecrow.hp = scarecrow.maxHp;
-  play(engine, 'r01_pact');
+  engine.resolver.resolve(
+    [{ kind: 'damageMultTurn', damageMult: 2 }, { kind: 'applyStatus', target: ALLY_ALL, status: 'exhaust', stacks: 1, duration: 1 }],
+    { source: { side: 'hero', heroId: 'warwick' } },
+  );
   engine.pipeline.dealDamage({ attacker: { side: 'hero', heroId: 'morgan' }, target: { side: 'enemy', uid: scarecrow.uid }, amount: 6, attackType: 'melee', damageType: 'physical', singleTarget: true, source: '[测试]' });
   const pactDmg = scarecrow.maxHp - scarecrow.hp;
   check('契约后伤害翻倍', pactDmg === baseDmg * 2, `${baseDmg}→${pactDmg}`);
@@ -56,7 +61,7 @@ console.log('===== 2. 双连发装置 =====');
 {
   const engine = fresh();
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
-  play(engine, 'c06_doublefire');
+  engine.resolver.resolve([{ kind: 'nextAttackDouble' }], { source: { side: 'hero', heroId: 'warwick' } });
   check('双连发标记就绪', engine.battle.nextAttackDouble);
   const before = engine.battle.enemies[0].hp;
   play(engine, 'morgan_decapitate_white', 'morgan');
@@ -68,11 +73,12 @@ console.log('===== 3. 暗蚀导管（暗蚀→永久力量，每局限1） =====
   const engine = fresh();
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
   engine.gainDarkEnergy(20);
-  play(engine, 'c02_conduit');
+  const card = registry.cards.get('warwick_taunt_white');
+  engine.resolver.resolve([{ kind: 'permanentStrength', limitPerRun: true, darkToStrength: true }], { source: { side: 'hero', heroId: 'warwick' }, card });
   check('暗蚀×0.5转为全队永久力量', Object.values(engine.battle.heroes).every((h) => engine.run.permStrength[h.heroId] === 10),
     `力量=${engine.run.permStrength['warwick']}`);
   const prev = engine.run.permStrength['warwick'];
-  play(engine, 'c02_conduit');
+  engine.resolver.resolve([{ kind: 'permanentStrength', limitPerRun: true, darkToStrength: true }], { source: { side: 'hero', heroId: 'warwick' }, card });
   check('每局限用1次', engine.run.permStrength['warwick'] === prev);
 }
 
@@ -81,8 +87,9 @@ console.log('===== 4. 时空错位（复制上回合最后一张牌） =====');
   const engine = fresh();
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
   engine.battle.turn = 2;
-  play(engine, 'morgan_decapitate_white'); // 当前回合打出
-  play(engine, 'r05_timewarp');            // 复制上回合最后一张（无）→ 复制当前回合？逻辑取 turn-1
+  engine.deck.deck.hand.push('morgan_decapitate_white');
+  engine.playCard('morgan', 'morgan_decapitate_white', true); // 当前回合打出
+  engine.resolver.resolve([{ kind: 'copyLastCard' }], { source: { side: 'hero', heroId: 'warwick' } }); // 复制上回合最后一张（无）→ 优雅跳过
   const copied = engine.run.deck.hand.some((c) => c.startsWith('copied_'));
   check('时空错位可执行（不崩溃）', true, copied ? '有副本' : '上回合无牌时优雅跳过');
 }
@@ -93,7 +100,7 @@ console.log('===== 5. 腐蚀酸液（腐蚀状态） =====');
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
   const scarecrow = engine.battle.enemies[0];
   scarecrow.hp = scarecrow.maxHp;
-  play(engine, 'c08_acid');
+  engine.resolver.resolve([{ kind: 'applyStatus', target: { side: 'enemy', mode: 'front' }, status: 'corrosion', stacks: 2, duration: 3, value: 4 }], { source: { side: 'hero', heroId: 'warwick' } });
   check('施加2层腐蚀', engine.buffs.count(scarecrow, 'corrosion') === 2);
   const hpBefore = scarecrow.hp;
   engine.endPhase();
@@ -104,7 +111,7 @@ console.log('===== 6. 废弃车厢（无视站位 + 永久减速） =====');
 {
   const engine = fresh();
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
-  play(engine, 'r04_abandoned');
+  engine.resolver.resolve([{ kind: 'ignorePosTurn' }, { kind: 'permanentSpeed', amount: -2 }], { source: { side: 'hero', heroId: 'warwick' } });
   check('本回合无视站位', engine.battle.ignorePosTurn);
   check('列车速度永久-2', engine.run.permSpeedMod === -2, `permSpeed=${engine.run.permSpeedMod}`);
 }
@@ -116,7 +123,7 @@ console.log('===== 7. 狂气共鸣器 =====');
   engine.madness.gain('auris', 40);
   const scarecrow = engine.battle.enemies[0];
   const hpBefore = scarecrow.hp;
-  play(engine, 'c05_resonator', 'auris');
+  engine.resolver.resolve([{ kind: 'copyMadness', target: { side: 'ally', mode: 'highestMadnessAlly' } }], { source: { side: 'hero', heroId: 'auris' } });
   check('最高狂气队友的狂气倾泻给敌人（车尾-10%）', scarecrow.hp === hpBefore - 36, `受伤${hpBefore - scarecrow.hp}`);
 }
 
@@ -126,13 +133,13 @@ console.log('===== 8. 血祭献祭 + 煤渣 =====');
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
   const warwick = engine.battle.heroes['warwick'];
   const soulBefore = engine.battle.soulfire;
-  play(engine, 'r02_sacrifice');
+  engine.resolver.resolve([{ kind: 'soulfireGain', amount: 30 }, { kind: 'hpSet', hpTo: 1 }], { source: { side: 'hero', heroId: 'warwick' } });
   check('获得30魂火', engine.battle.soulfire === soulBefore + 30);
   check('生命降至1', warwick.hp === 1, `hp=${warwick.hp}`);
   // 煤渣：弃1手牌+5魂火
-  engine.deck.deck.hand.push('p01_gear', 'p02_armorplate');
+  engine.deck.deck.hand.push('warwick_taunt_white', 'warwick_gasp_white');
   const soul2 = engine.battle.soulfire;
-  play(engine, 'p06_cinder');
+  engine.resolver.resolve([{ kind: 'discardCard' }, { kind: 'soulfireGain', amount: 5 }], { source: { side: 'hero', heroId: 'warwick' } });
   check('煤渣弃1张牌', engine.deck.deck.hand.length === 1, `手牌${engine.deck.deck.hand.length}`);
   check('煤渣+5魂火', engine.battle.soulfire === soul2 + 5);
 }
@@ -141,7 +148,7 @@ console.log('===== 9. 信号灯（全队暴击buff） =====');
 {
   const engine = fresh();
   engine.startEncounter([{ defId: 'zone1_scarecrow', count: 1 }]);
-  play(engine, 'p04_signal');
+  engine.resolver.resolve([{ kind: 'applyStatus', target: ALLY_ALL, status: 'critUp', stacks: 1, duration: 1, value: 0.15 }], { source: { side: 'hero', heroId: 'warwick' } });
   const heroes = Object.values(engine.battle.heroes);
   check('全队获得暴击强化15%', heroes.every((h) => engine.buffs.has(h, 'critUp')?.value === 0.15));
 }
@@ -153,7 +160,7 @@ console.log('===== 10. 急救绷带（指定状态净化） =====');
   const auris = engine.battle.heroes['auris'];  // 最低血英雄（22），绷带目标
   engine.buffs.apply(auris, 'bleed', 2, 2);
   engine.buffs.apply(auris, 'fear', 1, -1, 0.2);
-  play(engine, 'p05_bandage');
+  engine.resolver.resolve([{ kind: 'clearStatus', target: { side: 'ally', mode: 'lowestHpAlly' }, status: 'bleed', stacks: 1 }, { kind: 'clearStatus', target: { side: 'ally', mode: 'lowestHpAlly' }, status: 'corrosion', stacks: 1 }], { source: { side: 'hero', heroId: 'warwick' } });
   check('清除流血但保留其他debuff', !engine.buffs.has(auris, 'bleed') && engine.buffs.has(auris, 'fear'));
 }
 

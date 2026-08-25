@@ -47,8 +47,8 @@ export function createNewRun(seed: number, deckChoices?: Record<HeroId, DeckChoi
     const choice = deckChoices?.[id] ?? 'A';
     drawPile.push(...(STARTING_DECKS[id][choice] ?? STARTING_DECKS[id].A));
   }
-  // 种子牌（大更新2）：锈蚀齿轮→沃里克、急救绷带→塞拉芬娜、信号灯→奥瑞斯
-  drawPile.push('p01_gear', 'p05_bandage', 'p04_signal');
+  // 种子牌（大更新2）：额外赠送英雄专属牌（遗物已全局被动化，不再以卡牌出现）
+  drawPile.push('warwick_wall_white', 'serafina_healbell_white', 'auris_forbidden_white');
   rng.shuffle(drawPile);
 
   return {

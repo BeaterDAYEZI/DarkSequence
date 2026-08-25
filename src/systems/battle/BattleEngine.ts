@@ -120,6 +120,45 @@ export class BattleEngine {
     speed += this.run.permSpeedMod ?? 0;
     battle.trainSpeed = Math.max(0, Math.min(5, speed));
 
+    // 增压阀遗物：初始速度+1，全队-5生命
+    if (this.run.relics.includes('relic_valve')) {
+      battle.trainSpeed = Math.min(5, battle.trainSpeed + 1);
+      for (const h of Object.values(battle.heroes)) {
+        if (h.alive) h.hp = Math.max(1, h.hp - 5);
+      }
+      this.log('增压阀：速度+1，全队失去5点生命', 'info');
+    }
+    // 刹车间遗物：清除全队狂气
+    if (this.run.relics.includes('relic_brake')) {
+      for (const h of Object.values(battle.heroes)) {
+        if (h.alive) h.madness = 0;
+      }
+      this.log('刹车间：全队狂气清零', 'madness');
+    }
+    // 标记弹幕遗物：标记全体敌人
+    if (this.run.relics.includes('relic_markbarrage')) {
+      for (const e of battle.enemies) {
+        if (e.hp > 0) this.buffs.apply(e, 'mark', 1, 2);
+      }
+      this.log('标记弹幕：全体敌人被标记2回合', 'info');
+    }
+    // 暗蚀导管遗物：+10暗蚀能量
+    if (this.run.relics.includes('relic_conduit')) {
+      battle.darkEnergy += 10;
+      this.log('暗蚀导管：获得10点暗蚀能量', 'info');
+    }
+    // 铁轨铆钉遗物：战斗开始对最前敌人4伤害
+    if (this.run.relics.includes('relic_rivet')) {
+      const front = battle.enemies.filter((e) => e.hp > 0).sort((a, b) => a.pos - b.pos)[0];
+      if (front) {
+        this.pipeline.dealDamage({
+          attacker: null,
+          target: { side: 'enemy', uid: front.uid },
+          amount: 4, attackType: 'melee', damageType: 'physical',
+          singleTarget: true, source: '[铁轨铆钉]',
+        });
+      }
+    }
     // 血祭献祭遗物：战斗开始+20魂火，第一名英雄-10生命
     if (this.run.relics.includes('relic_bloodsac')) {
       this.gainSoulfire(20);
@@ -215,6 +254,33 @@ export class BattleEngine {
     for (const e of battle.enemies.filter((x) => x.hp > 0)) {
       if (this.buffs.has(e, 'stun')) this.log(`${e.name} 被眩晕，无法行动`, 'info');
     }
+    // 信号灯遗物：全队暴击+15%（本回合）
+    if (this.run.relics.includes('relic_signal')) {
+      for (const h of Object.values(battle.heroes)) {
+        if (h.alive) this.buffs.apply(h, 'critUp', 1, 1, 0.15);
+      }
+      this.log('信号灯：全队暴击率+15%', 'info');
+    }
+    // 共鸣水晶遗物：全队恢复3生命
+    if (this.run.relics.includes('relic_crystal')) {
+      for (const h of Object.values(battle.heroes)) {
+        if (h.alive) this.healHero(h.heroId, 3);
+      }
+    }
+    // 急救绷带遗物：清除全队流血/腐蚀
+    if (this.run.relics.includes('relic_bandage')) {
+      for (const h of Object.values(battle.heroes)) {
+        if (h.alive) {
+          this.buffs.remove(h, 'bleed');
+          this.buffs.remove(h, 'corrosion');
+        }
+      }
+      this.log('急救绷带：清除了全队的流血与腐蚀', 'heal');
+    }
+    // 煤渣遗物：+5魂火
+    if (this.run.relics.includes('relic_cinder')) {
+      this.gainSoulfire(5);
+    }
     // 蚀铁护甲片遗物：全队每回合3格挡
     if (this.run.relics.includes('relic_armor')) {
       for (const h of Object.values(battle.heroes)) {
@@ -285,9 +351,12 @@ export class BattleEngine {
     }
   }
 
-  /** 每回合抽牌数（基础4 + 锈蚀齿轮遗物+1） */
+  /** 每回合抽牌数（基础4 + 锈蚀齿轮/蚀雾吸入口遗物+1） */
   drawPerTurn(): number {
-    return 4 + (this.run.relics.includes('relic_gear') ? 1 : 0);
+    let n = 4;
+    if (this.run.relics.includes('relic_gear')) n += 1;
+    if (this.run.relics.includes('relic_inhale')) n += 1;
+    return n;
   }
 
   drawPhase(): void {

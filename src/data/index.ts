@@ -2,7 +2,7 @@
 import { registry } from '../core/registry';
 import { HEROES } from './heroes';
 import { HERO_CARDS } from './cards';
-import { RELIC_CARDS, PUBLIC_RELIC_CARDS, FUSED_CARDS } from './relicCards';
+import { RELIC_CARDS, FUSED_CARDS } from './relicCards';
 import { ZONE1_MONSTERS } from './monsters/zone1';
 import { ZONE2_MONSTERS } from './monsters/zone2';
 import { ZONE3_MONSTERS } from './monsters/zone3';
@@ -16,7 +16,7 @@ import { FUSION_RECIPES } from './fusionRecipes';
 
 export function loadAllData(): void {
   registry.addHeroes(HEROES);
-  registry.addCards([...HERO_CARDS, ...RELIC_CARDS, ...PUBLIC_RELIC_CARDS, ...FUSED_CARDS]);
+  registry.addCards([...HERO_CARDS, ...RELIC_CARDS, ...FUSED_CARDS]);
   registry.addMonsters([
     ...ZONE1_MONSTERS,
     ...ZONE2_MONSTERS,

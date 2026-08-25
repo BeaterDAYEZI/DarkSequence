@@ -381,13 +381,13 @@ export class BattleScene implements Scene {
 
     this.root.querySelector('.btn-reward')?.addEventListener('click', () => {
       const run = this.runController?.run;
-      if (!run) return;
+      if (!run || this.rewardDone) return;
+      // 立即锁定，防止场景重建后重复领取
+      this.rewardDone = true;
       const options = generateRewards(run, this.controller.engine.ctx.rng);
       const panel = new RewardPanel(options, () => {
-        // 选择后更新资源显示
-        this.render();
+        // 选择完成：稍后回到地图
       }, () => {
-        this.rewardDone = true;
         this.render();
       });
       this.root.appendChild(panel.render());

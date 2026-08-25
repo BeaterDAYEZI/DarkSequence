@@ -49,5 +49,5 @@ export const STARTING_DECKS: Record<HeroId, Record<DeckChoice, string[]>> = {
   },
 };
 
-/** 起始赠卡（泛用遗物） */
-export const STARTING_RELIC_BONUS = ['p01_gear', 'p02_armorplate'];
+/** 起始赠卡（已改为全局遗物+种子牌，此常量保留为空） */
+export const STARTING_RELIC_BONUS: string[] = [];
