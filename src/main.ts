@@ -4,6 +4,7 @@ import './styles/battle.css';
 import './styles/map.css';
 import { App } from './app/App';
 import { appRef } from './app/appRef';
+import { eventBus } from './core/eventBus';
 import { TitleScene } from './ui/scenes/TitleScene';
 import { DebugScene } from './ui/scenes/DebugScene';
 import { BattleScene } from './ui/scenes/BattleScene';
@@ -23,6 +24,7 @@ if (!root) throw new Error('缺少 #app 挂载点');
 
 loadAllData();
 document.body.dataset.scene = 'title';
+(window as unknown as { __eventBus: unknown }).__eventBus = eventBus;
 initTooltip();
 
 const app = new App(root);
