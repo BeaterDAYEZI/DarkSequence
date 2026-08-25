@@ -1,0 +1,177 @@
+0 verbose cli D:\node.exe D:\node_modules\npm\bin\npm-cli.js
+1 info using npm@11.17.0
+2 info using node@v24.19.0
+3 silly config load:file:D:\node_modules\npm\npmrc
+4 silly config load:file:E:\DarkSequence\.npmrc
+5 silly config load:file:C:\Users\周立宇\.npmrc
+6 silly config load:file:D:\npm-global\etc\npmrc
+7 verbose title npm install
+8 verbose argv "install" "--cache" "E:/DarkSequence/.npm-cache"
+9 verbose logfile logs-max:10 dir:E:\DarkSequence\.npm-cache\_logs\2026-08-24T09_21_30_483Z-
+10 verbose logfile E:\DarkSequence\.npm-cache\_logs\2026-08-24T09_21_30_483Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:4496293888 maxSize:1124073472 maxEntrySize:562036736
+13 silly idealTree buildDeps
+14 silly reify moves {}
+15 silly audit bulk request {
+15 silly audit   '@derhuerst/http-basic': [ '8.2.4' ],
+15 silly audit   '@esbuild/aix-ppc64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/android-arm': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/android-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/android-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/darwin-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/darwin-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/freebsd-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/freebsd-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-arm': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-ia32': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-loong64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-mips64el': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-ppc64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-riscv64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-s390x': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/linux-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/netbsd-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/netbsd-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/openbsd-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/openbsd-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/openharmony-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/sunos-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/win32-arm64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/win32-ia32': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@esbuild/win32-x64': [ '0.25.12', '0.28.2' ],
+15 silly audit   '@napi-rs/lzma-linux-x64-gnu': [ '1.5.1' ],
+15 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-android-arm64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-darwin-arm64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-darwin-x64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-freebsd-x64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-loong64-musl': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-ppc64-musl': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-openbsd-x64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.62.4' ],
+15 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.62.4' ],
+15 silly audit   '@types/estree': [ '1.0.9' ],
+15 silly audit   'agent-base': [ '6.0.2' ],
+15 silly audit   'buffer-from': [ '1.1.2' ],
+15 silly audit   caseless: [ '0.12.0' ],
+15 silly audit   'concat-stream': [ '2.0.0' ],
+15 silly audit   debug: [ '4.4.3' ],
+15 silly audit   'env-paths': [ '2.2.1' ],
+15 silly audit   esbuild: [ '0.25.12', '0.28.2' ],
+15 silly audit   fdir: [ '6.5.0' ],
+15 silly audit   'ffmpeg-static': [ '5.3.0' ],
+15 silly audit   fsevents: [ '2.3.3' ],
+15 silly audit   'http-response-object': [ '3.0.2' ],
+15 silly audit   '@types/node': [ '10.17.60' ],
+15 silly audit   'https-proxy-agent': [ '5.0.1' ],
+15 silly audit   inherits: [ '2.0.4' ],
+15 silly audit   lamejs: [ '1.2.1' ],
+15 silly audit   ms: [ '2.1.3' ],
+15 silly audit   nanoid: [ '3.3.18' ],
+15 silly audit   'parse-cache-control': [ '1.0.1' ],
+15 silly audit   picocolors: [ '1.1.1' ],
+15 silly audit   picomatch: [ '4.0.5' ],
+15 silly audit   'playwright-core': [ '1.62.1' ],
+15 silly audit   postcss: [ '8.5.26' ],
+15 silly audit   progress: [ '2.0.3' ],
+15 silly audit   'readable-stream': [ '3.6.2' ],
+15 silly audit   rollup: [ '4.62.4' ],
+15 silly audit   'safe-buffer': [ '5.2.1' ],
+15 silly audit   'source-map-js': [ '1.2.1' ],
+15 silly audit   string_decoder: [ '1.3.0' ],
+15 silly audit   tinyglobby: [ '0.2.17' ],
+15 silly audit   tsx: [ '4.23.12' ],
+15 silly audit   typedarray: [ '0.0.6' ],
+15 silly audit   typescript: [ '5.9.3' ],
+15 silly audit   'use-strict': [ '1.0.1' ],
+15 silly audit   'util-deprecate': [ '1.0.2' ],
+15 silly audit   vite: [ '6.4.3' ]
+15 silly audit }
+16 http cache util-deprecate@https://registry.npmmirror.com/util-deprecate/-/util-deprecate-1.0.2.tgz 1ms (cache hit)
+17 http cache vite@https://registry.npmmirror.com/vite/-/vite-6.4.3.tgz 0ms (cache hit)
+18 http cache tsx@https://registry.npmmirror.com/tsx/-/tsx-4.23.12.tgz 0ms (cache hit)
+19 http cache use-strict@https://registry.npmmirror.com/use-strict/-/use-strict-1.0.1.tgz 0ms (cache hit)
+20 http cache typescript@https://registry.npmmirror.com/typescript/-/typescript-5.9.3.tgz 0ms (cache hit)
+21 http cache typedarray@https://registry.npmmirror.com/typedarray/-/typedarray-0.0.6.tgz 0ms (cache hit)
+22 http cache tinyglobby@https://registry.npmmirror.com/tinyglobby/-/tinyglobby-0.2.17.tgz 0ms (cache hit)
+23 http cache string_decoder@https://registry.npmmirror.com/string_decoder/-/string_decoder-1.3.0.tgz 0ms (cache hit)
+24 http cache safe-buffer@https://registry.npmmirror.com/safe-buffer/-/safe-buffer-5.2.1.tgz 0ms (cache hit)
+25 http cache rollup@https://registry.npmmirror.com/rollup/-/rollup-4.62.4.tgz 0ms (cache hit)
+26 http cache source-map-js@https://registry.npmmirror.com/source-map-js/-/source-map-js-1.2.1.tgz 0ms (cache hit)
+27 http cache readable-stream@https://registry.npmmirror.com/readable-stream/-/readable-stream-3.6.2.tgz 0ms (cache hit)
+28 http cache progress@https://registry.npmmirror.com/progress/-/progress-2.0.3.tgz 0ms (cache hit)
+29 http cache postcss@https://registry.npmmirror.com/postcss/-/postcss-8.5.26.tgz 0ms (cache hit)
+30 http cache picomatch@https://registry.npmmirror.com/picomatch/-/picomatch-4.0.5.tgz 0ms (cache hit)
+31 http cache playwright-core@https://registry.npmmirror.com/playwright-core/-/playwright-core-1.62.1.tgz 0ms (cache hit)
+32 http cache picocolors@https://registry.npmmirror.com/picocolors/-/picocolors-1.1.1.tgz 0ms (cache hit)
+33 http cache ms@https://registry.npmmirror.com/ms/-/ms-2.1.3.tgz 0ms (cache hit)
+34 http cache nanoid@https://registry.npmmirror.com/nanoid/-/nanoid-3.3.18.tgz 0ms (cache hit)
+35 http cache parse-cache-control@https://registry.npmmirror.com/parse-cache-control/-/parse-cache-control-1.0.1.tgz 0ms (cache hit)
+36 http cache https-proxy-agent@https://registry.npmmirror.com/https-proxy-agent/-/https-proxy-agent-5.0.1.tgz 0ms (cache hit)
+37 http cache http-response-object@https://registry.npmmirror.com/http-response-object/-/http-response-object-3.0.2.tgz 0ms (cache hit)
+38 http cache lamejs@https://registry.npmmirror.com/lamejs/-/lamejs-1.2.1.tgz 0ms (cache hit)
+39 http cache ffmpeg-static@https://registry.npmmirror.com/ffmpeg-static/-/ffmpeg-static-5.3.0.tgz 0ms (cache hit)
+40 http cache inherits@https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz 0ms (cache hit)
+41 http cache fdir@https://registry.npmmirror.com/fdir/-/fdir-6.5.0.tgz 0ms (cache hit)
+42 http cache env-paths@https://registry.npmmirror.com/env-paths/-/env-paths-2.2.1.tgz 0ms (cache hit)
+43 http cache esbuild@https://registry.npmmirror.com/esbuild/-/esbuild-0.25.12.tgz 0ms (cache hit)
+44 http cache concat-stream@https://registry.npmmirror.com/concat-stream/-/concat-stream-2.0.0.tgz 0ms (cache hit)
+45 http cache buffer-from@https://registry.npmmirror.com/buffer-from/-/buffer-from-1.1.2.tgz 0ms (cache hit)
+46 http cache @types/estree@https://registry.npmmirror.com/@types/estree/-/estree-1.0.9.tgz 0ms (cache hit)
+47 http cache caseless@https://registry.npmmirror.com/caseless/-/caseless-0.12.0.tgz 0ms (cache hit)
+48 http cache debug@https://registry.npmmirror.com/debug/-/debug-4.4.3.tgz 0ms (cache hit)
+49 http cache @rollup/rollup-win32-x64-gnu@https://registry.npmmirror.com/@rollup/rollup-win32-x64-gnu/-/rollup-win32-x64-gnu-4.62.4.tgz 0ms (cache hit)
+50 http cache @rollup/rollup-win32-x64-msvc@https://registry.npmmirror.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.62.4.tgz 0ms (cache hit)
+51 http cache @esbuild/win32-x64@https://registry.npmmirror.com/@esbuild/win32-x64/-/win32-x64-0.25.12.tgz 0ms (cache hit)
+52 http cache esbuild@https://registry.npmmirror.com/esbuild/-/esbuild-0.28.2.tgz 0ms (cache hit)
+53 http cache @derhuerst/http-basic@https://registry.npmmirror.com/@derhuerst/http-basic/-/http-basic-8.2.4.tgz 0ms (cache hit)
+54 http cache agent-base@https://registry.npmmirror.com/agent-base/-/agent-base-6.0.2.tgz 0ms (cache hit)
+55 http cache @esbuild/win32-x64@https://registry.npmmirror.com/@esbuild/win32-x64/-/win32-x64-0.28.2.tgz 0ms (cache hit)
+56 http cache @types/node@https://registry.npmmirror.com/@types/node/-/node-10.17.60.tgz 0ms (cache hit)
+57 http fetch POST 404 https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk 998ms
+58 verbose audit error HttpErrorGeneral: 404 Not Found - POST https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk - [NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet
+58 verbose audit error     at D:\node_modules\npm\node_modules\npm-registry-fetch\lib\check-response.js:103:15
+58 verbose audit error     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+58 verbose audit error     at async #getReport (D:\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:275:19)
+58 verbose audit error     at async AuditReport.run (D:\node_modules\npm\node_modules\@npmcli\arborist\lib\audit-report.js:100:19) {
+58 verbose audit error   headers: [Object: null prototype] {
+58 verbose audit error     server: [ 'Tengine' ],
+58 verbose audit error     date: [ 'Mon, 24 Aug 2026 09:21:34 GMT' ],
+58 verbose audit error     'content-type': [ 'application/json' ],
+58 verbose audit error     'transfer-encoding': [ 'chunked' ],
+58 verbose audit error     connection: [ 'keep-alive' ],
+58 verbose audit error     'strict-transport-security': [ 'max-age=5184000' ],
+58 verbose audit error     via: [ 'kunlun3.cn22[,404666]' ],
+58 verbose audit error     'timing-allow-origin': [ '*' ],
+58 verbose audit error     eagleid: [ '79cfe59717875632941033060e' ],
+58 verbose audit error     'x-fetch-attempts': [ '1' ]
+58 verbose audit error   },
+58 verbose audit error   statusCode: 404,
+58 verbose audit error   code: 'E404',
+58 verbose audit error   method: 'POST',
+58 verbose audit error   uri: 'https://registry.npmmirror.com/-/npm/v1/security/advisories/bulk',
+58 verbose audit error   body: {
+58 verbose audit error     error: '[NOT_IMPLEMENTED] /-/npm/v1/security/* not implemented yet'
+58 verbose audit error   },
+58 verbose audit error   pkgid: undefined
+58 verbose audit error }
+59 silly audit error [object Object]
+60 silly audit report null
+61 info run ffmpeg-static@5.3.0 install node_modules/ffmpeg-static node install.js
