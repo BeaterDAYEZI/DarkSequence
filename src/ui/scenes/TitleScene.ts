@@ -33,8 +33,8 @@ export class TitleScene implements Scene {
               ${report.errors.length === 0 && report.warnings.length === 0 ? '<li class="ok">✓ 一切就绪（当前为工程骨架）</li>' : ''}
             </ul>
           </div>
-          <button class="title-start btn-art" title="开始一局新的旅程">开始旅程</button>
-          ${SaveSystem.hasSave() ? '<button class="title-continue btn-art" title="从上次的进度继续">继续旅程</button>' : ''}
+          <button class="title-start btn-art" style="background-image:url('${ASSETS.btn}')" title="开始一局新的旅程">开始旅程</button>
+          ${SaveSystem.hasSave() ? `<button class="title-continue btn-art" style="background-image:url('${ASSETS.btn}')" title="从上次的进度继续">继续旅程</button>` : ''}
           <button class="title-debug" title="直接试玩区域一教学遭遇">试玩战斗</button>
           <button class="title-audio" title="切换音效">${audio.enabled ? '🔊 音效开' : '🔇 音效关'}</button>
           <div class="title-foot">残响者 · 衔尾车队 · 幽灵铁轨<br/><span class="version-tag">v0.8.1-art2</span></div>

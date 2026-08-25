@@ -318,7 +318,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .title-logo { width: min(480px, 70vw); margin-bottom: 6px; filter: drop-shadow(0 4px 18px rgba(0,0,0,0.8)); }
 .title-content { background: linear-gradient(180deg, rgba(16,13,10,0.55), rgba(10,8,6,0.68)); }
 .btn-art {
-  background-image: url('/assets/ui/btn.png');
   background-size: 100% 100%;
   background-color: transparent;
   border: none;
