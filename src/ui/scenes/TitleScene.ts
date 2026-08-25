@@ -18,7 +18,7 @@ export class TitleScene implements Scene {
     const report = registry.validateAll();
 
     root.innerHTML = `
-      <div class="title-scene" style="--title-bg:url('${ASSETS.bgTitle}')">
+      <div class="title-scene" style="background-image:url('${ASSETS.bgTitle}')">
         <div class="title-fog"></div>
         <div class="title-content">
           <div class="title-kicker">DARK SEQUENCE</div>

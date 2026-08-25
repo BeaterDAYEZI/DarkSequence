@@ -37,7 +37,7 @@ export class EndScene implements Scene {
       : '';
 
     root.innerHTML = `
-      <div class="end-scene ${p.kind}" style="--end-bg:url('${p.kind === 'victory' ? ASSETS.bgVictory : ASSETS.bgDefeat}')">
+      <div class="end-scene ${p.kind}" style="background-image:url('${p.kind === 'victory' ? ASSETS.bgVictory : ASSETS.bgDefeat}')">
         <div class="end-box">
           ${p.kind === 'victory' ? `
             <div class="end-kicker">THE MOUNTAIN AT THE END OF THE WORLD</div>

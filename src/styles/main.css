@@ -314,7 +314,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   background-size: cover;
   background-position: center;
   filter: brightness(1.08);
-  background-image: var(--title-bg);
 }
 .title-logo { width: min(480px, 70vw); margin-bottom: 6px; filter: drop-shadow(0 4px 18px rgba(0,0,0,0.8)); }
 .title-content { background: linear-gradient(180deg, rgba(16,13,10,0.55), rgba(10,8,6,0.68)); }
@@ -334,7 +333,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   background-size: cover;
   background-position: center;
   filter: brightness(1.08);
-  background-image: var(--map-bg);
 }
 .map-node .node-art { filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7)); }
 .map-node.resolved .node-art { opacity: 0.45; filter: grayscale(0.7); }
@@ -424,7 +422,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
   background-size: cover;
   background-position: center;
   filter: brightness(1.08);
-  background-image: var(--end-bg);
 }
 .end-box { background: rgba(14,12,10,0.88); }
 .end-heroes { display: flex; gap: 14px; justify-content: center; margin: 18px 0; }
