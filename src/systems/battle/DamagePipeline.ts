@@ -88,6 +88,10 @@ export class DamagePipeline {
       dmg += buffs.count(hero, 'strength') + (this.engine.run.permStrength[hero.heroId] ?? 0);
       // 本回合伤害倍率（恶魔契约/魂火引擎）
       dmg *= battle.damageMult;
+      // 恶魔契约遗物：生命<30%时伤害×1.5（濒死狂暴）
+      if (this.engine.run.relics.includes('relic_pact') && hero.hp < hero.maxHp * 0.3) {
+        dmg *= 1.5;
+      }
       // 恐惧
       const fear = buffs.count(hero, 'fear');
       if (fear > 0) dmg *= Math.max(0, 1 - 0.2 * fear);

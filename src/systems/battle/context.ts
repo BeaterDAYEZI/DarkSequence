@@ -28,9 +28,10 @@ export function soulfireCap(ctx: BattleCtx): number {
   return hasTech(ctx, 'soulfireCondense') ? 150 : 100;
 }
 
-/** 溢伤转化魂火比例（基础10%，魂火冷凝15%） */
+/** 溢伤转化魂火比例（基础10%，魂火冷凝15%，魂火引擎遗物+10%） */
 export function soulfireRatio(ctx: BattleCtx): number {
-  return hasTech(ctx, 'soulfireCondense') ? 0.15 : 0.1;
+  const base = hasTech(ctx, 'soulfireCondense') ? 0.15 : 0.1;
+  return base + (ctx.run.relics.includes('relic_engine') ? 0.1 : 0);
 }
 
 export type Engine = BattleEngine;

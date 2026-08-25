@@ -161,6 +161,7 @@ export class MapScene implements Scene {
             <span title="蚀刻剂">🧪${resources.etchant}</span>
             <span title="蚀铁">⛓️${resources.darkIron}</span>
           </div>
+          <div class="map-relics" title="已装备遗物（全局被动）">${this.rc.relicNames.map((n) => `<span class="relic-chip">◆${n}</span>`).join('') || ''}</div>
           <div class="map-heroes">${this.rc.heroSummary}</div>
           <button class="btn-menu">菜单</button>
         </div>
@@ -298,8 +299,12 @@ export class MapScene implements Scene {
       el.addEventListener('click', () => {
         const id = el.dataset.service!;
         let result: { text: string };
-        if (id === 'station_coal') result = this.rc.stationCoal();
-        else result = this.rc.stationMap();
+        if (id === 'station_restore') result = this.rc.stationCoal();
+        else if (id === 'station_map') result = this.rc.stationMap();
+        else if (id === 'station_redraw') result = this.rc.stationRedraw();
+        else if (id === 'station_copy') result = this.rc.stationCopy();
+        else if (id === 'station_exchange') result = this.rc.stationExchange();
+        else result = { text: '该服务暂不可用' };
         this.banner = result.text;
         this.render();
       });

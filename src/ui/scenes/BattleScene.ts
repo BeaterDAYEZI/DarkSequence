@@ -14,6 +14,8 @@ import { createSteamGauge } from '../components/SteamGauge';
 import type { HeroId, HeroInstance, EnemyInstance, StatusInstance, MapNode, BattleState } from '../../core/types';
 import { ASSETS, bossPhaseArt } from '../../core/assets';
 import { audio } from '../fx/AudioManager';
+import { RewardPanel } from '../components/RewardPanel';
+import { generateRewards, type RewardOption } from '../../systems/run/RewardSystem';
 
 interface BattleParams {
   /** 整局流程模式（地图进入） */
@@ -47,6 +49,7 @@ export class BattleScene implements Scene {
   private selected: string | null = null;
   private plan: { heroId: HeroId; cardId: string }[] = [];
   private offs: (() => void)[] = [];
+  private rewardDone = false;
 
   onEnter(root: HTMLElement, params?: unknown): void {
     this.root = root;
@@ -123,8 +126,6 @@ export class BattleScene implements Scene {
             <div class="plan-label">牌序规划</div>
             <div class="plan-slots">${[0, 1, 2, 3].map((i) => this.renderPlanSlot(i)).join('')}</div>
             <button class="btn-confirm" ${plan.length === 0 ? '' : 'style="border-color:var(--accent)"'}>${plan.length === 0 ? '结束回合' : `确认出牌（${plan.length}/4）`}</button>
-            <button class="btn-soulfire ${controller.canUseFurnace() ? '' : 'disabled'}" title="炉火升温：10魂火，本回合起全队攻击+20%（可叠加）">🔥炉火 10</button>
-            <button class="btn-soulfire ${controller.canUseHorn() ? '' : 'disabled'}" title="鸣笛威慑：30魂火，强制所有敌人后退1格">📯鸣笛 30</button>
           </div>
           <div class="hand-row">${this.renderHand()}</div>
         </div>
@@ -311,9 +312,11 @@ export class BattleScene implements Scene {
     const victoryReward = o.result === 'victory'
       ? (isBoss ? '区域Boss被击溃——前往下一区域' : (this.battleNode?.type === 'elite' ? '精英被击溃' : '遭遇战胜利'))
       : '';
-    const backBtn = o.result === 'victory' && this.runController
-      ? '<button class="btn-back">返回地图</button>'
-      : '<button class="btn-back">返回标题</button>';
+    const backBtn = o.result === 'victory' && this.runController && !this.rewardDone
+      ? '<button class="btn-back btn-reward">领取奖励 🎁</button>'
+      : o.result === 'victory' && this.runController
+        ? '<button class="btn-back">返回地图</button>'
+        : '<button class="btn-back">返回标题</button>';
     return `
       <div class="battle-overlay">
         <div class="overlay-box ${o.result}">
@@ -374,6 +377,20 @@ export class BattleScene implements Scene {
         if (!ok) this.toast('魂火不足');
         this.render();
       });
+    });
+
+    this.root.querySelector('.btn-reward')?.addEventListener('click', () => {
+      const run = this.runController?.run;
+      if (!run) return;
+      const options = generateRewards(run, this.controller.engine.ctx.rng);
+      const panel = new RewardPanel(options, () => {
+        // 选择后更新资源显示
+        this.render();
+      }, () => {
+        this.rewardDone = true;
+        this.render();
+      });
+      this.root.appendChild(panel.render());
     });
 
     this.root.querySelector('.btn-back')?.addEventListener('click', () => {

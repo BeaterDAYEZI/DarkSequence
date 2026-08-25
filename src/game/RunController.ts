@@ -177,6 +177,23 @@ export class RunController {
         this.deck.addToDeck(reward.id);
         rewards.push(`获得蓝色遗物牌【${reward.name}】`);
       }
+      // 随机一张白/绿专属牌品质+1（Boss额外奖励）
+      const upgradePool = [...registry.cards.values()]
+        .filter((c) => c.kind === 'hero' && (c.rarity === 'white' || c.rarity === 'green'));
+      if (upgradePool.length > 0) {
+        const target = this.rng.pick(upgradePool);
+        const up = registry.nextRarity(target);
+        if (up) {
+          for (const pile of [this.run.deck.drawPile, this.run.deck.hand, this.run.deck.discardPile]) {
+            const i = pile.indexOf(target.id);
+            if (i >= 0) {
+              pile[i] = up.id;
+              rewards.push(`【${up.name}】品质提升至${up.rarity === 'green' ? '绿' : up.rarity === 'blue' ? '蓝' : '橙'}`);
+              break;
+            }
+          }
+        }
+      }
       // 科技树层解锁：区域1→1层，区域2→2层，区域3→3层
       const zoneIndex = [...registry.zones.values()].map((z) => z.id).indexOf(node.zoneId);
       const tier = Math.min(3, zoneIndex + 1);
@@ -202,6 +219,10 @@ export class RunController {
       return false; // 全流程结束（胜利，步骤6做结算场景）
     }
     const nextZoneId = zoneIds[idx + 1];
+    // 遗物槽位解锁：击败区域2Boss→2槽、区域4Boss→3槽
+    if (currentZoneId === 'zone2' || currentZoneId === 'zone4') {
+      this.run.relicSlots += 1;
+    }
     this.run.zoneIndex = idx + 1;
     const nextStart = this.run.map.find((n) => n.zoneId === nextZoneId && n.type === 'start')!;
     nextStart.resolved = true;
@@ -231,6 +252,48 @@ export class RunController {
     this.run.resources.soulfire -= 10;
     this.run.flags[`mapped_${this.currentNode.zoneId}`] = true;
     return { text: '轨道测绘完成——本区域剩余节点的内容已被标绘' };
+  }
+
+  /** 轨道重绘：重置本区域岔道选择（5魂火） */
+  stationRedraw(): { text: string } {
+    this.run.resources.soulfire -= 5;
+    delete this.run.forkMemory[this.currentNode.zoneId];
+    for (const node of this.run.map) {
+      if (node.zoneId === this.currentNode.zoneId && node.type === 'fork') {
+        delete this.run.flags[`fork_${node.id}`];
+      }
+    }
+    eventBus.emit('stateChanged', { scope: 'map' });
+    return { text: '轨道重绘完成——本区域岔道可重新选择' };
+  }
+
+  /** 炼金复制：复制一件已装备遗物（25魂火，需空槽） */
+  stationCopy(): { text: string } {
+    if (this.run.relics.length >= this.run.relicSlots) {
+      return { text: '遗物槽位已满，无法复制' };
+    }
+    if (this.run.relics.length === 0) {
+      return { text: '没有已装备的遗物可复制' };
+    }
+    this.run.resources.soulfire -= 25;
+    const target = this.rng.pick(this.run.relics);
+    this.run.relics.push(target);
+    const name = target.replace('relic_', '');
+    eventBus.emit('stateChanged', { scope: 'map' });
+    return { text: `炼金复制完成——获得第二件【${name}】` };
+  }
+
+  /** 蚀刻剂兑换：20魂火→1蚀刻剂 */
+  stationExchange(): { text: string } {
+    this.run.resources.soulfire -= 20;
+    this.run.resources.etchant += 1;
+    eventBus.emit('stateChanged', { scope: 'resources' });
+    return { text: '兑换完成——获得1瓶蚀刻剂' };
+  }
+
+  /** 已装备遗物名称列表（显示用） */
+  get relicNames(): string[] {
+    return this.run.relics.map((id) => id.replace('relic_', ''));
   }
 
   // ================= 事件 =================

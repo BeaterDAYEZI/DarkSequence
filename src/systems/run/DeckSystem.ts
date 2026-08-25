@@ -8,13 +8,20 @@ export class DeckSystem {
 
   get deck() { return this.run.deck; }
 
-  /** 抽N张牌（不足则洗弃牌堆补充） */
+  /** 手牌上限 */
+  static HAND_LIMIT = 10;
+
+  /** 抽N张牌（不足则洗弃牌堆补充；超手牌上限丢弃） */
   draw(n: number): string[] {
     const drawn: string[] = [];
     for (let i = 0; i < n; i++) {
       if (this.deck.drawPile.length === 0) this.reshuffleDiscard();
       const card = this.deck.drawPile.pop();
       if (!card) break; // 牌库彻底空了
+      if (this.deck.hand.length >= DeckSystem.HAND_LIMIT) {
+        this.deck.discardPile.push(card);
+        continue;
+      }
       this.deck.hand.push(card);
       drawn.push(card);
     }

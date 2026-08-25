@@ -7,7 +7,7 @@ import { STARTING_DECKS, STARTING_RELIC_BONUS, type DeckChoice } from '../../dat
 export const RUN_VERSION = '0.1';
 
 /** 初始能量上限 */
-export const BASE_ENERGY_MAX = 3;
+export const BASE_ENERGY_MAX = 6;
 
 /** 起始遗物牌（卡牌优化v1：P-01锈蚀齿轮 + P-02蚀铁护甲片） */
 export const STARTING_RELIC_CARDS = STARTING_RELIC_BONUS;
@@ -41,13 +41,14 @@ export function createNewRun(seed: number, deckChoices?: Record<HeroId, DeckChoi
     heroes[id] = createHeroInstance(id, registry.heroes.get(id)!.baseHp);
   }
 
-  // 起始牌库：每英雄所选卡组（5张×4） + 2张泛用遗物，洗牌
+  // 起始牌库：每英雄所选卡组（5张×4） + 3张种子公共牌，洗牌
   const drawPile: string[] = [];
   for (const id of heroIds) {
     const choice = deckChoices?.[id] ?? 'A';
     drawPile.push(...(STARTING_DECKS[id][choice] ?? STARTING_DECKS[id].A));
   }
-  drawPile.push(...STARTING_RELIC_CARDS);
+  // 种子牌（大更新2）：锈蚀齿轮→沃里克、急救绷带→塞拉芬娜、信号灯→奥瑞斯
+  drawPile.push('p01_gear', 'p05_bandage', 'p04_signal');
   rng.shuffle(drawPile);
 
   return {
@@ -61,6 +62,8 @@ export function createNewRun(seed: number, deckChoices?: Record<HeroId, DeckChoi
     permStrength: { warwick: 0, morgan: 0, serafina: 0, auris: 0 },
     permSpeedMod: 0,
     usedLimitCards: [],
+    relics: ['relic_gear'],   // 开局赠送锈蚀齿轮（全局被动）
+    relicSlots: 1,
     heroes,
     resources: { shards: 0, etchant: 0, obsession: 0, soulfire: 0, darkIron: 0 },
     techUnlocked: [],

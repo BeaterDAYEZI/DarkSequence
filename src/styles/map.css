@@ -274,3 +274,13 @@
   background-size: cover;
   background-position: center;
 }
+
+.map-relics { display: flex; gap: 6px; }
+.relic-chip {
+  font-size: 12px;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 10px;
+  padding: 1px 8px;
+  background: rgba(201,162,39,0.08);
+}

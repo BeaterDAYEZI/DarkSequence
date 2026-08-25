@@ -3,6 +3,14 @@ import type { TechDef } from '../core/types';
 
 export const TECHS: TechDef[] = [
   {
+    id: 'tech_fragment',
+    name: '蚀雾破片',
+    cost: 20,
+    tier: 1,
+    effectId: 'fragmentPush',
+    desc: '每场战斗开始时，所有敌人后退1格（原"鸣笛威慑"被动化）。',
+  },
+  {
     id: 'tech_boiler',
     name: '锅炉增压',
     cost: 30,

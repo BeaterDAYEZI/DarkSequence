@@ -284,7 +284,7 @@ export interface ZoneDef {
 }
 
 // ---------- 列车科技 ----------
-export type TechEffectId = 'initialSpeed' | 'armorPlating' | 'echoAmplify' | 'soulfireCondense' | 'coffinResonance';
+export type TechEffectId = 'initialSpeed' | 'armorPlating' | 'echoAmplify' | 'soulfireCondense' | 'coffinResonance' | 'fragmentPush';
 
 export interface TechDef {
   id: string;
@@ -446,6 +446,10 @@ export interface RunState {
   permSpeedMod: number;
   /** 每局限用1次的牌已使用标记（暗蚀导管） */
   usedLimitCards: string[];
+  /** 装备的全局遗物（被动效果，永久持续） */
+  relics: string[];
+  /** 遗物槽位数（初始1，区域2Boss+1，区域4Boss+1） */
+  relicSlots: number;
   heroes: Record<HeroId, HeroInstance>;
   resources: {
     shards: number;      // 残响碎片

@@ -112,12 +112,23 @@ export class BattleEngine {
       }
     }
 
-    // 初始速度：锅炉增压科技+1，环境规则修正，本局永久修正（废弃车厢-2）
+    // 初始速度：锅炉增压科技+1，锈蚀齿轮遗物+1，环境规则修正，本局永久修正
     let speed = 0;
     if (this.ctx.techs.has('initialSpeed')) speed += 1;
+    if (this.run.relics.includes('relic_gear')) speed += 1;
     if (this.zone.environmentRule.id === 'speedStartDelta') speed += this.zone.environmentRule.amount ?? 0;
     speed += this.run.permSpeedMod ?? 0;
     battle.trainSpeed = Math.max(0, Math.min(5, speed));
+
+    // 血祭献祭遗物：战斗开始+20魂火，第一名英雄-10生命
+    if (this.run.relics.includes('relic_bloodsac')) {
+      this.gainSoulfire(20);
+      const firstHero = Object.values(battle.heroes).find((h) => h.alive);
+      if (firstHero) {
+        firstHero.hp = Math.max(1, firstHero.hp - 10);
+        this.log(`${this.heroName(firstHero.heroId)} 因血祭献祭失去10点生命`, 'soulfire');
+      }
+    }
 
     // 岔道区域效果：左轨（记忆）全队力量+3 / 右轨（遗忘）格挡获取-2
     const fork = this.run.forkMemory[this.zone.id];
@@ -136,6 +147,15 @@ export class BattleEngine {
       for (let i = 0; i < m.count; i++) {
         this.spawnEnemy(m.defId);
       }
+    }
+    // 蚀雾破片科技：所有敌人后退1格
+    if (this.ctx.techs.has('fragmentPush')) {
+      for (const e of battle.enemies) {
+        if (e.hp > 0 && !registry.monsters.get(e.defId)?.bossAdvance) {
+          e.pos = Math.min(4, e.pos + 1);
+        }
+      }
+      this.log('蚀雾破片：敌人被逼退1格', 'system');
     }
     this.log(`—— 遭遇战开始 · ${this.zone.name} ——`, 'narration');
     if (battle.trainSpeed > 0) this.log(`列车以速度 ${battle.trainSpeed} 驶入战场`, 'info');
@@ -194,6 +214,13 @@ export class BattleEngine {
     // 眩晕tick（怪物）
     for (const e of battle.enemies.filter((x) => x.hp > 0)) {
       if (this.buffs.has(e, 'stun')) this.log(`${e.name} 被眩晕，无法行动`, 'info');
+    }
+    // 蚀铁护甲片遗物：全队每回合3格挡
+    if (this.run.relics.includes('relic_armor')) {
+      for (const h of Object.values(battle.heroes)) {
+        if (h.alive) h.block += 3;
+      }
+      this.log('蚀铁护甲片：全队获得3点格挡', 'info');
     }
     // 装甲车厢科技：全队每回合3格挡
     if (this.ctx.techs.has('armorPlating')) {
@@ -258,12 +285,19 @@ export class BattleEngine {
     }
   }
 
+  /** 每回合抽牌数（基础4 + 锈蚀齿轮遗物+1） */
+  drawPerTurn(): number {
+    return 4 + (this.run.relics.includes('relic_gear') ? 1 : 0);
+  }
+
   drawPhase(): void {
+    const per = this.drawPerTurn();
     for (const hero of Object.values(this.battle.heroes)) {
       if (hero.alive && !this.buffs.has(hero, 'swallowed')) {
-        this.deck.draw(1);
+        this.deck.draw(per);
       }
     }
+    this.log(`抽牌阶段：每英雄抽 ${per} 张（手牌上限10）`, 'info');
     // 灾厄化身：每回合抽牌+2
     if (this.ctx.avatar) {
       const drawn = this.deck.draw(2);

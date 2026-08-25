@@ -73,9 +73,32 @@ export class CardResolver {
             }
           }
         }
+        // 攻击转移容错（大更新2）：目标位置无敌人时，转移至最近有效位置（伤害-20%最低1）
+        let transferred = false;
+        if (ctx.source.side === 'hero' && e.target?.side === 'enemy' && e.target.mode === 'pos') {
+          const alive = battle.enemies.filter((x) => x.hp > 0);
+          if (alive.length > 0) {
+            const targetPos = e.target.pos ?? [];
+            const hasTarget = targetPos.some((p) => alive.some((x) => x.pos === p));
+            if (!hasTarget) {
+              // 从目标位置向外扩散找最近的存活敌人
+              for (let dist = 1; dist <= 3; dist++) {
+                const candidates = targetPos.flatMap((p) => [p - dist, p + dist]).filter((p) => p >= 1 && p <= 4);
+                const nearest = alive.filter((x) => candidates.includes(x.pos)).sort((a, b) => a.pos - b.pos);
+                if (nearest.length > 0) {
+                  e = { ...e, target: { side: 'enemy', mode: 'pos', pos: [nearest[0].pos] } };
+                  transferred = true;
+                  engine.log(`目标位置无敌人——攻击转移至${nearest[0].pos}号位（伤害-20%）`, 'info');
+                  break;
+                }
+              }
+            }
+          }
+        }
         const targets = engine.targets.resolve(e.target, ctx.source.heroId);
         const plusDark = e.plusPerDark ? battle.darkEnergy * e.plusPerDark : 0;
         let baseAmount = roll(e.amount) + plusDark;
+        if (transferred) baseAmount = Math.max(1, Math.floor(baseAmount * 0.8));
         if (ctx.halve) baseAmount = Math.max(1, Math.round(baseAmount / 2));  // 双连发第二次减半
         const attackType: AttackType = ctx.card?.attackType ?? engine.heroAttackType(ctx.source.heroId);
         const damageType: DamageType = ctx.card?.damageType ?? engine.heroDamageType(ctx.source.heroId);
